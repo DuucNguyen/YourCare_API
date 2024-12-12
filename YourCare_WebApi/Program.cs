@@ -87,11 +87,9 @@ namespace YourCare_WebApi
                     };
                 }
             );
-
+            builder.Services.AddAuthorization();
 
             #endregion
-
-
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -108,6 +106,7 @@ namespace YourCare_WebApi
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();

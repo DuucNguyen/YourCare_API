@@ -22,11 +22,13 @@ namespace YourCare_WebApi.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly Appsettings _appsetting;
 
         public AuthenticationController(
             UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
             IOptionsMonitor<Appsettings> appsettings
             )
@@ -34,6 +36,7 @@ namespace YourCare_WebApi.Controllers
             _emailSender = emailSender;
             _userManager = userManager;
             _appsetting = appsettings.CurrentValue;
+            _signInManager = signInManager;
         }
 
 
@@ -234,10 +237,41 @@ namespace YourCare_WebApi.Controllers
             });
         }
 
-
+        [HttpPost]
         public async Task<IActionResult> Login([FromBody] LoginModel loginRequest)
         {
+            var user = await _userManager.FindByEmailAsync(loginRequest.Username);
+            if (user == null)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = "User not found !",
+                    IsSucceeded = false,
+                });
+            }
 
+            // This doesn't count login failures towards account lockout
+            // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+            var result = await _signInManager.PasswordSignInAsync(user, loginRequest.Password, false, lockoutOnFailure: false);
+            if(!result.Succeeded)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Username or Password is incorrect.",
+                    IsSucceeded = false,
+                });
+            }
+
+            var token = await GenerateToken(user);
+            return new JsonResult(new ResponseModel<TokenModel>
+            {
+                StatusCode = StatusCodes.Status200OK,
+                Message = "Login Successfully !",
+                IsSucceeded = true,
+                Data = token
+            });
         }
 
 
@@ -286,7 +320,8 @@ namespace YourCare_WebApi.Controllers
                 IsUsed = false,
                 IsRevoked = false,
                 IssuedDate = DateTime.UtcNow,
-                ExpireDate = DateTime.UtcNow.AddHours(1),
+                //Expires = DateTime.UtcNow.AddDays(3)
+                ExpireDate = DateTime.UtcNow.AddMinutes(5), //temp
             };
 
             WriteTokenToCookie(refreshTokenModel);
@@ -318,7 +353,7 @@ namespace YourCare_WebApi.Controllers
             return null;
         }
 
-        [HttpPost("renewTokens")]
+        [HttpPost]
         public async Task<IActionResult> RenewTokens(TokenModel token)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
@@ -351,7 +386,7 @@ namespace YourCare_WebApi.Controllers
                 if (validatedAccessToken is JwtSecurityToken jwtSecurityToken)
                 {
                     var result = jwtSecurityToken.Header.Alg
-                        .Equals(SecurityAlgorithms.HmacSha256Signature
+                        .Equals(SecurityAlgorithms.HmacSha256
                         , StringComparison.OrdinalIgnoreCase
                         );
 
@@ -472,7 +507,8 @@ namespace YourCare_WebApi.Controllers
                     HttpOnly = true,
                     Secure = true,
                     SameSite = SameSiteMode.Strict,
-                    Expires = DateTime.UtcNow.AddDays(3)
+                    //Expires = DateTime.UtcNow.AddDays(3)
+                    Expires = DateTime.UtcNow.AddMinutes(5) //temp
                 });
             }
             catch (Exception ex)
