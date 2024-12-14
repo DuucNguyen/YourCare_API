@@ -36,6 +36,15 @@ namespace YourCare_DAOs.DAOs
             await _context.SaveChangesAsync();
         }
 
+        public async Task<Appointment> GetByID(int id)
+        {
+            return await _context.Appointments
+                .Include(x => x.PatientProfile)
+                .Include(x => x.Doctor)
+                .Include(x => x.TimeTable)
+                .FirstOrDefaultAsync(x => x.Id == id);
+        }
+
         public async Task<List<Appointment>> GetAll()
         {
             return await _context.Appointments

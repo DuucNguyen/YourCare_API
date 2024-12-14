@@ -56,5 +56,12 @@ namespace YourCare_DAOs.DAOs
                 .Where(x => x.SpecialtyID == speID)
                 .ToListAsync();
         }
+
+        public async Task<DoctorSpecialties> GetByID(Guid doctorID, Guid speID)
+        {
+            return await _context.DoctorSpecialties
+                .FirstOrDefaultAsync(x => x.DoctorID == doctorID 
+                                    && x.SpecialtyID == speID);
+        }
     }
 }
