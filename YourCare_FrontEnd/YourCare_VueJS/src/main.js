@@ -1,11 +1,24 @@
-import './assets/main.css'
+import "./assets/main.css";
 
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
+import { createPinia } from "pinia";
+import axios from "axios";
+window.axios = axios;
 
-const app = createApp(App)
+import api from "@/api/api";
+window.api = api;
 
-app.use(router)
+// Import Bootstrap CSS
+import "bootstrap/dist/css/bootstrap.min.css";
+// Import Bootstrap JS (if needed)
+import "bootstrap/dist/js/bootstrap.bundle.min.js";
 
-app.mount('#app')
+const app = createApp(App);
+
+app.use(router);
+app.use(createPinia());
+
+app.mount("#app");
+

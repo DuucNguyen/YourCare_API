@@ -304,11 +304,11 @@ namespace YourCare_WebApi.Controllers
             var refreshToken = GenerateRefreshToken();
 
             //save token in cookie
-            HttpContext.Response.Cookies.Append("accessToken", accessToken, new CookieOptions
+            HttpContext.Response.Cookies.Append("access_token", accessToken, new CookieOptions
             {
-                HttpOnly = true,
+                HttpOnly = false,
                 Secure = true,
-                SameSite = SameSiteMode.Strict,
+                SameSite = SameSiteMode.None,
                 Expires = DateTime.UtcNow.AddMinutes(10)
             });
 
@@ -501,12 +501,12 @@ namespace YourCare_WebApi.Controllers
         {
             try
             {
-                HttpContext.Response.Cookies.Append("refreshToken", JsonSerializer.Serialize(token),
+                HttpContext.Response.Cookies.Append("refresh_token", JsonSerializer.Serialize(token),
                 new CookieOptions
                 {
-                    HttpOnly = true,
+                    HttpOnly = false,  // Allows access via JavaScript
                     Secure = true,
-                    SameSite = SameSiteMode.Strict,
+                    SameSite = SameSiteMode.None, //Allow cross origin cookies
                     //Expires = DateTime.UtcNow.AddDays(3)
                     Expires = DateTime.UtcNow.AddMinutes(5) //temp
                 });

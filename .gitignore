@@ -400,3 +400,4 @@ FodyWeavers.xsd
 /YourCare_WebApi/appsettings.json
 /YourCare_DAOs/appsettings.json
 
+.env
