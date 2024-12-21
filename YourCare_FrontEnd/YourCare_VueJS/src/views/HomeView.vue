@@ -1,9 +1,5 @@
 <script setup>
-    import TheWelcome from "../components/TheWelcome.vue";
     import ApiDoctorProfile from "@/api/ApiDoctorProfile";
-
-
-
 </script>
 
 <template>

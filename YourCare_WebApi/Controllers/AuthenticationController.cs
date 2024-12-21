@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using RTools_NTS.Util;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -13,6 +14,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using YourCare_BOs;
+using YourCare_Repos.Interfaces;
 using YourCare_WebApi.Models.Auth;
 
 namespace YourCare_WebApi.Controllers
@@ -22,21 +24,28 @@ namespace YourCare_WebApi.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly Appsettings _appsetting;
+        private readonly IRoleRepository _roleRepository;
 
         public AuthenticationController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
-            IOptionsMonitor<Appsettings> appsettings
+            IOptionsMonitor<Appsettings> appsettings,
+            IRoleRepository roleRepository,
+            RoleManager<IdentityRole> roleManager
+
             )
         {
             _emailSender = emailSender;
             _userManager = userManager;
             _appsetting = appsettings.CurrentValue;
             _signInManager = signInManager;
+            _roleRepository = roleRepository;
+            _roleManager = roleManager;
         }
 
 
@@ -254,7 +263,7 @@ namespace YourCare_WebApi.Controllers
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, set lockoutOnFailure: true
             var result = await _signInManager.PasswordSignInAsync(user, loginRequest.Password, false, lockoutOnFailure: false);
-            if(!result.Succeeded)
+            if (!result.Succeeded)
             {
                 return new JsonResult(new ResponseModel<string>
                 {
@@ -264,7 +273,9 @@ namespace YourCare_WebApi.Controllers
                 });
             }
 
-            var token = await GenerateToken(user);
+            var authClaims = await GetClaims(user);
+            var token = await GenerateToken(user, authClaims);
+
             return new JsonResult(new ResponseModel<TokenModel>
             {
                 StatusCode = StatusCodes.Status200OK,
@@ -274,32 +285,46 @@ namespace YourCare_WebApi.Controllers
             });
         }
 
-
-        private async Task<TokenModel> GenerateToken(ApplicationUser user)
+        private JwtSecurityToken CreateToken(List<Claim> authClaims)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var secretKey = _appsetting.SecretKey;
             var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
 
-            var tokenDescription = new SecurityTokenDescriptor
-            {
-                Subject = new System.Security.Claims.ClaimsIdentity(new[]
-                {
-                    new Claim(ClaimTypes.Name, user.FullName),
-                    new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                    new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim("UserName", user.UserName),
-                    //roles
+            var token = new JwtSecurityToken(
+                claims: authClaims,
+                expires: DateTime.UtcNow.AddSeconds(20),//temp - 1
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes),
+                                                            SecurityAlgorithms.HmacSha256Signature) 
+                );
 
-                    new Claim("TokenId", Guid.NewGuid().ToString())
+            return token;
+        }
 
-                }),
-                Expires = DateTime.UtcNow.AddSeconds(20),//temp
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes)
-                , SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = jwtTokenHandler.CreateToken(tokenDescription);
+        private async Task<TokenModel> GenerateToken(ApplicationUser user, List<Claim> authClaims)
+        {
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+
+
+            //var tokenDescription = new SecurityTokenDescriptor
+            //{
+            //    Subject = new System.Security.Claims.ClaimsIdentity(new[]
+            //    {
+            //        new Claim(ClaimTypes.Name, user.FullName),
+            //        //new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            //        //new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+            //        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            //        //new Claim("UserName", user.UserName),
+            //        //roles
+            //        //new Claim("TokenId", Guid.NewGuid().ToString())
+
+            //    }),
+            //    
+            //    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes)
+            //    , SecurityAlgorithms.HmacSha256Signature)
+            //};
+
+            var token = CreateToken(authClaims);
             var accessToken = jwtTokenHandler.WriteToken(token);
             var refreshToken = GenerateRefreshToken();
 
@@ -476,7 +501,8 @@ namespace YourCare_WebApi.Controllers
 
                 //issue new token
                 var user = await _userManager.FindByIdAsync(refreshTokenInCookieModel.UserID);
-                var newToken = await GenerateToken(user);
+                var authClaims = await GetClaims(user);
+                var newToken = await GenerateToken(user, authClaims);
 
                 return new JsonResult(new ResponseModel<TokenModel>
                 {
@@ -495,6 +521,30 @@ namespace YourCare_WebApi.Controllers
                     IsSucceeded = false,
                 });
             }
+        }
+
+        private async Task<List<Claim>> GetClaims(ApplicationUser user)
+        {
+            var authClaims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            foreach (var role in userRoles)
+            {
+                authClaims.Add(new Claim(ClaimTypes.Role, role));
+            }
+
+            var roleClaims = await _roleRepository.GetRoleClaimByUserID(user.Id);
+            if (roleClaims.Any())
+            {
+                authClaims.AddRange(roleClaims);
+            }
+
+            return authClaims;
         }
 
         private void WriteTokenToCookie(RefreshTokenModel token)
@@ -516,7 +566,6 @@ namespace YourCare_WebApi.Controllers
                 Console.WriteLine("Error: WriteTokenToCookie ");
             }
         }
-
         private DateTime ConvertUnixTimeToDateTime(long utcExpireDate)
         {
             var dateTimeInterval = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);

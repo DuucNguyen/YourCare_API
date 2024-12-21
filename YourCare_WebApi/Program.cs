@@ -3,9 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 using YourCare_BOs;
 using YourCare_DAOs;
+using YourCare_DAOs.DAOs;
+using YourCare_Repos.Interfaces;
+using YourCare_Repos.Repositories;
 using YourCare_WebApi.Models.Auth;
 using YourCare_WebApi.Services.EmailSender;
 
@@ -38,6 +42,9 @@ namespace YourCare_WebApi
             #region scope
             builder.Services.AddScoped<ApplicationDbContext>();
             builder.Services.AddTransient<ApplicationDbContext>();
+
+            builder.Services.AddScoped<RoleDAO>();
+            builder.Services.AddScoped<IRoleRepository, RoleRepository>();
             #endregion
 
             #region EmailService
@@ -87,7 +94,33 @@ namespace YourCare_WebApi
                     };
                 }
             );
-            builder.Services.AddAuthorization();
+
+            #endregion
+
+            #region Policy-authorization
+
+            builder.Services.Configure<IdentityOptions>(options =>
+            {
+                options.ClaimsIdentity.RoleClaimType = ClaimTypes.Role; // Ensure roles are treated as claims
+            });
+
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+                options.AddPolicy("DoctorOnly", policy => policy.RequireRole("Doctor"));
+                options.AddPolicy("StaffOnly", policy => policy.RequireRole("Staff"));
+
+                options.AddPolicy("Admin_DoctorProfile_View", policy => policy.RequireClaim("Admin_DoctorProfile_View"));
+                options.AddPolicy("Admin_DoctorProfile_Create", policy => policy.RequireClaim("Admin_DoctorProfile_Create"));
+                options.AddPolicy("Admin_DoctorProfile_Update", policy => policy.RequireClaim("Admin_DoctorProfile_Update"));
+                options.AddPolicy("Admin_DoctorProfile_Delete", policy => policy.RequireClaim("Admin_DoctorProfile_Delete"));
+                options.AddPolicy("Admin_User_View", policy => policy.RequireClaim("Admin_User_View"));
+                options.AddPolicy("Admin_User_Create", policy => policy.RequireClaim("Admin_User_Create"));
+                options.AddPolicy("Admin_User_Update", policy => policy.RequireClaim("Admin_User_Update"));
+                options.AddPolicy("Admin_User_Delete", policy => policy.RequireClaim("Admin_User_Delete"));
+            });
+
+           
 
             #endregion
 
@@ -106,6 +139,8 @@ namespace YourCare_WebApi
                                 .AllowAnyMethod();
                     });
             });
+
+
 
             var app = builder.Build();
 

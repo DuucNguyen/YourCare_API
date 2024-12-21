@@ -1,8 +1,8 @@
-import "./assets/main.css";
+import "@/css/main.css";
 
 import { createApp } from "vue";
 import App from "./App.vue";
-import router from "./router";
+import router from "./router/router-index";
 import { createPinia } from "pinia";
 import axios from "axios";
 window.axios = axios;

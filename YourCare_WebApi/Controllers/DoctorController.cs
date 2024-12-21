@@ -21,7 +21,7 @@ namespace YourCare_WebApi.Controllers
             _context = context;
         }
 
-        [Authorize]
+        [Authorize(Policy = "Admin_DoctorProfile_View")]
         [HttpGet("danh-sach-bac-si")]
         public async Task<IActionResult> GetAllDoctor()
         {
