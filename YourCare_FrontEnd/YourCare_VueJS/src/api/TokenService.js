@@ -11,6 +11,11 @@ class TokenService{
         const accessToken = CookieService.getCookieValue("access_token");
         return accessToken;
     }
+
+    getCookieUser(){
+        const user = JSON.parse(CookieService.getCookieValue("user"));
+        return user;
+    }
 }
 
 export default new TokenService();

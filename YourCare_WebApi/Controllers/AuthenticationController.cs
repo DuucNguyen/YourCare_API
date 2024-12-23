@@ -14,6 +14,7 @@ using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using YourCare_BOs;
+using YourCare_DAOs.DAOs;
 using YourCare_Repos.Interfaces;
 using YourCare_WebApi.Models.Auth;
 
@@ -276,12 +277,30 @@ namespace YourCare_WebApi.Controllers
             var authClaims = await GetClaims(user);
             var token = await GenerateToken(user, authClaims);
 
-            return new JsonResult(new ResponseModel<TokenModel>
+            HttpContext.Response.Cookies.Append("access_token", token.AccessToken,
+               new CookieOptions
+               {
+                   HttpOnly = false,  // Allows access via JavaScript
+                   Secure = true,
+                   SameSite = SameSiteMode.None, //Allow cross origin cookies
+                                                 //Expires = DateTime.UtcNow.AddDays(3)
+                   Expires = DateTime.UtcNow.AddMinutes(1) //temp
+               });
+
+            List<string> roleNames = (List<string>)await _userManager.GetRolesAsync(user);
+            var roleIDs = _roleRepository.GetRoleIDsByName(roleNames);
+            var jsonData = JsonSerializer.Serialize(new
+            {
+                Username = user.FullName,
+                Claims = _roleRepository.GetRoleClaimsByRoles(roleIDs)
+            });
+
+            return new JsonResult(new ResponseModel<string>
             {
                 StatusCode = StatusCodes.Status200OK,
-                Message = "Login Successfully !",
+                Message = "Login Successfully.",
                 IsSucceeded = true,
-                Data = token
+                Data = jsonData
             });
         }
 
@@ -295,7 +314,7 @@ namespace YourCare_WebApi.Controllers
                 claims: authClaims,
                 expires: DateTime.UtcNow.AddSeconds(20),//temp - 1
                 signingCredentials: new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes),
-                                                            SecurityAlgorithms.HmacSha256Signature) 
+                                                            SecurityAlgorithms.HmacSha256Signature)
                 );
 
             return token;
@@ -305,37 +324,9 @@ namespace YourCare_WebApi.Controllers
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
 
-
-            //var tokenDescription = new SecurityTokenDescriptor
-            //{
-            //    Subject = new System.Security.Claims.ClaimsIdentity(new[]
-            //    {
-            //        new Claim(ClaimTypes.Name, user.FullName),
-            //        //new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            //        //new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-            //        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            //        //new Claim("UserName", user.UserName),
-            //        //roles
-            //        //new Claim("TokenId", Guid.NewGuid().ToString())
-
-            //    }),
-            //    
-            //    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes)
-            //    , SecurityAlgorithms.HmacSha256Signature)
-            //};
-
             var token = CreateToken(authClaims);
             var accessToken = jwtTokenHandler.WriteToken(token);
             var refreshToken = GenerateRefreshToken();
-
-            //save token in cookie
-            HttpContext.Response.Cookies.Append("access_token", accessToken, new CookieOptions
-            {
-                HttpOnly = false,
-                Secure = true,
-                SameSite = SameSiteMode.None,
-                Expires = DateTime.UtcNow.AddMinutes(10)
-            });
 
             var refreshTokenModel = new RefreshTokenModel
             {
@@ -349,14 +340,22 @@ namespace YourCare_WebApi.Controllers
                 ExpireDate = DateTime.UtcNow.AddMinutes(5), //temp
             };
 
-            WriteTokenToCookie(refreshTokenModel);
+            List<string> roleNames = (List<string>)await _userManager.GetRolesAsync(user);
+            var roleIDs = _roleRepository.GetRoleIDsByName(roleNames);
+
+            var jsonData = JsonSerializer.Serialize(new
+            {
+                Username = user.FullName,
+                Claims = _roleRepository.GetRoleClaimsByRoles(roleIDs)
+            });
+
+            WriteRefreshDataToCookie(refreshTokenModel, jsonData);
 
             return new TokenModel
             {
                 AccessToken = accessToken,
                 RefreshToken = refreshToken,
             };
-
             //bao thang Vue lay token ve r moi send request renew
         }
 
@@ -493,16 +492,24 @@ namespace YourCare_WebApi.Controllers
                         IsSucceeded = false,
                     });
                 }
-
-
+                //flag validation
                 refreshTokenInCookieModel.IsUsed = true;
                 refreshTokenInCookieModel.IsRevoked = true;
-                WriteTokenToCookie(refreshTokenInCookieModel);
 
                 //issue new token
                 var user = await _userManager.FindByIdAsync(refreshTokenInCookieModel.UserID);
                 var authClaims = await GetClaims(user);
+
+                List<string> roleNames = (List<string>)await _userManager.GetRolesAsync(user);
+                var roleIDs = _roleRepository.GetRoleIDsByName(roleNames);
+                var jsonData = JsonSerializer.Serialize(new
+                {
+                    Username = user.FullName,
+                    Claims = _roleRepository.GetRoleClaimsByRoles(roleIDs)
+                });
+
                 var newToken = await GenerateToken(user, authClaims);
+                WriteRefreshDataToCookie(refreshTokenInCookieModel, jsonData);
 
                 return new JsonResult(new ResponseModel<TokenModel>
                 {
@@ -547,24 +554,28 @@ namespace YourCare_WebApi.Controllers
             return authClaims;
         }
 
-        private void WriteTokenToCookie(RefreshTokenModel token)
+        private void WriteRefreshDataToCookie(RefreshTokenModel token, string userData)
         {
-            try
+
+            HttpContext.Response.Cookies.Append("refresh_token", JsonSerializer.Serialize(token),
+            new CookieOptions
             {
-                HttpContext.Response.Cookies.Append("refresh_token", JsonSerializer.Serialize(token),
-                new CookieOptions
-                {
-                    HttpOnly = false,  // Allows access via JavaScript
-                    Secure = true,
-                    SameSite = SameSiteMode.None, //Allow cross origin cookies
-                    //Expires = DateTime.UtcNow.AddDays(3)
-                    Expires = DateTime.UtcNow.AddMinutes(5) //temp
-                });
-            }
-            catch (Exception ex)
+                HttpOnly = false,  // Allows access via JavaScript
+                Secure = true,
+                SameSite = SameSiteMode.None, //Allow cross origin cookies
+                                              //Expires = DateTime.UtcNow.AddDays(3)
+                Expires = DateTime.UtcNow.AddMinutes(1) //temp
+            });
+
+            HttpContext.Response.Cookies.Append("user", userData,
+            new CookieOptions
             {
-                Console.WriteLine("Error: WriteTokenToCookie ");
-            }
+                HttpOnly = false,  // Allows access via JavaScript
+                Secure = true,
+                SameSite = SameSiteMode.None, //Allow cross origin cookies
+                                              //Expires = DateTime.UtcNow.AddDays(3)
+                Expires = DateTime.UtcNow.AddMinutes(1) //temp
+            });
         }
         private DateTime ConvertUnixTimeToDateTime(long utcExpireDate)
         {

@@ -15,6 +15,8 @@ namespace YourCare_Repos.Interfaces
         public Task<bool> Update(string name);
         public Task<List<IdentityRole>> GetAll();
         public Task<List<Claim>> GetRoleClaimByUserID(string userID);
+        public Dictionary<string, string> GetRoleClaimsByRoles(List<string> roles);
+        public List<string> GetRoleIDsByName(List<string> names);
         public Task<bool> CreateRoleClaim(string roleName, string name, string value);
     }
 }

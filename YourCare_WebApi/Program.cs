@@ -120,8 +120,6 @@ namespace YourCare_WebApi
                 options.AddPolicy("Admin_User_Delete", policy => policy.RequireClaim("Admin_User_Delete"));
             });
 
-           
-
             #endregion
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

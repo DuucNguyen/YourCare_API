@@ -11,6 +11,9 @@ export const useAuthStore = defineStore({
     state: () => ({
         router: useRouter(),
         returnURL: null,
+        user: TokenService.getCookieUser(),
+        message: "",
+        tokenValidate: false,
     }),
     actions: {
         async login(username, password) {
@@ -18,7 +21,18 @@ export const useAuthStore = defineStore({
                 username,
                 password,
             });
+            this.user = JSON.parse(result.data.data);
+            this.message = "Login Successfully.";
             this.router.push(this.returnURL || "/");
+        },
+        checkToken() {
+            if (TokenService.getCookieUser()) {
+                this.tokenValidate = true;
+                return true;
+            } else {
+                this.tokenValidate = false;
+                return false;
+            }
         },
     },
 });

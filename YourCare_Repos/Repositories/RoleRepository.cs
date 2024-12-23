@@ -14,6 +14,7 @@ using YourCare_Repos.Interfaces;
 namespace YourCare_Repos.Repositories
 {
     public class RoleRepository : IRoleRepository
+
     {
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -62,7 +63,7 @@ namespace YourCare_Repos.Repositories
                 throw new Exception("Role name does not exist.");
             }
 
-            var roleClaims = await _roleDAO.GetRoleClaimByRole(role.Id);
+            var roleClaims =  _roleDAO.GetRoleClaimByRoleID(role.Id);
             if (roleClaims.FirstOrDefault(x => x.ClaimType == claim) != null)
             {
                 throw new Exception("Claim already exist.");
@@ -77,9 +78,9 @@ namespace YourCare_Repos.Repositories
             return true;
         }
 
-        public async Task<List<IdentityRoleClaim<string>>> GetRoleClaimsByRole(string roleID)
+        public Dictionary<string, string> GetRoleClaimsByRoles(List<string> roles)
         {
-            var result = await _roleDAO.GetRoleClaimByRole(roleID);
+            var result = _roleDAO.GetRoleClaimByRoles(roles);
             return result;
         }
 
@@ -100,8 +101,12 @@ namespace YourCare_Repos.Repositories
 
         public async Task<List<Claim>> GetRoleClaimByUserID(string userID)
         {
-            var result = await _roleDAO.GetRoleClaimByUserID(userID);
-            return result;
+            return await _roleDAO.GetRoleClaimByUserID(userID);
+        }
+
+        public List<string> GetRoleIDsByName(List<string> names)
+        {
+            return _roleDAO.GetRoleIDsByName(names);
         }
     }
 }

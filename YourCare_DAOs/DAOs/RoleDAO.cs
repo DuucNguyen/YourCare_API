@@ -21,7 +21,6 @@ namespace YourCare_DAOs.DAOs
             _context = context;
         }
 
-
         public async Task<IdentityRole> FindRoleByName(string name)
         {
             return await _context.Roles.FirstOrDefaultAsync(x => x.Name == name);
@@ -33,10 +32,18 @@ namespace YourCare_DAOs.DAOs
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<IdentityRoleClaim<string>>> GetRoleClaimByRole(string roleID)
+        public  Dictionary<string, string> GetRoleClaimByRoles(List<string> roles)
         {
-            return await _context.RoleClaims.Where(x => x.RoleId == roleID).ToListAsync();
+            return _context.RoleClaims.Where(x => roles.Contains(x.RoleId))
+                .Select(x => new {x.ClaimType, x.ClaimValue})
+                .ToDictionary(x=>x.ClaimType, x=>x.ClaimValue);
         }
+
+        public List<IdentityRoleClaim<string>> GetRoleClaimByRoleID(string roleID)
+        {
+            return _context.RoleClaims.Where(x => x.RoleId == roleID).ToList();
+        }
+
 
         public async Task<List<Claim>> GetRoleClaimByUserID(string userID)
         {
@@ -46,6 +53,13 @@ namespace YourCare_DAOs.DAOs
                           join rc in _context.RoleClaims on r.Id equals rc.RoleId
                           select new Claim(rc.ClaimType, rc.ClaimValue)).ToListAsync();
             return claims;
+        }
+
+        public List<string> GetRoleIDsByName(List<string> names)
+        {
+            return _context.Roles.Where(x=> names.Contains(x.Name))
+                .Select(x=>x.Id)
+                .ToList();
         }
     }
 }
