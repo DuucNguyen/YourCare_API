@@ -523,13 +523,12 @@ namespace YourCare_WebApi.Controllers
             {
                 return new JsonResult(new ResponseModel<string>
                 {
-                    StatusCode = StatusCodes.Status400BadRequest,
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "Something went wrong.",
                     IsSucceeded = false,
                 });
             }
         }
-
         private async Task<List<Claim>> GetClaims(ApplicationUser user)
         {
             var authClaims = new List<Claim>

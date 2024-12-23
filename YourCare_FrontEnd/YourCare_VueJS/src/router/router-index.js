@@ -12,7 +12,7 @@ const router = createRouter({
 // return URL
 router.beforeEach(async (to, from, next) => {
     //meta - title
-    document.title = "YourCare" + to.meta.title;
+    document.title = "YourCare-" + to.meta.title;
 
     //check authentication
     if (
@@ -24,12 +24,36 @@ router.beforeEach(async (to, from, next) => {
     ) {
         next({ name: "login" });
     } else if (to.name === "login" && useAuthStore().checkToken()) {
-        if (useAuthStore().user.Claims["Admin_DoctorProfile_View"] == "1") {
+        if (useAuthStore().user.Claims["Admin_Dashboards_View"] == "1") {
             //test
-            next({ name: "Admin_DoctorProfile_View" });
+            next({ name: "Admin_Dashboards_View" });
+        } else {
+            next({ name: "404" });
         }
+    } else {
+        // check claims
+        if (to.name == "Admin_DoctorProfile_View") {
+            if (useAuthStore().user.Claims["Admin_DoctorProfile_View"] !== "1") {
+                next({ name: "404" });
+            }
+        }
+        if (to.name == "Admin_DoctorProfile_Create") {
+            if (useAuthStore().user.Claims["Admin_DoctorProfile_Create"] !== "1") {
+                next({ name: "404" });
+            }
+        }
+        if (to.name == "Admin_DoctorProfile_Update") {
+            if (useAuthStore().user.Claims["Admin_DoctorProfile_Update"] !== "1") {
+                next({ name: "404" });
+            }
+        }
+        if (to.name == "Admin_DoctorProfile_Detail") {
+            if (useAuthStore().user.Claims["Admin_DoctorProfile_Detail"] !== "1") {
+                next({ name: "404" });
+            }
+        }
+        next();
     }
-    next();
 });
 
 export default router;
