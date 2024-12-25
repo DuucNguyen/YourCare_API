@@ -7,11 +7,7 @@
             </div>
             <hr />
             <section>
-                <form
-                    @submit.prevent="onFinish"
-                    id="account"
-                    method="post"
-                    class="form-login">
+                <form @submit.prevent="onFinish" id="account" method="post" class="form-login">
                     <!-- <div asp-validation-summary="ModelOnly" class="text-danger"></div> -->
                     <div class="form-group mt-3">
                         <label for="email">Email/Username</label>
@@ -69,9 +65,9 @@
     });
 
     const onFinish = () => {
-        return authStore.login(formState.username,formState.password).catch((error) => {
-            console.log("ERROR: LOGIN==>" + error);
-            if(error.response.status == 200){
+        return authStore.login(formState.username, formState.password).catch((error) => {
+            console.log("ERROR: LOGIN ==> " + error);
+            if (error.response.status == 200) {
                 console.log("Login successfully !");
             }
             if (error.response.status === 401 || error.response.status === 500) {

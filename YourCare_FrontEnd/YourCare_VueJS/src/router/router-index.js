@@ -17,13 +17,13 @@ router.beforeEach(async (to, from, next) => {
     //check authentication
     if (
         to.name !== "login" &&
-        !useAuthStore().checkToken() &&
+        !useAuthStore().checkUser() &&
         to.name !== "register" &&
         to.name !== "forgot-password" &&
         to.name !== "404"
     ) {
         next({ name: "login" });
-    } else if (to.name === "login" && useAuthStore().checkToken()) {
+    } else if (to.name === "login" && useAuthStore().checkUser()) {
         if (useAuthStore().user.Claims["Admin_Dashboards_View"] == "1") {
             //test
             next({ name: "Admin_Dashboards_View" });

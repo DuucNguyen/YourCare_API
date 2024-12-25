@@ -277,16 +277,6 @@ namespace YourCare_WebApi.Controllers
             var authClaims = await GetClaims(user);
             var token = await GenerateToken(user, authClaims);
 
-            HttpContext.Response.Cookies.Append("access_token", token.AccessToken,
-               new CookieOptions
-               {
-                   HttpOnly = false,  // Allows access via JavaScript
-                   Secure = true,
-                   SameSite = SameSiteMode.None, //Allow cross origin cookies
-                                                 //Expires = DateTime.UtcNow.AddDays(3)
-                   Expires = DateTime.UtcNow.AddMinutes(1) //temp
-               });
-
             List<string> roleNames = (List<string>)await _userManager.GetRolesAsync(user);
             var roleIDs = _roleRepository.GetRoleIDsByName(roleNames);
             var jsonData = JsonSerializer.Serialize(new
@@ -304,200 +294,35 @@ namespace YourCare_WebApi.Controllers
             });
         }
 
-        private JwtSecurityToken CreateToken(List<Claim> authClaims)
-        {
-            var jwtTokenHandler = new JwtSecurityTokenHandler();
-            var secretKey = _appsetting.SecretKey;
-            var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
-
-            var token = new JwtSecurityToken(
-                claims: authClaims,
-                expires: DateTime.UtcNow.AddSeconds(20),//temp - 1
-                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes),
-                                                            SecurityAlgorithms.HmacSha256Signature)
-                );
-
-            return token;
-        }
-
-        private async Task<TokenModel> GenerateToken(ApplicationUser user, List<Claim> authClaims)
-        {
-            var jwtTokenHandler = new JwtSecurityTokenHandler();
-
-            var token = CreateToken(authClaims);
-            var accessToken = jwtTokenHandler.WriteToken(token);
-            var refreshToken = GenerateRefreshToken();
-
-            var refreshTokenModel = new RefreshTokenModel
-            {
-                UserID = user.Id,
-                Token = refreshToken,
-                JwtID = token.Id,
-                IsUsed = false,
-                IsRevoked = false,
-                IssuedDate = DateTime.UtcNow,
-                //Expires = DateTime.UtcNow.AddDays(3)
-                ExpireDate = DateTime.UtcNow.AddMinutes(5), //temp
-            };
-
-            List<string> roleNames = (List<string>)await _userManager.GetRolesAsync(user);
-            var roleIDs = _roleRepository.GetRoleIDsByName(roleNames);
-
-            var jsonData = JsonSerializer.Serialize(new
-            {
-                Username = user.FullName,
-                Claims = _roleRepository.GetRoleClaimsByRoles(roleIDs)
-            });
-
-            WriteRefreshDataToCookie(refreshTokenModel, jsonData);
-
-            return new TokenModel
-            {
-                AccessToken = accessToken,
-                RefreshToken = refreshToken,
-            };
-            //bao thang Vue lay token ve r moi send request renew
-        }
-
-        private string GenerateRefreshToken()
-        {
-            var random = new byte[32];
-            try
-            {
-                using (var rnd = RandomNumberGenerator.Create())
-                {
-                    rnd.GetBytes(random);
-                    return Convert.ToBase64String(random);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Error: GenereateRefreshToken");
-            }
-            return null;
-        }
-
         [HttpPost]
-        public async Task<IActionResult> RenewTokens(TokenModel token)
+        public async Task<IActionResult> RenewTokens()
         {
-            var jwtTokenHandler = new JwtSecurityTokenHandler();
-            var secretKey = _appsetting.SecretKey;
-            var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
-
-
-            var tokenValidatationParameter = new TokenValidationParameters //same as configured
-            {
-                ValidateIssuer = false,
-
-                ValidateAudience = false,
-
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
-
-                ClockSkew = TimeSpan.Zero,
-
-                ValidateLifetime = false, //disable check exprire time 
-                //if true and token expired -> throw exception
-            };
-
             try
             {
-                //check 1: check if accessToken is in correct format
-                var tokenVerification = jwtTokenHandler.ValidateToken(token.AccessToken,
-                    tokenValidatationParameter, out var validatedAccessToken);
-
-                //check 2: Check Algorithm
-                if (validatedAccessToken is JwtSecurityToken jwtSecurityToken)
-                {
-                    var result = jwtSecurityToken.Header.Alg
-                        .Equals(SecurityAlgorithms.HmacSha256
-                        , StringComparison.OrdinalIgnoreCase
-                        );
-
-                    if (!result)
-                    {
-                        return new JsonResult(new ResponseModel<string>
-                        {
-                            StatusCode = StatusCodes.Status200OK,
-                            Message = "Invalid Token.",
-                            IsSucceeded = false,
-                        });
-                    }
-                }
-
-                //Check 3: Check if AccessToken expired
-                var utcExpireDate = long.Parse(tokenVerification.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Exp).Value.ToString());
-
-                var expireDate = ConvertUnixTimeToDateTime(utcExpireDate);
-                if (expireDate > DateTime.UtcNow)
-                {
-                    return new JsonResult(new ResponseModel<string>
-                    {
-                        StatusCode = StatusCodes.Status200OK,
-                        Message = "Token has not expired yet.",
-                        IsSucceeded = false,
-                    });
-                }
-
-                //Check 4: check if refresh token is in cookie
-                var refreshTokenInCookie = HttpContext.Request.Cookies["refreshToken"];
-                if (string.IsNullOrEmpty(refreshTokenInCookie))
-                {
-                    return new JsonResult(new ResponseModel<string>
-                    {
-                        StatusCode = StatusCodes.Status404NotFound,
-                        Message = "Refresh token is missing",
-                        IsSucceeded = false,
-                    });
-                }
-
-                //Check 5: check if refresh token has been used or revoked
-                var refreshTokenInCookieModel = JsonSerializer.Deserialize<RefreshTokenModel>(refreshTokenInCookie);
-                if (refreshTokenInCookieModel == null)
+                var refreshToken = HttpContext.Request.Cookies["refresh_token"];
+                if (string.IsNullOrEmpty(refreshToken))
                 {
                     return new JsonResult(new ResponseModel<string>
                     {
                         StatusCode = StatusCodes.Status400BadRequest,
-                        Message = "Cannot convert refresh token model.",
-                        IsSucceeded = false,
-                    });
-                }
-                if (refreshTokenInCookieModel.IsUsed)
-                {
-                    return new JsonResult(new ResponseModel<string>
-                    {
-                        StatusCode = StatusCodes.Status404NotFound,
-                        Message = "Refresh token has been used.",
-                        IsSucceeded = false,
-                    });
-                }
-                if (refreshTokenInCookieModel.IsRevoked)
-                {
-                    return new JsonResult(new ResponseModel<string>
-                    {
-                        StatusCode = StatusCodes.Status404NotFound,
-                        Message = "Refresh token has been revoked.",
+                        Message = "Token is missing.",
                         IsSucceeded = false,
                     });
                 }
 
-                //Check 6: if accesstoken is match
-                var jti = tokenVerification.Claims.FirstOrDefault(x => x.Type == JwtRegisteredClaimNames.Jti)?.Value.ToString();
-                if (refreshTokenInCookieModel.JwtID != jti)
+                var principal = GetPrincipalFromExpiredToken(refreshToken);
+                if(principal == null)
                 {
                     return new JsonResult(new ResponseModel<string>
                     {
-                        StatusCode = StatusCodes.Status404NotFound,
-                        Message = "AccessToken does not match",
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Invalid token.",
                         IsSucceeded = false,
                     });
                 }
-                //flag validation
-                refreshTokenInCookieModel.IsUsed = true;
-                refreshTokenInCookieModel.IsRevoked = true;
 
                 //issue new token
-                var user = await _userManager.FindByIdAsync(refreshTokenInCookieModel.UserID);
+                var user = await _userManager.FindByNameAsync(principal.Identity.Name);
                 var authClaims = await GetClaims(user);
 
                 List<string> roleNames = (List<string>)await _userManager.GetRolesAsync(user);
@@ -509,7 +334,8 @@ namespace YourCare_WebApi.Controllers
                 });
 
                 var newToken = await GenerateToken(user, authClaims);
-                WriteRefreshDataToCookie(refreshTokenInCookieModel, jsonData);
+
+                WriteDataToCookie(newToken.AccessToken, newToken.RefreshToken, jsonData);
 
                 return new JsonResult(new ResponseModel<TokenModel>
                 {
@@ -524,16 +350,67 @@ namespace YourCare_WebApi.Controllers
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
-                    Message = "Something went wrong.",
+                    Message = "Something went wrong: " + ex.Message + " - " + ex.StackTrace,
                     IsSucceeded = false,
                 });
             }
         }
+
+        private async Task<TokenModel> GenerateToken(ApplicationUser user, List<Claim> authClaims)
+        {
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+
+            var access_token = CreateToken(authClaims, 1);
+            var accessToken = jwtTokenHandler.WriteToken(access_token);
+
+            var refresh_token = CreateToken(new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            }, DateTime.Now.AddDays(7).Minute);
+
+            var refreshToken = jwtTokenHandler.WriteToken(refresh_token);
+
+
+            List<string> roleNames = (List<string>)await _userManager.GetRolesAsync(user);
+            var roleIDs = _roleRepository.GetRoleIDsByName(roleNames);
+
+            var jsonData = JsonSerializer.Serialize(new
+            {
+                Username = user.FullName,
+                Claims = _roleRepository.GetRoleClaimsByRoles(roleIDs)
+            });
+
+            WriteDataToCookie(accessToken, refreshToken, jsonData);
+
+            return new TokenModel
+            {
+                AccessToken = accessToken,
+                RefreshToken = refreshToken,
+            };
+            //bao thang Vue lay token ve r moi send request renew
+        }
+
+        private JwtSecurityToken CreateToken(List<Claim> authClaims, int minutes)
+        {
+            var secretKey = _appsetting.SecretKey;
+            var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
+
+            var token = new JwtSecurityToken(
+                claims: authClaims,
+                expires: DateTime.UtcNow.AddMinutes(minutes),
+                signingCredentials: new SigningCredentials(new SymmetricSecurityKey(secretKeyBytes),
+                                                            SecurityAlgorithms.HmacSha256Signature)
+                );
+
+            return token;
+        }
         private async Task<List<Claim>> GetClaims(ApplicationUser user)
         {
+            if (user == null) throw new Exception("user not found."); 
             var authClaims = new List<Claim>
             {
-                new Claim(ClaimTypes.Name, user.FullName),
+                new Claim(ClaimTypes.Name, user.UserName),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -552,18 +429,47 @@ namespace YourCare_WebApi.Controllers
 
             return authClaims;
         }
-
-        private void WriteRefreshDataToCookie(RefreshTokenModel token, string userData)
+        private ClaimsPrincipal? GetPrincipalFromExpiredToken(string? token)
         {
+            var secretKey = _appsetting.SecretKey;
+            var secretKeyBytes = Encoding.UTF8.GetBytes(secretKey);
 
-            HttpContext.Response.Cookies.Append("refresh_token", JsonSerializer.Serialize(token),
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
+                ValidateLifetime = false
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+            if (securityToken is not JwtSecurityToken jwtSecurityToken || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256Signature))
+                throw new SecurityTokenException("Invalid token");
+
+            return principal;
+        }
+        private void WriteDataToCookie(string access_token, string refresh_token, string userData)
+        {
+            HttpContext.Response.Cookies.Append("access_token", access_token,
             new CookieOptions
             {
-                HttpOnly = false,  // Allows access via JavaScript
+                HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None, //Allow cross origin cookies
                                               //Expires = DateTime.UtcNow.AddDays(3)
                 Expires = DateTime.UtcNow.AddMinutes(1) //temp
+            });
+
+            HttpContext.Response.Cookies.Append("refresh_token", refresh_token,
+            new CookieOptions
+            {
+                HttpOnly = true, 
+                Secure = true,
+                SameSite = SameSiteMode.None, //Allow cross origin cookies
+                                              //Expires = DateTime.UtcNow.AddDays(3)
+                Expires = DateTime.UtcNow.AddMinutes(5) //temp
             });
 
             HttpContext.Response.Cookies.Append("user", userData,
@@ -573,7 +479,7 @@ namespace YourCare_WebApi.Controllers
                 Secure = true,
                 SameSite = SameSiteMode.None, //Allow cross origin cookies
                                               //Expires = DateTime.UtcNow.AddDays(3)
-                Expires = DateTime.UtcNow.AddMinutes(1) //temp
+                Expires = DateTime.UtcNow.AddMinutes(5) //temp
             });
         }
         private DateTime ConvertUnixTimeToDateTime(long utcExpireDate)

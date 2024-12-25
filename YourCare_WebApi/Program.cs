@@ -92,6 +92,16 @@ namespace YourCare_WebApi
 
                         ClockSkew = TimeSpan.Zero,
                     };
+
+                    // Extract token from cookie
+                    opt.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            context.Token = context.Request.Cookies["access_token"]; // Access the token from cookies
+                            return Task.CompletedTask;
+                        }
+                    };
                 }
             );
 

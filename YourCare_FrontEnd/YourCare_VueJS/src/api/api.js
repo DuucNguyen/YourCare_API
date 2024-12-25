@@ -14,51 +14,59 @@ const instance = axios.create({
     responseType: "json",
 });
 
-instance.interceptors.request.use(
-    (config) => {
-        const token = TokenService.getCookieAccessToken();
-        if (token) {
-            config.headers["Authorization"] = "Bearer " + token;
-        }
-        return config;
+// instance.interceptors.request.use(
+//     (config) => {
+//         const token = TokenService.getCookieAccessToken();
+//         if (token) {
+//             config.headers["Authorization"] = "Bearer " + token;
+//         }
+//         return config;
+//     },
+//     (error) => {
+//         return Promise.reject(error);
+//     },
+// );
+
+instance.interceptors.response.use(
+    (res) => {
+        return res;
     },
-    (error) => {
+    async (error) => {
+        const originalConfig = error.config;
+        if (error.response && originalConfig.url !== "/Authentication/Login") {
+            console.log(error.response);
+            //Access token was expired and error.response.status = 400;
+            if (error.response.status === 401 && !originalConfig._retry) {
+                originalConfig._retry = true;
+                try {
+                    console.log("tra ve sau khi login vaf refreshtoken neu co");
+                    await instance.post("/Authentication/RenewTokens");
+
+                    // var rsData = rs.data.data;
+                    // TokenService.setCookieToken(rsData.accessToken, rsData.refreshToken);
+
+                    return instance(originalConfig);
+                } catch (_error) {
+                    return Promise.reject(_error);
+                }
+            } else {
+                if (error.response.status === 400) {
+                    console.log("ERROR: status 400");
+                } else if (error.response.status === 500) {
+                    console.log("ERROR: status 500");
+                } else if (error.response.status === 403) {
+                    window.location.assign("/404");
+                } else {
+                    if (TokenService.getCookieUser() === null) {
+                        window.location.assign("/login");
+                    } else {
+                        console.log("ERROR: user not found.");
+                    }
+                }
+            }
+        }
         return Promise.reject(error);
     },
 );
-
-// instance.interceptors.response.use(
-//     (res) => {
-//         return res;
-//     },
-//     async (error)=>{
-//         const originalConfig = error.config;
-//         if(originalConfig.url !== "/Authentication/Login" && error.response){
-//             //Access token was expired and error.response.status = 400;
-//             if(error.repsonse.status === 401 && !originalConfig._retry){
-//                 originalConfig._retry = true;
-//             }
-//             try{
-//                 console.log("tra ve sau khi login vaf refreshtoken neu co");
-//                 const rs = await instance.post("/Authentication/RenewTokens",{
-//                     accessToken: TokenService.getCookieAccessToken(),
-//                     refreshToken: TokenService.getCookieRefreshToken(),
-//                 });
-
-
-
-
-//             }catch(_error){
-
-//             }
-
-//         }
-
-
-//     }
-
-
-// );
-
 
 export default instance;

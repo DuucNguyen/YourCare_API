@@ -21,11 +21,14 @@ export const useAuthStore = defineStore({
                 username,
                 password,
             });
+
+            console.log(result);
+
             this.user = JSON.parse(result.data.data);
             this.message = "Login Successfully.";
             this.router.push(this.returnURL || "/");
         },
-        checkToken() {
+        checkUser() {
             if (TokenService.getCookieUser()) {
                 this.tokenValidate = true;
                 return true;
