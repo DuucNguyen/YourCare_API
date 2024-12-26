@@ -1,50 +1,59 @@
 <template>
-    <div class="row d-flex justify-content-between">
-        <div class="col-md-4">
-            <div class="nav-container">
-                <RouterLink class="navigation-chosen" :to="{ name: 'login' }">Login</RouterLink>
-                <RouterLink :to="{ name: 'register' }">Register</RouterLink>
+    <div class="auth-container">
+        <div class="container">
+            <div class="row d-flex justify-content-between">
+                <div class="col-md-6">
+                    <h1>YourCare</h1>
+                </div>
+                <div class="col-md-6 auth-form">
+                    <div class="nav-container">
+                        <RouterLink class="navigation-chosen" :to="{ name: 'login' }"
+                            >Login</RouterLink
+                        >
+                        <RouterLink :to="{ name: 'register' }">Register</RouterLink>
+                    </div>
+                    <hr />
+                    <section>
+                        <form
+                            @submit.prevent="onFinish"
+                            id="account"
+                            method="post"
+                            class="form-login">
+                            <!-- <div asp-validation-summary="ModelOnly" class="text-danger"></div> -->
+                            <div class="form-group mt-3">
+                                <label for="email">Email/Username</label>
+                                <input
+                                    v-model="formState.username"
+                                    id="email"
+                                    class="form-control"
+                                    placeholder="Email/Username" />
+                                <!-- <span asp-validation-for="Input.Email" class="text-danger"></span> -->
+                            </div>
+                            <div class="form-group mt-3">
+                                <label for="password">Password</label>
+                                <input
+                                    type="password"
+                                    v-model="formState.password"
+                                    id="password"
+                                    class="form-control"
+                                    placeholder="Password" />
+                                <!-- <span asp-validation-for="Input.Password" class="text-danger"></span> -->
+                            </div>
+                            <div class="form-group mt-5">
+                                <Button title="Login" :isDisabled="isDisabled" />
+                            </div>
+                            <div class="mt-3 mb-3">
+                                <Message :context="message" :isError="isSucceeded" />
+                            </div>
+                            <div class="form-group mt-5 d-flex justify-content-between text-center">
+                                <RouterLink class="w-100" :to="{ name: 'forgot-password' }"
+                                    >Forgot password ?</RouterLink
+                                >
+                            </div>
+                        </form>
+                    </section>
+                </div>
             </div>
-            <hr />
-            <section>
-                <form @submit.prevent="onFinish" id="account" method="post" class="form-login">
-                    <!-- <div asp-validation-summary="ModelOnly" class="text-danger"></div> -->
-                    <div class="form-group mt-3">
-                        <label for="email">Email/Username</label>
-                        <input
-                            v-model="formState.username"
-                            id="email"
-                            class="form-control"
-                            placeholder="Email/Username" />
-                        <!-- <span asp-validation-for="Input.Email" class="text-danger"></span> -->
-                    </div>
-                    <div class="form-group mt-3">
-                        <label for="password">Password</label>
-                        <input
-                            v-model="formState.password"
-                            id="password"
-                            class="form-control"
-                            placeholder="Password" />
-                        <!-- <span asp-validation-for="Input.Password" class="text-danger"></span> -->
-                    </div>
-                    <div>{{ formState.username }} - {{ formState.password }}</div>
-                    <div class="form-group mt-5">
-                        <button :disabled="isDisabled" type="submit" class="button-authen">
-                            Log in
-                        </button>
-                    </div>
-                    <div class="form-group mt-3 d-flex justify-content-between">
-                        <p>
-                            <RouterLink :to="{ name: 'forgot-password' }"
-                                >Forgot password ?</RouterLink
-                            >
-                        </p>
-                    </div>
-                </form>
-            </section>
-        </div>
-        <div class="col-md-6">
-            <div class="img-container"></div>
         </div>
     </div>
 </template>
@@ -54,7 +63,16 @@
     import { computed, reactive } from "vue";
     import { useAuthStore } from "@/stores/auth-store";
 
+    // //
+    import Button from "@/components/Button.vue";
+    import Message from "@/components/Message.vue";
+
     const authStore = useAuthStore();
+
+    // Directly bind to store properties
+    const message = computed(() => authStore.message);
+    const isSucceeded = computed(() => authStore.isSucceeded);
+
     const formState = reactive({
         username: "",
         password: "",
@@ -64,8 +82,8 @@
         return !(formState.username && formState.password);
     });
 
-    const onFinish = () => {
-        return authStore.login(formState.username, formState.password).catch((error) => {
+    const onFinish = async () => {
+        return await authStore.login(formState.username, formState.password).catch((error) => {
             console.log("ERROR: LOGIN ==> " + error);
             if (error.response.status == 200) {
                 console.log("Login successfully !");
@@ -80,21 +98,18 @@
 </script>
 
 <style scoped>
-    .button {
-        width: 100%;
+    .auth-container {
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+        background: #1a76e3;
     }
-    /*
-.img-container {
-    width: 100%;
-    height: 100%;
-
-}
-
-img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-}*/
+    .auth-form {
+        margin: 200px 0 0 0;
+        padding: 30px;
+        border-radius: 5px;
+        background-color: #fff;
+    }
 
     .nav-container {
         display: flex;

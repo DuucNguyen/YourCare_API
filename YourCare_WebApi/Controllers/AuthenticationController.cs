@@ -61,7 +61,7 @@ namespace YourCare_WebApi.Controllers
                 {
                     StatusCode = StatusCodes.Status403Forbidden,
                     IsSucceeded = false,
-                    Message = "User already exist !"
+                    Message = "Email has been used."
                 });
             }
 
@@ -72,10 +72,10 @@ namespace YourCare_WebApi.Controllers
                 NormalizedEmail = registerUser.Email.ToUpper(),
                 NormalizedUserName = registerUser.Email.ToUpper(),
 
-                Gender = registerUser.Gender,
-                PhoneNumber = registerUser.PhoneNumber,
-                Dob = registerUser.Dob,
-                FullName = registerUser.FullName,
+                //Gender = registerUser.Gender,
+                //PhoneNumber = registerUser.PhoneNumber,
+                //Dob = registerUser.Dob,
+                //FullName = registerUser.FullName,
                 IsActive = true
             };
 
@@ -256,7 +256,7 @@ namespace YourCare_WebApi.Controllers
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status404NotFound,
-                    Message = "User not found !",
+                    Message = "Incorrect Username or Password.",
                     IsSucceeded = false,
                 });
             }
@@ -269,7 +269,7 @@ namespace YourCare_WebApi.Controllers
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status400BadRequest,
-                    Message = "Username or Password is incorrect.",
+                    Message = "Incorrect Username or Password.",
                     IsSucceeded = false,
                 });
             }

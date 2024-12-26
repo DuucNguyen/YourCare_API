@@ -14,6 +14,7 @@ export const useAuthStore = defineStore({
         user: TokenService.getCookieUser(),
         message: "",
         tokenValidate: false,
+        isSucceeded: false,
     }),
     actions: {
         async login(username, password) {
@@ -22,10 +23,10 @@ export const useAuthStore = defineStore({
                 password,
             });
 
-            console.log(result);
-
             this.user = JSON.parse(result.data.data);
-            this.message = "Login Successfully.";
+            this.message = result.data.message;
+            this.isSucceeded = result.data.isSucceeded;
+
             this.router.push(this.returnURL || "/");
         },
         checkUser() {
@@ -36,6 +37,14 @@ export const useAuthStore = defineStore({
                 this.tokenValidate = false;
                 return false;
             }
+        },
+        async register(email, password, confirmationPassword) {
+            const result = await API.post(`${baseURL}/register`, {
+                email,
+                password,
+                confirmationPassword,
+            });
+            console.log(result);
         },
     },
 });
