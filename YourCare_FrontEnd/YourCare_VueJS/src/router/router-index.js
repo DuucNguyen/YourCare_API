@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 import adminRoutes from "@/router/route-admin";
+import authRoutes from "@/router/router-auth";
 import { useAuthStore } from "@/stores/auth-store";
 import TokenService from "@/api/TokenService";
-const routes = [...adminRoutes];
+const routes = [...authRoutes, ...adminRoutes];
 
 const router = createRouter({
     history: createWebHistory(),
@@ -20,11 +21,12 @@ router.beforeEach(async (to, from, next) => {
         !useAuthStore().checkUser() &&
         to.name !== "register" &&
         to.name !== "forgot-password" &&
+        to.name !== "confirm-register" &&
         to.name !== "404"
     ) {
         next({ name: "login" });
     } else if (to.name === "login" && useAuthStore().checkUser()) {
-        if (useAuthStore().user.Claims["Admin_Dashboards_View"] == "1") {
+        if (useAuthStore().user.Claims["Admin_Dashboards_View"] === "1") {
             //test
             next({ name: "Admin_Dashboards_View" });
         } else {

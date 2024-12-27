@@ -30,6 +30,7 @@ namespace YourCare_WebApi.Controllers
         private readonly IEmailSender _emailSender;
         private readonly Appsettings _appsetting;
         private readonly IRoleRepository _roleRepository;
+        private readonly IConfiguration _configuration;
 
         public AuthenticationController(
             UserManager<ApplicationUser> userManager,
@@ -37,7 +38,8 @@ namespace YourCare_WebApi.Controllers
             IEmailSender emailSender,
             IOptionsMonitor<Appsettings> appsettings,
             IRoleRepository roleRepository,
-            RoleManager<IdentityRole> roleManager
+            RoleManager<IdentityRole> roleManager,
+            IConfiguration configuration
 
             )
         {
@@ -47,73 +49,85 @@ namespace YourCare_WebApi.Controllers
             _signInManager = signInManager;
             _roleRepository = roleRepository;
             _roleManager = roleManager;
+            _configuration = configuration;
+        }
+
+        public class ConfirmEmailModel
+        {
+            public string userId { get; set; }
+            public string code { get; set; }
+        }
+
+        public class CreatePasswordModel
+        {
+            public string UserId { get; set; }
+            public string Password { get; set; }
         }
 
 
         [HttpPost]
-        public async Task<IActionResult> Register([FromBody] RegisterModel registerUser)
+        public async Task<IActionResult> SendEmailRegister([FromBody] string email)
         {
-
-            var isExist = await _userManager.FindByEmailAsync(registerUser.Email);
-            if (isExist != null)
+            try
             {
-                return new JsonResult(new ResponseModel<string>
+                var isExist = await _userManager.FindByEmailAsync(email);
+
+                if (isExist != null && isExist.EmailConfirmed)
                 {
-                    StatusCode = StatusCodes.Status403Forbidden,
-                    IsSucceeded = false,
-                    Message = "Email has been used."
-                });
-            }
+                    return new JsonResult(new ResponseModel<string>
+                    {
+                        StatusCode = StatusCodes.Status403Forbidden,
+                        IsSucceeded = false,
+                        Message = "Email has been used."
+                    });
+                }
 
-            ApplicationUser newUser = new ApplicationUser
-            {
-                Email = registerUser.Email,
-                UserName = registerUser.Email,
-                NormalizedEmail = registerUser.Email.ToUpper(),
-                NormalizedUserName = registerUser.Email.ToUpper(),
-
-                //Gender = registerUser.Gender,
-                //PhoneNumber = registerUser.PhoneNumber,
-                //Dob = registerUser.Dob,
-                //FullName = registerUser.FullName,
-                IsActive = true
-            };
-
-            var addResult = await _userManager.CreateAsync(newUser, registerUser.Password);
-            if (!addResult.Succeeded)
-            {
-                return new JsonResult(new ResponseModel<string>
+                ApplicationUser newUser = new ApplicationUser
                 {
-                    StatusCode = StatusCodes.Status500InternalServerError,
-                    Message = "Account created failed! Pls try again !",
-                    IsSucceeded = false
-                });
-            }
+                    Email = email,
+                    UserName = email,
+                    NormalizedEmail = email.ToUpper(),
+                    NormalizedUserName = email.ToUpper(),
 
-            var result = new JsonResult(new ResponseModel<string>
-            {
-                StatusCode = StatusCodes.Status201Created,
-                Message = "Account created successfully. Pls check your email for confirmation !",
-                IsSucceeded = true
-            });
+                    Gender = true,
+                    PhoneNumber = "00000000000",
+                    Dob = DateTime.Now,
+                    FullName = "tempUser",
+                    IsActive = true
+                };
 
-            //send email confirmation
-            var code = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
-            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-
-            var confirmationLink = Url.Action(
-                "ConfirmEmail",
-                "Authentication",
-                new
+                var addResult = await _userManager.CreateAsync(newUser);
+                if (!addResult.Succeeded)
                 {
-                    userId = newUser.Id,
-                    code = code
-                },
-                Request.Scheme);
+                    return new JsonResult(new ResponseModel<string>
+                    {
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                        Message = "Account created failed! Please try again !",
+                        IsSucceeded = false
+                    });
+                }
 
-            #region email body 
-            var htmlTemplate =
-             @"<!DOCTYPE html>
+                //send email confirmation
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+                //var confirmationLink = Url.Action(
+                //    "ConfirmEmail",
+                //    "Authentication",
+                //    new
+                //    {
+                //        userId = newUser.Id,
+                //        code = code
+                //    },
+                //    Request.Scheme);
+
+                var confirmationLink = $"{_configuration.GetValue<string>("Request:Scheme")}" +
+                    $"://{_configuration.GetValue<string>("Request:Host")}/confirmRegister" +
+                    $"/{newUser.Id}/{code}";
+
+                #region email body 
+                var htmlBody_1 =
+                 @"<!DOCTYPE html>
                         <html lang='en'>
                         <head>
                         <meta charset='UTF-8'>
@@ -195,36 +209,46 @@ namespace YourCare_WebApi.Controllers
                                 <p>Hello,</p>
                                 <p>Thank you for signing up with <strong>YourCare</strong>. To complete your registration and activate your account, please confirm your email address by clicking the button below:</p>";
 
-            var htmlBodyLink = $"<div class='button-container'><a href = " +
-                $"'{HtmlEncoder.Default.Encode(confirmationLink)}' class='button'>Confirm Email</a></div><p>If the button doesn't work, you click the following link:" +
-                $"</p><p><a href = '{HtmlEncoder.Default.Encode(confirmationLink)}' >Click here</a></p></div>";
+                var htmlBodyLink = $"<div class='button-container'><a href = " +
+                    $"'{confirmationLink}' class='button'>Confirm Email</a></div><p>If the button doesn't work, you click the following link:" +
+                    $"</p><p><a href = '{confirmationLink}' >Click here</a></p></div>";
 
-            var htmlBody_2 = @"<div class='footer'>
+                var htmlBody_2 = @"<div class='footer'>
                             <p>If you didn't create an account, please ignore this email.</p>
                             <p>&copy; 2024 YourCare. All rights reserved.</p>
                             </div>
                             </div>
                             </body>
                             </html>";
-            #endregion
+                #endregion
 
-            var htmlBody = htmlTemplate + htmlBodyLink + htmlBody_2;
+                var htmlBody = htmlBody_1 + htmlBodyLink + htmlBody_2;
+                await _emailSender.SendEmailAsync(email, "YourCare - Confirm your account !", htmlBody);
 
-            await _emailSender.SendEmailAsync(registerUser.Email, "YourCare - Confirm your account !", htmlBody);
-
-
-            //redirect user to RegisterConfirmation page
-            //if (_userManager.Options.SignIn.RequireConfirmedAccount)
-            //{
-            //    return RedirectToPage("RegisterConfirmation", new { email = registerUser.Email });
-            //}
-
-            return new JsonResult(result);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "The email for confirmation has been sent. Please check your email.",
+                    IsSucceeded = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Internal server error. Please try again.",
+                    IsSucceeded = false,
+                });
+            }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> ConfirmEmail(string userId, string code)
+        [HttpPost]
+        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailModel request)
         {
+            var userId = request.userId;
+            var code = request.code;
+
             if (userId == null || code == null)
             {
                 return BadRequest("Invalid request !");
@@ -245,6 +269,41 @@ namespace YourCare_WebApi.Controllers
                 Message = result.Succeeded ? "Thank you for confirming your email. Now you can Login and enjoy our services !" : "Error confirming your email.",
                 Data = result.ToString()
             });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreatePassword([FromBody] CreatePasswordModel request)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(request.UserId);
+                if (user == null)
+                {
+                    return new JsonResult(new ResponseModel<string>
+                    {
+                        StatusCode = StatusCodes.Status404NotFound,
+                        Message = "User not found.",
+                        IsSucceeded = false,
+                    });
+                }
+                var result = await _userManager.AddPasswordAsync(user, request.Password);
+
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = result.Succeeded ? StatusCodes.Status200OK : StatusCodes.Status500InternalServerError,
+                    Message = result.Succeeded ? "Create password successfully." : "User not found.",
+                    IsSucceeded = result.Succeeded,
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Some thing went wrong.",
+                    IsSucceeded = false,
+                });
+            }
         }
 
         [HttpPost]
@@ -311,7 +370,7 @@ namespace YourCare_WebApi.Controllers
                 }
 
                 var principal = GetPrincipalFromExpiredToken(refreshToken);
-                if(principal == null)
+                if (principal == null)
                 {
                     return new JsonResult(new ResponseModel<string>
                     {
@@ -407,7 +466,7 @@ namespace YourCare_WebApi.Controllers
         }
         private async Task<List<Claim>> GetClaims(ApplicationUser user)
         {
-            if (user == null) throw new Exception("user not found."); 
+            if (user == null) throw new Exception("user not found.");
             var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName),
@@ -465,7 +524,7 @@ namespace YourCare_WebApi.Controllers
             HttpContext.Response.Cookies.Append("refresh_token", refresh_token,
             new CookieOptions
             {
-                HttpOnly = true, 
+                HttpOnly = true,
                 Secure = true,
                 SameSite = SameSiteMode.None, //Allow cross origin cookies
                                               //Expires = DateTime.UtcNow.AddDays(3)

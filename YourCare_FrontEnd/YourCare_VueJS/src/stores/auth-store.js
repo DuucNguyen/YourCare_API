@@ -46,5 +46,30 @@ export const useAuthStore = defineStore({
             });
             console.log(result);
         },
+        async sendEmailRegister(email) {
+            const result = await API.post(`${baseURL}/sendEmailRegister`, email);
+
+            this.message = result.data.message;
+            this.isSucceeded = result.data.isSucceeded;
+        },
+        async confirmEmail(userId, code) {
+            const result = await API.post(`${baseURL}/confirmEmail`, {
+                userId,
+                code,
+            });
+
+            this.message = result.data.message;
+            this.isSucceeded = result.data.isSucceeded;
+        },
+
+        async createPassword(userId, password) {
+            const result = await API.post(`${baseURL}/createPassword`, {
+                userId,
+                password,
+            });
+            
+            this.message = result.data.message;
+            this.isSucceeded = result.data.isSucceeded;
+        },
     },
 });

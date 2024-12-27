@@ -1,6 +1,8 @@
-<script setup></script>
+<script setup>
+    import Header from "./Header.vue";
+</script>
 <template>
-    <!-- //Header -->
+    <Header />
     <div class="container">
         <main role="main" class="pb-3">
             <h1>Admin - Main _layout</h1>

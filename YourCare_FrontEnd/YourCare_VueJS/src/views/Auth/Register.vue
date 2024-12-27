@@ -19,16 +19,15 @@
                             id="account"
                             method="post"
                             class="form-login">
-                            <!-- <div asp-validation-summary="ModelOnly" class="text-danger"></div> -->
                             <div class="form-group mt-3">
-                                <label for="email">Email/Username</label>
+                                <label for="email">Email</label>
                                 <input
-                                    v-model="formState.username"
+                                    v-model="formState.email"
                                     id="email"
                                     class="form-control"
-                                    placeholder="Email/Username" />
+                                    placeholder="Email" />
                             </div>
-                            <div class="form-group mt-3">
+                            <!-- <div class="form-group mt-3">
                                 <label for="password">Password</label>
                                 <input
                                     type="password"
@@ -46,8 +45,13 @@
                                     class="form-control"
                                     placeholder="Password" />
                             </div>
+                             -->
+
                             <div class="form-group mt-5">
-                                <Button title="Login" :isDisabled="isDisabled" />
+                                <Button title="Send email" :isDisabled="isDisabled" />
+                            </div>
+                            <div class="mt-3 mb-3">
+                                <Message :context="message" :isError="isSucceeded" />
                             </div>
                             <div class="form-group mt-5 d-flex justify-content-between text-center">
                                 <RouterLink class="w-100" :to="{ name: 'forgot-password' }"
@@ -69,24 +73,25 @@
 
     // //
     import Button from "@/components/Button.vue";
+    import Message from "@/components/Message.vue";
 
     const authStore = useAuthStore();
+
+    const message = computed(() => authStore.message);
+    const isSucceeded = computed(() => authStore.isSucceeded);
+
     const formState = reactive({
-        username: "",
-        password: "",
-        confirmPassword: "",
+        email: "",
     });
 
     const isDisabled = computed(() => {
-        return !(formState.username && formState.password && formState.confirmPassword);
+        return !formState.email;
     });
 
     const onFinish = () => {
-        return authStore
-            .register(formState.username, formState.password, formState.confirmPassword)
-            .catch((error) => {
-                console.log("ERROR: REGISTER ==> " + error);
-            });
+        return authStore.sendEmailRegister(formState.email).catch((error) => {
+            console.log("ERROR: SendMail ==> " + error);
+        });
     };
 </script>
 

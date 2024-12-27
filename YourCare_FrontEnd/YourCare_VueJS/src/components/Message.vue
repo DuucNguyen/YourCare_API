@@ -5,11 +5,14 @@
     const classObject = computed(() => ({
         "alert-danger": !props.isError,
     }));
+
+
+
 </script>
 
 <template>
-    <div v-if="context" class="alert alert-dismissible fade show" :class="classObject" role="alert">
+    <div v-if="context" class="alert alert-success alert-dismissible fade show" :class="classObject" role="alert">
         <strong>{{ context }}</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <!-- <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button> -->
     </div>
 </template>

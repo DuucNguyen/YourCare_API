@@ -3,7 +3,7 @@
 </script>
 
 <template>
-        <h1>HomeView</h1>
+        <h1>HomePage</h1>
         <button @click="ApiDoctorProfile.GetALl()">Get all doctor</button>
 </template>
 
