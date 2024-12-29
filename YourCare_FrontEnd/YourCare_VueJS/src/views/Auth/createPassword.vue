@@ -1,13 +1,15 @@
 <script setup>
-    import { onMounted, computed, reactive } from "vue";
+    import { onMounted, computed, reactive, ref } from "vue";
     import { useRoute } from "vue-router";
     import { useAuthStore } from "@/stores/auth-store";
-
+    import { useRouter } from "vue-router";
     //
     import Message from "@/components/Message.vue";
     import Button from "@/components/Button.vue";
 
     var route = useRoute();
+    var router = useRouter();
+
     const userId = route.params.userId;
     const code = route.params.code;
 
@@ -17,22 +19,29 @@
         await authStore.confirmEmail(userId, code);
     });
 
-    const confirmMessage = authStore.message;
-    const confirmIsSucceeded = authStore.isSucceeded;
-
+    const confirmMessage = computed(() => authStore.message);
+    const confirmIsSucceeded = computed(() => authStore.isSucceeded);
 
     const formState = reactive({
         password: "",
         confirmPassword: "",
     });
 
-    const createMessage = computed(() => authStore.message);
-    const createIsSucceeded = computed(() => authStore.isSucceeded);
+    const createMessage = ref("");
+    const createIsSucceeded = ref(false);
 
-    const onFinish = () => {
-        return authStore.createPassword(userId, formState.password).catch((error) => {
+    const onFinish = async () => {
+        const rs = await authStore.createPassword(userId, formState.password).catch((error) => {
             console.log("Create password ERROR: " + error);
         });
+
+        createMessage.value = rs.data.message;
+        createIsSucceeded.value = rs.data.isSucceeded;
+
+        if (createIsSucceeded) {
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            router.push({ name: "create-profile", params: { userId } });
+        }
     };
 </script>
 <template>
@@ -63,10 +72,7 @@
                         <h3>Create password</h3>
                     </div>
 
-                    <Message
-                        v-if="!createIsSucceeded"
-                        :context="createMessage"
-                        :isError="createIsSucceeded" />
+                    <Message :context="createMessage" :isError="createIsSucceeded" />
                     <!-- //display error only -->
 
                     <div class="form-group m-3 d-flex align-items-center">
@@ -83,7 +89,7 @@
                         <input
                             type="password"
                             v-model="formState.confirmPassword"
-                            id="password"
+                            id="confirmPassword"
                             class="form-control"
                             placeholder="Password" />
                     </div>

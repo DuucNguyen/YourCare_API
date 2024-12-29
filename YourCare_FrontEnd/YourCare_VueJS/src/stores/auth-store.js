@@ -67,9 +67,11 @@ export const useAuthStore = defineStore({
                 userId,
                 password,
             });
-            
-            this.message = result.data.message;
-            this.isSucceeded = result.data.isSucceeded;
+            return result;
+        },
+
+        async createProfile(userId, formState) {
+            return await API.post(`${baseURL}/createProfile?userId=${userId}`, formState);
         },
     },
 });

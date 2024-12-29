@@ -64,6 +64,15 @@ namespace YourCare_WebApi.Controllers
             public string Password { get; set; }
         }
 
+        public class CreateProfileModel
+        {
+            public string FullName { get; set; }
+            public DateTime Dob { get; set; }
+            public string PhoneNumber { get; set; }
+
+            public bool Gender { get; set; }
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> SendEmailRegister([FromBody] string email)
@@ -122,7 +131,7 @@ namespace YourCare_WebApi.Controllers
                 //    Request.Scheme);
 
                 var confirmationLink = $"{_configuration.GetValue<string>("Request:Scheme")}" +
-                    $"://{_configuration.GetValue<string>("Request:Host")}/confirmRegister" +
+                    $"://{_configuration.GetValue<string>("Request:Host")}/createPassword" +
                     $"/{newUser.Id}/{code}";
 
                 #region email body 
@@ -291,7 +300,7 @@ namespace YourCare_WebApi.Controllers
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = result.Succeeded ? StatusCodes.Status200OK : StatusCodes.Status500InternalServerError,
-                    Message = result.Succeeded ? "Create password successfully." : "User not found.",
+                    Message = result.Succeeded ? "Create password successfully." : "Invalid password.",
                     IsSucceeded = result.Succeeded,
                 });
             }
@@ -301,6 +310,46 @@ namespace YourCare_WebApi.Controllers
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "Some thing went wrong.",
+                    IsSucceeded = false,
+                });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateProfile(string userId, [FromBody] CreateProfileModel request)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if (user == null)
+                {
+                    return new JsonResult(new ResponseModel<string>
+                    {
+                        StatusCode = StatusCodes.Status404NotFound,
+                        Message = "User not found.",
+                        IsSucceeded = false,
+                    });
+                }
+
+                user.FullName = request.FullName;
+                user.Dob = request.Dob;
+                user.Gender = request.Gender;
+                user.PhoneNumber = request.PhoneNumber;
+
+                var result = await _userManager.UpdateAsync(user);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = result.Succeeded ? StatusCodes.Status200OK : StatusCodes.Status500InternalServerError,
+                    Message = result.Succeeded ? "Create profile successfully." : "Invalid request",
+                    IsSucceeded = result.Succeeded,
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Something went wrong.",
                     IsSucceeded = false,
                 });
             }

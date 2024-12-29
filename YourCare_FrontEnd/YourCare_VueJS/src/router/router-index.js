@@ -21,7 +21,8 @@ router.beforeEach(async (to, from, next) => {
         !useAuthStore().checkUser() &&
         to.name !== "register" &&
         to.name !== "forgot-password" &&
-        to.name !== "confirm-register" &&
+        to.name !== "create-password" &&
+        to.name !== "create-profile" &&
         to.name !== "404"
     ) {
         next({ name: "login" });

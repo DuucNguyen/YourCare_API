@@ -16,10 +16,16 @@ const authRoutes = [
                 component: () => import("@/views/Auth/register.vue"),
             },
             {
-                path: "/confirmRegister/:userId/:code",
-                name: "confirm-register",
-                meta: { title: "Confirm Account" },
-                component: () => import("@/views/Auth/confirmRegister.vue"),
+                path: "/createPassword/:userId/:code",
+                name: "create-password",
+                meta: { title: "Create Password" },
+                component: () => import("@/views/Auth/createPassword.vue"),
+            },
+            {
+                path: "/createProfile/:userId",
+                name: "create-profile",
+                meta: { title: "Create Profile" },
+                component: () => import("@/views/Auth/createProfile.vue"),
             },
             {
                 path: "/forgot-password",
