@@ -12,6 +12,7 @@ using YourCare_Repos.Interfaces;
 using YourCare_Repos.Repositories;
 using YourCare_WebApi.Models.Auth;
 using YourCare_WebApi.Services.EmailSender;
+using YourCare_WebApi.Services.UriService;
 
 namespace YourCare_WebApi
 {
@@ -132,6 +133,19 @@ namespace YourCare_WebApi
 
             #endregion
 
+
+            #region UriService
+
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddSingleton<IUriService>(x =>
+            {
+                var accessor = x.GetRequiredService<IHttpContextAccessor>();
+                var request = accessor.HttpContext.Request;
+                var uri = string.Concat(request.Scheme, "://", request.Host.ToUriComponent());
+                return new UriService(uri); //_baseURL
+            });
+
+            #endregion
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

@@ -1,6 +1,6 @@
 const adminRoutes = [
     {
-        path: "/",
+        path: "/admin",
         redirect: { path: "/dashboards" }, //redirect props
         component: () => import("@/shared/_adminLayout.vue"),
         children: [

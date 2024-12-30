@@ -3,7 +3,17 @@ import adminRoutes from "@/router/route-admin";
 import authRoutes from "@/router/router-auth";
 import { useAuthStore } from "@/stores/auth-store";
 import TokenService from "@/api/TokenService";
-const routes = [...authRoutes, ...adminRoutes];
+
+const indexRoutes = [
+    {
+        path: "/",
+        name: "home",
+        meta: { title: "Home" },
+        component: () => import("@/views/HomePage.vue"),
+    },
+];
+
+const routes = [...authRoutes, ...adminRoutes, ...indexRoutes];
 
 const router = createRouter({
     history: createWebHistory(),
@@ -17,8 +27,9 @@ router.beforeEach(async (to, from, next) => {
 
     //check authentication
     if (
-        to.name !== "login" &&
         !useAuthStore().checkUser() &&
+        to.name !== "home" &&
+        to.name !== "login" &&
         to.name !== "register" &&
         to.name !== "forgot-password" &&
         to.name !== "create-password" &&
@@ -31,6 +42,7 @@ router.beforeEach(async (to, from, next) => {
             //test
             next({ name: "Admin_Dashboards_View" });
         } else {
+            //home page
             next({ name: "404" });
         }
     } else {
