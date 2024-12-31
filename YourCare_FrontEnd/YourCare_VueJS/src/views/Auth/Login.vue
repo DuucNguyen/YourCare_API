@@ -40,7 +40,7 @@
                                 <!-- <span asp-validation-for="Input.Password" class="text-danger"></span> -->
                             </div>
                             <div class="form-group mt-5">
-                                <Button title="Login" :isDisabled="isDisabled" />
+                                <Button :title="buttonTitle" :isDisabled="isDisabled" />
                             </div>
                             <div class="mt-3 mb-3">
                                 <Message :context="message" :isError="isSucceeded" />
@@ -60,7 +60,7 @@
 
 <script setup>
     import TokenService from "@/api/TokenService";
-    import { computed, reactive } from "vue";
+    import { computed, reactive, ref } from "vue";
     import { useAuthStore } from "@/stores/auth-store";
 
     // //
@@ -78,22 +78,33 @@
         password: "",
     });
 
+    const buttonTitle = ref("Login");
     const isDisabled = computed(() => {
         return !(formState.username && formState.password);
     });
 
     const onFinish = async () => {
-        return await authStore.login(formState.username, formState.password).catch((error) => {
-            console.log("ERROR: LOGIN ==> " + error);
-            if (error.response.status == 200) {
-                console.log("Login successfully !");
-            }
-            if (error.response.status === 401 || error.response.status === 500) {
-                console.log("Username or password is incorrect.");
-            } else {
-                console.log("ERROR: " + error.response);
-            }
-        });
+        
+        buttonTitle.value = "Waiting...";
+        isDisabled.value = true;
+
+        await authStore
+            .login(formState.username, formState.password)
+            .catch((error) => {
+                console.log("ERROR: LOGIN ==> " + error);
+                if (error.response.status == 200) {
+                    console.log("Login successfully !");
+                }
+                if (error.response.status === 401 || error.response.status === 500) {
+                    console.log("Username or password is incorrect.");
+                } else {
+                    console.log("ERROR: " + error.response);
+                }
+            })
+            .finally(() => {
+                buttonTitle.value = "Login";
+                isDisabled.value = false;
+            });
     };
 </script>
 
