@@ -37,8 +37,9 @@ router.beforeEach(async (to, from, next) => {
     //meta - title
     document.title = "YourCare-" + to.meta.title;
 
-    //check authentication
+    //check authentication  + return URL
     if (!useAuthStore().checkUser() && !publicRoutes.includes(to.name)) {
+        useAuthStore().returnURL = to.fullPath;
         next({ name: "login" });
         return;
     }

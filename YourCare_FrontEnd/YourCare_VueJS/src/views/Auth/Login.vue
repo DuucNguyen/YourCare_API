@@ -62,12 +62,14 @@
     import TokenService from "@/api/TokenService";
     import { computed, reactive, ref } from "vue";
     import { useAuthStore } from "@/stores/auth-store";
+    import { useRouter } from "vue-router";
 
     // //
     import Button from "@/components/Button.vue";
     import Message from "@/components/Message.vue";
 
     const authStore = useAuthStore();
+    const router = useRouter();
 
     // Directly bind to store properties
     const message = computed(() => authStore.message);
@@ -84,7 +86,6 @@
     });
 
     const onFinish = async () => {
-        
         buttonTitle.value = "Waiting...";
         isDisabled.value = true;
 
