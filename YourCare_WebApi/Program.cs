@@ -46,6 +46,9 @@ namespace YourCare_WebApi
 
             builder.Services.AddScoped<RoleDAO>();
             builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+
+            builder.Services.AddScoped<SpecialtyDAO>();
+            builder.Services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
             #endregion
 
             #region EmailService

@@ -15,18 +15,18 @@ namespace YourCare_Repos.Repositories
     {
         private readonly SpecialtyDAO _specialtyDAO;
 
-        public SpecialtyRepository( SpecialtyDAO specialtyDAO)
+        public SpecialtyRepository(SpecialtyDAO specialtyDAO)
         {
             _specialtyDAO = specialtyDAO;
         }
 
         public async Task<bool> Add(Specialty request)
         {
-            using(TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
-                    var find = await _specialtyDAO.GetByID(request.SpecialtyID);
+                    var find = await _specialtyDAO.GetByTitle(request.Title);
                     if (find != null)
                     {
                         scope.Dispose();
@@ -34,12 +34,12 @@ namespace YourCare_Repos.Repositories
                     }
 
                     await _specialtyDAO.Create(request);
-                    scope.Dispose();
+                    scope.Complete();
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("ERROR: "+ ex.Message +" - " + ex.StackTrace);
+                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
                     scope.Dispose();
                     return false;
                 }
@@ -71,42 +71,30 @@ namespace YourCare_Repos.Repositories
                 }
             }
         }
-
         public async Task<List<Specialty>> GetAll()
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
-                {
-                    var result = await _specialtyDAO.GetAll();
-                    scope.Dispose();
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return null;
-                }
+                var result = await _specialtyDAO.GetAll();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return null;
             }
         }
-
         public async Task<Specialty> GetByID(Guid id)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
-                {
-                    var find = await _specialtyDAO.GetByID(id);
-                    scope.Dispose();
-                    return find;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return null;
-                }
+                var find = await _specialtyDAO.GetByID(id);
+                return find;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return null;
             }
         }
 

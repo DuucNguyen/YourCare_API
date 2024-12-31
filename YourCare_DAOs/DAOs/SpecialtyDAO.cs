@@ -43,5 +43,9 @@ namespace YourCare_DAOs.DAOs
         {
             return await _context.Specialties.FirstOrDefaultAsync(x => x.SpecialtyID == id);
         }
+        public async Task<Specialty> GetByTitle(string title)
+        {
+            return await _context.Specialties.FirstOrDefaultAsync(x => x.Title == title);
+        }
     }
 }

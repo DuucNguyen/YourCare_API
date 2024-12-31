@@ -11,6 +11,10 @@ const indexRoutes = [
         meta: { title: "Home" },
         component: () => import("@/views/HomePage.vue"),
     },
+    {
+        path: "/:pathMatch(.*)*",
+        redirect: "/404",
+    },
 ];
 
 const routes = [...authRoutes, ...adminRoutes, ...indexRoutes];
