@@ -39,9 +39,9 @@ namespace YourCare_DAOs.DAOs
         {
             return await _context.Specialties.ToListAsync();
         }
-        public async Task<Specialty> GetByID(Guid id)
+        public async Task<Specialty> GetByID(string id)
         {
-            return await _context.Specialties.FirstOrDefaultAsync(x => x.SpecialtyID == id);
+            return await _context.Specialties.FirstOrDefaultAsync(x => x.SpecialtyID.ToString() == id);
         }
         public async Task<Specialty> GetByTitle(string title)
         {

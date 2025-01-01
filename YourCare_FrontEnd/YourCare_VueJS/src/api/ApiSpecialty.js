@@ -2,6 +2,8 @@ import API from "@/api/api";
 const END_POINT = {
     GETALLBYLIMIT: "Specialty/GetAllByLimit",
     CREATE: "Specialty/Create",
+    UPDATE: "Specialty/Update",
+    DELETE: "Specialty/Delete",
 };
 
 class ApiSpecialty {
@@ -22,6 +24,22 @@ class ApiSpecialty {
                 "Content-Type": "multipart/form-data;",
                 "cache-control": "no-cache",
             },
+        });
+    };
+
+    Update = (formData) => {
+        return API.post(`${END_POINT.UPDATE}`, formData, {
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "multipart/form-data;",
+                "cache-control": "no-cache",
+            },
+        });
+    };
+
+    Delete = (id) => {
+        return API.delete(`${END_POINT.DELETE}`, {
+            params: { id },
         });
     };
 }

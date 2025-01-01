@@ -46,13 +46,13 @@ namespace YourCare_Repos.Repositories
             }
         }
 
-        public async Task<bool> Delete(Specialty request)
+        public async Task<bool> Delete(string id)
         {
             using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
-                    var find = await _specialtyDAO.GetByID(request.SpecialtyID);
+                    var find = await _specialtyDAO.GetByID(id);
                     if (find == null)
                     {
                         scope.Dispose();
@@ -71,6 +71,7 @@ namespace YourCare_Repos.Repositories
                 }
             }
         }
+
         public async Task<List<Specialty>> GetAll()
         {
             try
@@ -84,7 +85,7 @@ namespace YourCare_Repos.Repositories
                 return null;
             }
         }
-        public async Task<Specialty> GetByID(Guid id)
+        public async Task<Specialty> GetByID(string id)
         {
             try
             {
@@ -104,7 +105,7 @@ namespace YourCare_Repos.Repositories
             {
                 try
                 {
-                    var find = await _specialtyDAO.GetByID(request.SpecialtyID);
+                    var find = await _specialtyDAO.GetByID(request.SpecialtyID.ToString());
                     if (find == null)
                     {
                         scope.Dispose();

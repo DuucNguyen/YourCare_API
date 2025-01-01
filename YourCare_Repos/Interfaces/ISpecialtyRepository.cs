@@ -11,8 +11,8 @@ namespace YourCare_Repos.Interfaces
     {
         public Task<bool> Add(Specialty request);
         public Task<bool> Update(Specialty request);
-        public Task<bool> Delete(Specialty request);
+        public Task<bool> Delete(string id);
         public Task<List<Specialty>> GetAll();
-        public Task<Specialty> GetByID(Guid id);
+        public Task<Specialty> GetByID(string id);
     }
 }

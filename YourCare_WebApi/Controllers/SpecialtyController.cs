@@ -54,15 +54,16 @@ namespace YourCare_WebApi.Controllers
             return Ok(pagedResponse);
         }
 
-        public class CreateModel
+        public class FormModel
         {
+            public string? SpecialtyID { get; set; }
             public string Title { get; set; }
             public IFormFile Image { get; set; }
         }
 
         [HttpPost("Create")]
 
-        public async Task<IActionResult> Create([FromForm] CreateModel request)
+        public async Task<IActionResult> Create([FromForm] FormModel request)
         {
             try
             {
@@ -97,6 +98,69 @@ namespace YourCare_WebApi.Controllers
                 });
             }
 
+        }
+
+        [HttpDelete("Delete")]
+
+        public async Task<IActionResult> Delete(string id)
+        {
+            try
+            {
+                var result = await _specialtyRepository.Delete(id);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = result ? StatusCodes.Status201Created : StatusCodes.Status400BadRequest,
+                    Message = result ? "Specialty deleted successfully." : "Delete failed.",
+                    IsSucceeded = result
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    IsSucceeded = false
+                });
+            }
+        }
+
+        [HttpPost("Update")]
+        public async Task<IActionResult> Update([FromBody] FormModel request) 
+        {
+            try
+            {
+                var spe = new Specialty
+                {
+                    SpecialtyID = Guid.Parse(request.SpecialtyID),
+                    Title = request.Title,
+                };
+
+                using (var ms = new MemoryStream())
+                {
+                    request.Image.CopyTo(ms);
+                    var imageBytes = ms.ToArray();
+                    spe.Image = imageBytes;
+                }
+
+                var result = await _specialtyRepository.Update(spe);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = result ? StatusCodes.Status201Created : StatusCodes.Status400BadRequest,
+                    Message = result ? "Specialty updated successfully." : "Update failed.",
+                    IsSucceeded = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    IsSucceeded = false
+                });
+            }
         }
     }
 }

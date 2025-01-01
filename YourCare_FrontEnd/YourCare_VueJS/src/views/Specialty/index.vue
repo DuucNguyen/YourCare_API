@@ -2,6 +2,11 @@
     import ApiSpecialty from "@/api/ApiSpecialty";
     import { onMounted, onUpdated, reactive, ref, computed } from "vue";
     import { useRouter, useRoute } from "vue-router";
+    import { createVNode } from "vue";
+    //
+    import { Descriptions, message, Modal } from "ant-design-vue";
+    import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
+    import { notification } from "ant-design-vue";
 
     const route = useRoute();
     const router = useRouter();
@@ -78,11 +83,42 @@
             getData();
         }
     });
+
+    /**
+     * Delete
+     * **/
+    const showDeleteConfirm = (specialtyID) => {
+        Modal.confirm({
+            title: "Are you sure delete this specialty?",
+            icon: createVNode(ExclamationCircleOutlined),
+            content: "This action can not be undone.",
+            okText: "Yes",
+            okType: "danger",
+            cancelText: "No",
+            async onOk() {
+                var result = await ApiSpecialty.Delete(specialtyID);
+                var type = result.data.isSucceeded ? "success" : "danger";
+                var context = result.data.message;
+
+                showNotification(type, "Delete status", context);
+            },
+            onCancel() {
+                console.log("Cancel deletion");
+            },
+        });
+    };
+
+    const showNotification = (type, message, context) => {
+        notification[type]({
+            message: message,
+            description: context,
+        });
+    };
 </script>
 
 <template>
     <div class="d-flex align-items-center">
-        <h1>Specialties</h1>
+        <h1>Specialties -</h1>
         <RouterLink class="m-1 btn btn-success" :to="{ name: 'Admin_Specialty_Create' }"
             >Create</RouterLink
         >
@@ -122,14 +158,9 @@
                             }"
                             >Update</RouterLink
                         >
-                        <RouterLink
-                            class="m-1 btn btn-danger"
-                            :to="{
-                                name: 'Admin_Specialty_Detail',
-                                params: { id: item.specialtyID },
-                            }"
-                            >Detail</RouterLink
-                        >
+                        <button @click="showDeleteConfirm(item.specialtyID)" class="btn btn-danger">
+                            Delete
+                        </button>
                     </td>
                 </tr>
             </tbody>

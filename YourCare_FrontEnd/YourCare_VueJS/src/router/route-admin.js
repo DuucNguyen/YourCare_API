@@ -54,12 +54,6 @@ const adminRoutes = [
                 meta: { title: "Specialty-Update" },
                 component: () => import("@/views/Specialty/update.vue"),
             },
-            {
-                path: "specialty-detail/:id",
-                name: "Admin_Specialty_Detail",
-                meta: { title: "Specialty-Detail" },
-                component: () => import("@/views/Specialty/detail.vue"),
-            },
         ],
     },
 ];
