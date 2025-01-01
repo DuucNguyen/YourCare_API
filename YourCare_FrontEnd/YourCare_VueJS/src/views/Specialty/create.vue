@@ -2,7 +2,6 @@
     import { reactive, ref } from "vue";
     import API from "@/api/ApiSpecialty";
 
-
     //
     import Message from "@/components/Message.vue";
     const formState = reactive({
@@ -27,7 +26,6 @@
 
             message.value = result.data.message;
             isSucceed.value = result.data.isSucceeded;
-
         } catch (error) {
             console.log(error);
         }
@@ -54,7 +52,7 @@
 </script>
 
 <template>
-    <h2>Specialization - Add</h2>
+    <h2>Specialization - <RouterLink :to="{ name: 'Admin_Specialty_View' }">Index</RouterLink></h2>
     <hr />
     <div class="row d-flex justify-content-center">
         <div class="col-md-6 form-create">

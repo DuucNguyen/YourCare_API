@@ -25,7 +25,7 @@ export const useAuthStore = defineStore({
             this.user = JSON.parse(result.data.data);
             this.message = result.data.message;
             this.isSucceeded = result.data.isSucceeded;
-            
+
             if (result.data.isSucceeded) {
                 this.router.push(this.returnURL || "/");
             }

@@ -5,8 +5,8 @@ const END_POINT = {
 };
 
 class ApiSpecialty {
-    GetAllByLimit = (args) => {
-        return API.get(`${END_POINT.GETALLBYLIMIT}`, {
+    GetAllByLimit = async (args) => {
+        return await API.get(`${END_POINT.GETALLBYLIMIT}`, {
             params: {
                 PageNumber: args.pageNumber || 1,
                 PageSize: args.pageSize || 10,

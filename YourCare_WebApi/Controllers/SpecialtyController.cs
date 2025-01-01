@@ -25,17 +25,25 @@ namespace YourCare_WebApi.Controllers
             _uriService = uriService;
         }
 
-       
+
 
         [HttpGet]
         [Route("GetAllByLimit")]
-        public async Task<IActionResult> GetAllByLimit(PaginationFilter filter, string? searchValue)
+        public async Task<IActionResult> GetAllByLimit([FromQuery] PaginationFilter filter, string? searchValue)
         {
             var query = await _specialtyRepository.GetAll();
+
             if (!string.IsNullOrEmpty(searchValue))
             {
                 query = query.Where(x => x.Title.Contains(searchValue)).ToList();
             }
+
+            query = query.Select(x => new Specialty
+            {
+                SpecialtyID = x.SpecialtyID,
+                Title = x.Title,
+                ImageString = x.Image != null ? $"data:image/png;base64,{Convert.ToBase64String(x.Image)}" : ""
+            }).ToList();
 
             var route = Request.Path.Value;
             var totalRecords = query.Count();

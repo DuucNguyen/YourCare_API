@@ -9,7 +9,7 @@
 
         public static Pagination<T> Paginate(List<T> data, int pageNumber, int pageSize)
         {
-            var items = data.Skip(pageNumber - 1 * pageSize).Take(pageSize).ToList();
+            var items = data.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
             return new Pagination<T>(items);
         }
     }
