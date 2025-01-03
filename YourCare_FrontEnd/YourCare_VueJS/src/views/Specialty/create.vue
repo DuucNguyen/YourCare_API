@@ -1,8 +1,13 @@
 <script setup>
     import { reactive, ref } from "vue";
-    import API from "@/api/ApiSpecialty";
+    import ApiSpecialty from "@/api/ApiSpecialty";
 
     //
+    import { createVNode } from "vue";
+    import { Modal } from "ant-design-vue";
+    import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
+    import { notification } from "ant-design-vue";
+
     import Message from "@/components/Message.vue";
     const formState = reactive({
         title: "",
@@ -11,25 +16,6 @@
 
     const message = ref("");
     const isSucceed = ref(false);
-
-    const onFinish = async () => {
-        try {
-            var formData = new FormData();
-            formData.append("title", formState.title);
-            formData.append("image", formState.image);
-
-            // for (let pair of formData.entries()) {
-            //     console.log(pair[0], pair[1]);
-            // }
-
-            var result = await API.Create(formData);
-
-            message.value = result.data.message;
-            isSucceed.value = result.data.isSucceeded;
-        } catch (error) {
-            console.log(error);
-        }
-    };
 
     /**
      * Load Image
@@ -49,6 +35,37 @@
             reader.readAsDataURL(file); // Read the file as a Data URL
         }
     };
+
+    const showUpdateConfirm = () => {
+        Modal.confirm({
+            title: "Are you sure create this specialty?",
+            icon: createVNode(ExclamationCircleOutlined),
+            content: "Are you sure to perform this action.",
+            okText: "Yes",
+            cancelText: "No",
+            async onOk() {
+                var formData = new FormData();
+                formData.append("title", formState.title);
+                formData.append("image", formState.image);
+
+                var result = await ApiSpecialty.Create(formData);
+                var type = result.data.isSucceeded ? "success" : "danger";
+                var context = result.data.message;
+
+                showNotification(type, "Create status", context);
+            },
+            onCancel() {
+                console.log("Cancel update");
+            },
+        });
+    };
+
+    const showNotification = (type, message, context) => {
+        notification[type]({
+            message: message,
+            description: context,
+        });
+    };
 </script>
 
 <template>
@@ -56,7 +73,7 @@
     <hr />
     <div class="row d-flex justify-content-center">
         <div class="col-md-6 form-create">
-            <form @submit.prevent="onFinish" enctype="multipart/form-data">
+            <form @submit.prevent="showUpdateConfirm" enctype="multipart/form-data">
                 <div class="mb-3 form-group">
                     <label for="title" class="control-label"
                         >Title<span class="text-danger">*</span></label

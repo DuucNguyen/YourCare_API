@@ -2,9 +2,10 @@
     import ApiSpecialty from "@/api/ApiSpecialty";
     import { onMounted, onUpdated, reactive, ref, computed } from "vue";
     import { useRouter, useRoute } from "vue-router";
-    import { createVNode } from "vue";
+
     //
-    import { Descriptions, message, Modal } from "ant-design-vue";
+    import { createVNode } from "vue";
+    import { Modal } from "ant-design-vue";
     import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
     import { notification } from "ant-design-vue";
 

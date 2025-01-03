@@ -24,7 +24,33 @@ namespace YourCare_WebApi.Controllers
             _specialtyRepository = specialtyRepository;
             _uriService = uriService;
         }
+        [HttpGet("GetByID")]
+        public async Task<IActionResult> GetByID(string id)
+        {
+            try
+            {
+                var result = await _specialtyRepository.GetByID(id);
+                result.ImageString = result.Image != null ? $"data:image/png;base64,{Convert.ToBase64String(result.Image)}" : "";
 
+                return new JsonResult(new ResponseModel<Specialty>
+                {
+                    StatusCode = result != null ? StatusCodes.Status200OK : StatusCodes.Status404NotFound,
+                    Message = result != null ? "GetbyID successfully." : "Specialty not found.",
+                    IsSucceeded = result != null,
+                    Data = result
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    IsSucceeded = false
+                });
+            }
+        }
 
 
         [HttpGet]
@@ -127,7 +153,7 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpPost("Update")]
-        public async Task<IActionResult> Update([FromBody] FormModel request) 
+        public async Task<IActionResult> Update([FromForm] FormModel request)
         {
             try
             {

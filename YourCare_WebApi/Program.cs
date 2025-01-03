@@ -29,7 +29,9 @@ namespace YourCare_WebApi
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConStr"),
                 sqlOptions => sqlOptions.MigrationsAssembly("YourCare_WebApi")
-            ));
+            ),
+            ServiceLifetime.Transient
+            );
 
             builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
             {

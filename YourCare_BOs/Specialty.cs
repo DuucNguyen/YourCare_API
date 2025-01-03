@@ -12,6 +12,7 @@ namespace YourCare_BOs
         public Guid SpecialtyID { get; set; }
         public string Title { get; set; }
         public byte[] Image { get; set; }
+        public bool IsActive { get; set; }
 
         [NotMapped]
         public string? ImageString { get; set; }

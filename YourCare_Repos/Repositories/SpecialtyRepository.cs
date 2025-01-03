@@ -22,53 +22,41 @@ namespace YourCare_Repos.Repositories
 
         public async Task<bool> Add(Specialty request)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
+                var find = await _specialtyDAO.GetByTitle(request.Title);
+                if (find != null)
                 {
-                    var find = await _specialtyDAO.GetByTitle(request.Title);
-                    if (find != null)
-                    {
-                        scope.Dispose();
-                        return false;
-                    }
-
-                    await _specialtyDAO.Create(request);
-                    scope.Complete();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
                     return false;
                 }
+                request.IsActive = true;
+                await _specialtyDAO.Create(request);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return false;
             }
         }
 
         public async Task<bool> Delete(string id)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
+                var find = await _specialtyDAO.GetByID(id);
+                if (find == null)
                 {
-                    var find = await _specialtyDAO.GetByID(id);
-                    if (find == null)
-                    {
-                        scope.Dispose();
-                        return false;
-                    }
-
-                    await _specialtyDAO.Delete(find);
-                    scope.Dispose();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
                     return false;
                 }
+
+                await _specialtyDAO.Delete(find);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return false;
             }
         }
 
@@ -101,27 +89,25 @@ namespace YourCare_Repos.Repositories
 
         public async Task<bool> Update(Specialty request)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+
+            try
             {
-                try
+                var find = await _specialtyDAO.GetByID(request.SpecialtyID.ToString());
+                if (find == null)
                 {
-                    var find = await _specialtyDAO.GetByID(request.SpecialtyID.ToString());
-                    if (find == null)
-                    {
-                        scope.Dispose();
-                        return false;
-                    }
-                    find = request;
-                    await _specialtyDAO.Update(find);
-                    scope.Dispose();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
                     return false;
                 }
+
+                find.Title = request.Title;
+                find.Image = request.Image;
+
+                await _specialtyDAO.Update(find);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return false;
             }
         }
     }
