@@ -17,7 +17,7 @@ const adminRoutes = [
                 component: () => import("@/views/DoctorProfile/index.vue"),
             },
             {
-                path: "doctor-profile-create",
+                path: "doctor-profile-create/:id",
                 name: "Admin_DoctorProfile_Create",
                 meta: { title: "DoctorProfile-Create" },
                 component: () => import("@/views/DoctorProfile/create.vue"),

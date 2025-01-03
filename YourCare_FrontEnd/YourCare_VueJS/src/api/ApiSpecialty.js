@@ -1,6 +1,7 @@
 import API from "@/api/api";
 const END_POINT = {
     GETALLBYLIMIT: "Specialty/GetAllByLimit",
+    GETALL: "Specialty/GetAll",
     GETBYID: "Specialty/GetByID",
     CREATE: "Specialty/Create",
     UPDATE: "Specialty/Update",
@@ -16,6 +17,10 @@ class ApiSpecialty {
                 searchValue: args.searchValue ?? "",
             },
         });
+    };
+
+    GetAllSpeID = async () => {
+        return await API.get(`${END_POINT.GETALL}`);
     };
 
     GetByID = async (id) => {

@@ -23,7 +23,37 @@ namespace YourCare_WebApi.Controllers
             _userRepository = userRepository;
             _uriService = uriService;
         }
+        [HttpGet("GetByID")]
 
+        public async Task<IActionResult> GetByID([FromQuery] string id)
+        {
+            try
+            {
+                var find = await _userRepository.GetById(id);
+
+                if (find != null)
+                {
+                    find.ImageString = find.Image != null ? $"data:image/png;base64,{Convert.ToBase64String(find.Image)}" : "";
+                }
+
+                return new JsonResult(new ResponseModel<ApplicationUser>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "GetUserByID successfully",
+                    IsSucceeded = find != null,
+                    Data = find
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "GetByID Failed",
+                    IsSucceeded = false,
+                });
+            }
+        }
 
         [HttpGet("GetAllByLimit")]
         public async Task<IActionResult> GetAllByLimit([FromQuery] PaginationFilter filter, string? searchValue)

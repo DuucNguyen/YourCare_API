@@ -83,6 +83,31 @@ namespace YourCare_WebApi.Controllers
             return Ok(pagedResponse);
         }
 
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll()
+        {
+            try
+            {
+                var query = await _specialtyRepository.GetAll();
+                var result = query.Select(x => new
+                {
+                    SpecialtyID= x.SpecialtyID,
+                    Title = x.Title
+                }).ToList();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    IsSucceeded = false
+                });
+            }
+        }
+
 
         public class FormModel
         {

@@ -2,7 +2,7 @@
     import ApiUser from "@/api/ApiUser";
     import { reactive, ref, onMounted, onUpdated } from "vue";
 
-    import { useRoute, useRouter } from "vue-router";
+    import { RouterLink, useRoute, useRouter } from "vue-router";
 
     const route = useRoute();
     const router = useRouter();
@@ -93,8 +93,7 @@
             :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
             show-size-changer
             show-quick-jumper
-            class="m-3 text-end"
-            ></a-pagination>
+            class="m-3 text-end"></a-pagination>
 
         <table class="table table-responsive table-bordered">
             <thead>
@@ -102,6 +101,7 @@
                     <th>Image</th>
                     <th>FullName</th>
                     <th>Email</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -111,6 +111,16 @@
                     </td>
                     <td>{{ user.fullName }}</td>
                     <td>{{ user.email }}</td>
+                    <td>
+                        <RouterLink
+                            class="m-1 btn btn-primary"
+                            :to="{
+                                name: 'Admin_DoctorProfile_Create',
+                                params: { id: user.id },
+                            }"
+                            >Create Doctor Profile</RouterLink
+                        >
+                    </td>
                 </tr>
             </tbody>
         </table>

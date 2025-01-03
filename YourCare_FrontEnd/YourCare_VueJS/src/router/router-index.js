@@ -66,6 +66,7 @@ router.beforeEach(async (to, from, next) => {
         if (useAuthStore().user.Claims[claimKey] !== "1") {
             next({ name: "404" });
         }
+        next();
         return;
     }
 
