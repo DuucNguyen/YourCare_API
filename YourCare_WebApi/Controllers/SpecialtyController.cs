@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using YourCare_BOs;
 using YourCare_Repos.Interfaces;
@@ -10,6 +11,7 @@ namespace YourCare_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class SpecialtyController : ControllerBase
     {
         private readonly ISpecialtyRepository _specialtyRepository;
@@ -24,6 +26,7 @@ namespace YourCare_WebApi.Controllers
             _specialtyRepository = specialtyRepository;
             _uriService = uriService;
         }
+
         [HttpGet("GetByID")]
         public async Task<IActionResult> GetByID(string id)
         {
@@ -79,6 +82,7 @@ namespace YourCare_WebApi.Controllers
 
             return Ok(pagedResponse);
         }
+
 
         public class FormModel
         {

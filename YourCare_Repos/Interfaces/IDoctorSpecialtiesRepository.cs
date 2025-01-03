@@ -10,6 +10,7 @@ namespace YourCare_Repos.Interfaces
     public interface IDoctorSpecialtiesRepository
     {
         public Task<bool> Add(DoctorSpecialties request);
+        public Task<int> AddRange(string doctorID, List<string> speIDs);
         public Task<bool> Delete(DoctorSpecialties request);
         public Task<List<DoctorSpecialties>> GetAll();
         public Task<List<Specialty>> GetAllSpeByDoctorID(Guid doctorID);

@@ -33,8 +33,7 @@
 
                 if (pageParams.statusFilter) {
                     if (
-                        result.data.totalPages < pageParams.pageNumber &&
-                        pageParams.totalRecords > 0
+                        result.data.totalPages < pageParams.pageNumber && pageParams.totalRecords > 0
                     ) {
                         router.push({
                             name: "Admin_Specialty_View",

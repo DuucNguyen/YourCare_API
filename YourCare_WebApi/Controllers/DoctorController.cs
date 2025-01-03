@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using YourCare_BOs;
 using YourCare_DAOs;
+using YourCare_Repos.Interfaces;
 using YourCare_WebApi.Models.Auth;
 
 namespace YourCare_WebApi.Controllers
@@ -12,13 +13,20 @@ namespace YourCare_WebApi.Controllers
     [ApiController]
     public class DoctorController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IDoctorSpecialtiesRepository _doctorSpecialtiesRepository;
+        private readonly IDoctorProfileRepository _doctorProfileRepository;
+        private readonly IUserRepository _userRepository;
+
 
         public DoctorController(
-            ApplicationDbContext context
+            IDoctorSpecialtiesRepository doctorSpecialtiesRepository,
+            IDoctorProfileRepository doctorProfileRepository,
+            IUserRepository userRepository
             )
         {
-            _context = context;
+            _doctorSpecialtiesRepository = doctorSpecialtiesRepository;
+            _doctorProfileRepository = doctorProfileRepository;
+            _userRepository = userRepository;
         }
 
         [Authorize(Policy = "AdminOnly")]
@@ -27,7 +35,7 @@ namespace YourCare_WebApi.Controllers
         {
             try
             {
-                var listDoc = await _context.Doctors.ToListAsync();
+                var listDoc = await _doctorProfileRepository.GetAllDoctor();
                 return new JsonResult(new ResponseModel<List<DoctorProfile>>
                 {
                     StatusCode = StatusCodes.Status200OK,

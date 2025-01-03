@@ -23,111 +23,111 @@ namespace YourCare_Repos.Repositories
 
         public async Task<bool> Add(DoctorSpecialties request)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
+                var find = await _doctorSpecialtiesDAO.GetByID(request.DoctorID, request.SpecialtyID);
+                if (find != null)
                 {
-                    var find = await _doctorSpecialtiesDAO.GetByID(request.DoctorID, request.SpecialtyID);
-                    if (find != null)
-                    {
-                        scope.Dispose();
-                        return false;
-                    }
-                    await _doctorSpecialtiesDAO.Create(request);
-                    scope.Dispose();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
                     return false;
                 }
+                await _doctorSpecialtiesDAO.Add(request);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return false;
+            }
+        }
+
+        public async Task<int> AddRange(string doctorID, List<string> speIDs)
+        {
+            try
+            {
+                var spes = await _doctorSpecialtiesDAO.GetAllSpeByDoctorID(doctorID);
+                var dub =
+                    spes
+                    .Where(x => speIDs.Contains(x.SpecialtyID.ToString()))
+                    .Select(x => x.SpecialtyID.ToString())
+                    .ToList();
+
+                var newValidSpes = speIDs.Except(dub).Select(x => new DoctorSpecialties
+                {
+                    DoctorID = Guid.Parse(doctorID),
+                    SpecialtyID = Guid.Parse(x)
+                }).ToList();
+                
+                await _doctorSpecialtiesDAO.AddRange(newValidSpes);
+                return dub.Count;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return -1;
             }
         }
 
         public async Task<bool> Delete(DoctorSpecialties request)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
+                var find = await _doctorSpecialtiesDAO.GetByID(request.DoctorID, request.SpecialtyID);
+                if (find == null)
                 {
-                    var find = await _doctorSpecialtiesDAO.GetByID(request.DoctorID, request.SpecialtyID);
-                    if (find == null)
-                    {
-                        scope.Dispose();
-                        return false;
-                    }
-                    await _doctorSpecialtiesDAO.Delete(find);
-                    scope.Dispose();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
                     return false;
                 }
+                await _doctorSpecialtiesDAO.Delete(find);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return false;
             }
         }
 
         public async Task<List<DoctorSpecialties>> GetAll()
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
-                {
-                    var result = await _doctorSpecialtiesDAO.GetAll();
-                    scope.Dispose();
+                var result = await _doctorSpecialtiesDAO.GetAll();
 
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return null;
-                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return null;
             }
         }
 
         public async Task<List<DoctorSpecialties>> GetAllBySpeID(Guid speID)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
-                {
-                    var qry = await _doctorSpecialtiesDAO.GetAll();
-                    var result = qry.Where(x => x.SpecialtyID == speID).ToList();
-                    scope.Dispose();
+                var qry = await _doctorSpecialtiesDAO.GetAll();
+                var result = qry.Where(x => x.SpecialtyID == speID).ToList();
 
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return null;
-                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return null;
             }
         }
 
         public async Task<List<Specialty>> GetAllSpeByDoctorID(Guid doctorID)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
-                {
-                    var result = await _doctorSpecialtiesDAO.GetAllSpeByDoctorID(doctorID);
-                    scope.Dispose();
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return null;
-                }
+                var result = await _doctorSpecialtiesDAO.GetAllSpeByDoctorID(doctorID.ToString());
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return null;
             }
         }
     }

@@ -51,6 +51,15 @@ namespace YourCare_WebApi
 
             builder.Services.AddScoped<SpecialtyDAO>();
             builder.Services.AddScoped<ISpecialtyRepository, SpecialtyRepository>();
+
+            builder.Services.AddScoped<DoctorSpecialtiesDAO>();
+            builder.Services.AddScoped<IDoctorSpecialtiesRepository, DoctorSpecialtiesRepository>();
+
+            builder.Services.AddScoped<DoctorDAO>();
+            builder.Services.AddScoped<IDoctorProfileRepository, DoctorProfileRepository>();
+
+            builder.Services.AddScoped<UserDAO>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
             #endregion
 
             #region EmailService

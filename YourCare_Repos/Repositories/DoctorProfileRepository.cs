@@ -23,39 +23,29 @@ namespace YourCare_Repos.Repositories
         }
         public async Task<List<DoctorProfile>> GetAllDoctor()
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
-                {
-                    var result = await _doctorProfileDAO.GetAllDoctor();
-                    scope.Dispose();
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return null;
-                }
+                var result = await _doctorProfileDAO.GetAllDoctor();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return null;
             }
         }
 
         public async Task<DoctorProfile> GetDoctorById(Guid id)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
-                {
-                    var result = await _doctorProfileDAO.GetDoctorByID(id);
-                    scope.Dispose();
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return null;
-                }
+                var result = await _doctorProfileDAO.GetDoctorByID(id);
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return null;
             }
         }
     }

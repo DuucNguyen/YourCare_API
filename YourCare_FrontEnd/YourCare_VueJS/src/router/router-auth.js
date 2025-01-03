@@ -2,7 +2,6 @@ const authRoutes = [
     {
         path: "/auth",
         redirect: { path: "/login" },
-        component: () => import("@/shared/_authLayout.vue"),
         children: [
             {
                 path: "/login",

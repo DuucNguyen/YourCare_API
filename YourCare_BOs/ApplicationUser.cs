@@ -20,6 +20,10 @@ namespace YourCare_BOs
         [NotMapped]
         public string? ImageString { get; set; }
 
+        [NotMapped]
+        public string? RoleName { get; set; }
+
+
         public virtual ICollection<Appointment> CreatedAppointments { get; set; }
         public virtual ICollection<PatientProfile> PatientProfiles { get; set; }
 

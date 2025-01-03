@@ -1,6 +1,5 @@
 import axios from "axios";
 import TokenService from "./TokenService";
-import { config } from "@vue/test-utils";
 const baseURL = import.meta.env.VITE_API_URL_LOCAL;
 
 const instance = axios.create({

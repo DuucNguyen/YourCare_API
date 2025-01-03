@@ -1,3 +1,5 @@
+import { compile } from "vue";
+
 const adminRoutes = [
     {
         path: "/admin",
@@ -54,6 +56,35 @@ const adminRoutes = [
                 meta: { title: "Specialty-Update" },
                 component: () => import("@/views/Specialty/update.vue"),
             },
+
+            /**
+             * User
+             * **/
+            {
+                path: "user",
+                name: "Admin_User_View",
+                meta: {title: "User"},
+                component: () => import("@/views/User/Index.vue")
+            },
+            {
+                path: "user-create",
+                name: "Admin_User_Create",
+                meta: {title: "User-Create"},
+                component: () => import("@/views/User/create.vue")
+            },
+            {
+                path: "user-update/:id",
+                name: "Admin_User_Update",
+                meta: {title: "User-Update"},
+                component: () => import("@/views/User/update.vue")
+            },
+            {
+                path: "user-detail/:id",
+                name: "Admin_User_Detail",
+                meta: {title: "User-Detai"},
+                component: () => import("@/views/User/detail.vue")
+            }
+            
         ],
     },
 ];

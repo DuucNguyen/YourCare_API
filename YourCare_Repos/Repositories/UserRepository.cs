@@ -33,52 +33,42 @@ namespace YourCare_Repos.Repositories
 
         public async Task<bool> Add(ApplicationUser request)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
+                var find = await _userManager.FindByIdAsync(request.Id);
+                if (find != null)
                 {
-                    var find = await _userManager.FindByIdAsync(request.Id);
-                    if (find != null)
-                    {
-                        scope.Dispose();
-                        return false;
-                    }
-                    _userDAO.CreateUser(request);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("AddUser: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
                     return false;
                 }
+                _userDAO.CreateUser(request);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("AddUser: " + ex.Message + " - " + ex.StackTrace);
+                return false;
             }
         }
 
         public async Task<bool> Deactivate(ApplicationUser request)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
-                {
-                    var find = await _userManager.FindByIdAsync(request.Id);
+                var find = await _userManager.FindByIdAsync(request.Id);
 
-                    if (find == null)
-                    {
-                        scope.Dispose();
-                        return false;
-                    }
-
-                    find.IsActive = false;
-                    _userDAO.UpdateUser(find);
-                    return true;
-                }
-                catch (Exception ex)
+                if (find == null)
                 {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
                     return false;
                 }
+
+                find.IsActive = false;
+                _userDAO.UpdateUser(find);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return false;
             }
         }
 
@@ -90,84 +80,63 @@ namespace YourCare_Repos.Repositories
 
         public async Task<List<ApplicationUser>> GetAll()
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
-                {
-                    var result = await _userDAO.GetAllUser();
-                    scope.Dispose();
-
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return null;
-                }
+                var result = await _userDAO.GetAllUser();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return null;
             }
         }
 
         public async Task<ApplicationUser> GetByEmail(string email)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
-                {
-                    var find = await _userManager.FindByEmailAsync(email);
-                    scope.Dispose();
-                    return find;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return null;
-                }
+                var find = await _userManager.FindByEmailAsync(email);
+                return find;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return null;
             }
         }
 
         public async Task<ApplicationUser> GetById(string id)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
-                {
-                    var find = await _userManager.FindByIdAsync(id);
-                    scope.Dispose();
-                    return find;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return null;
-                }
+                var find = await _userManager.FindByIdAsync(id);
+                return find;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                return null;
             }
         }
 
         public async Task<bool> Update(ApplicationUser request)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            try
             {
-                try
+                var find = await _userManager.FindByIdAsync(request.Id);
+                if (find == null)
                 {
-                    var find = await _userManager.FindByIdAsync(request.Id);
-                    if (find == null)
-                    {
-                        scope.Dispose();
-                        return false;
-                    }
-                    find = request;
-                    _userDAO.UpdateUser(find);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("UpdateUser: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
                     return false;
                 }
+                find = request;
+                _userDAO.UpdateUser(find);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("UpdateUser: " + ex.Message + " - " + ex.StackTrace);
+                return false;
             }
         }
     }

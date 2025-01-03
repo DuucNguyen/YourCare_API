@@ -18,9 +18,15 @@ namespace YourCare_DAOs.DAOs
             _context = context;
         }
 
-        public async Task Create(DoctorSpecialties docSpe)
+        public async Task Add(DoctorSpecialties docSpe)
         {
             await _context.DoctorSpecialties.AddAsync(docSpe);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task AddRange(List<DoctorSpecialties> docSpes)
+        {
+            await _context.DoctorSpecialties.AddRangeAsync(docSpes);
             await _context.SaveChangesAsync();
         }
 
@@ -41,11 +47,11 @@ namespace YourCare_DAOs.DAOs
             return await _context.DoctorSpecialties.ToListAsync();
         }
 
-        public async Task<List<Specialty>> GetAllSpeByDoctorID(Guid doctorID)
+        public async Task<List<Specialty>> GetAllSpeByDoctorID(string doctorID)
         {
             return await _context.DoctorSpecialties
                 .Include(x => x.Specialty)
-                .Where(x => x.DoctorID == doctorID)
+                .Where(x => x.DoctorID == Guid.Parse(doctorID))
                 .Select(x => x.Specialty)
                 .ToListAsync();
         }
