@@ -39,5 +39,10 @@ namespace YourCare_DAOs.DAOs
             return await _context.Users.ToListAsync();
         }
 
+        public async Task<ApplicationUser> GetUserByID(string userID)
+        {
+            return await _context.Users.FirstOrDefaultAsync(x => x.Id == userID);
+        }
+
     }
 }

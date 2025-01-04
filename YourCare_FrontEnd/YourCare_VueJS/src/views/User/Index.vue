@@ -107,7 +107,12 @@
             <tbody>
                 <tr v-for="user in data">
                     <td>
-                        <img :src="user.imageString" alt="avatar" />
+                        <div style="width: 100px; height: 100px">
+                            <img
+                                style="width: 100%; height: 100%; object-fit: contain"
+                                :src="user.imageString"
+                                alt="avatar" />
+                        </div>
                     </td>
                     <td>{{ user.fullName }}</td>
                     <td>{{ user.email }}</td>

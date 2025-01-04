@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -12,5 +13,6 @@ namespace YourCare_Repos.Interfaces
     {
         public Task<List<DoctorProfile>> GetAllDoctor();
         public Task<DoctorProfile> GetDoctorById(Guid id);
+        public Task<bool> CreateNewProfile(IFormFile userImage, DoctorProfile rquest, List<string> spes);
     }
 }

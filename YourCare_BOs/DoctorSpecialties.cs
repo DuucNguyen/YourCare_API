@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
@@ -9,8 +10,6 @@ namespace YourCare_BOs
 {
     public class DoctorSpecialties
     {
-        public Guid Id { get; set; }
-
         [ForeignKey("FK_DoctorSpecialties_Doctor")]
         public Guid DoctorID { get; set; }
 

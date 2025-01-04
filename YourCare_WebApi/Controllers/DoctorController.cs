@@ -55,5 +55,47 @@ namespace YourCare_WebApi.Controllers
             }
         }
 
+
+        public class CreateDoctorProfileModel
+        {
+            public string UserID { get; set; }
+            public IFormFile UserImage { get; set; }
+            public string DoctorTitle { get; set; }
+            public string DoctorDescription { get; set; }
+            public int YearExperience { get; set; }
+            public List<string> SpecialtyIDs { get; set; }
+        }
+
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create([FromForm] CreateDoctorProfileModel request)
+        {
+            try
+            {
+                var newProfile = new DoctorProfile
+                {
+                    DoctorTitle = request.DoctorTitle,
+                    DoctorDescription = request.DoctorDescription,
+                    YearExperience = request.YearExperience,
+                    ApplicationUserID = request.UserID,
+                };
+                var result = await _doctorProfileRepository.CreateNewProfile(request.UserImage, newProfile, request.SpecialtyIDs);
+
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = result ? StatusCodes.Status200OK : StatusCodes.Status500InternalServerError,
+                    Message = result ? "Created successfully." : "",
+                    IsSucceeded = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    IsSucceeded = false,
+                });
+            }
+        }
     }
 }

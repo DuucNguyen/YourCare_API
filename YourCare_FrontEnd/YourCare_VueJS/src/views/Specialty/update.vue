@@ -65,7 +65,7 @@
                 formData.append("image", formState.image);
 
                 var result = await ApiSpecialty.Update(formData);
-                var type = result.data.isSucceeded ? "success" : "danger";
+                var type = result.data.isSucceeded ? "success" : "error";
                 var context = result.data.message;
 
                 loadData();

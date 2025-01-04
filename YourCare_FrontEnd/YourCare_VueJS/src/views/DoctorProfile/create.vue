@@ -1,5 +1,6 @@
 <script setup>
     import ApiUser from "@/api/ApiUser";
+    import ApiDoctorProfile from "@/api/ApiDoctorProfile";
     import ApiSpecialty from "@/api/ApiSpecialty";
 
     import { reactive, ref, onMounted, onBeforeMount, nextTick, watch } from "vue";
@@ -95,11 +96,19 @@
             cancelText: "No",
             async onOk() {
                 var formData = new FormData();
-                formData.append("title", formState.title);
-                formData.append("image", formState.image);
+                formData.append("userID", userData.id);
+                formData.append("userImage", formState.applicationUserImage);
+                formData.append("doctorTitle", formState.doctorTitle);
+                formData.append("doctorDescription", formState.doctorDescription);
+                formData.append("yearExperience", formState.yearExperience);
 
-                var result = await ApiSpecialty.Create(formData);
-                var type = result.data.isSucceeded ? "success" : "danger";
+                chosenSpecialties.value.forEach((item, index) => {
+                    formData.append(`specialtyIDs[${index}]`, item.specialtyID);
+                });
+
+                var result = await ApiDoctorProfile.Create(formData);
+
+                var type = result.data.isSucceeded ? "success" : "error";
                 var context = result.data.message;
 
                 showNotification(type, "Create status", context);
@@ -130,6 +139,7 @@
             showModalSpeError();
             return;
         }
+        showUpdateConfirm();
     };
 </script>
 

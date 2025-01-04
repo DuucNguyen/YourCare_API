@@ -30,7 +30,7 @@ namespace YourCare_WebApi
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConStr"),
                 sqlOptions => sqlOptions.MigrationsAssembly("YourCare_WebApi")
             ),
-            ServiceLifetime.Transient
+            ServiceLifetime.Scoped
             );
 
             builder.Services.AddDefaultIdentity<ApplicationUser>(options =>

@@ -18,10 +18,11 @@ namespace YourCare_DAOs.DAOs
             _context = context;
         }
 
-        public async Task Create(DoctorProfile doctor)
+        public async Task<string> Create(DoctorProfile doctor)
         {
             await _context.Doctors.AddAsync(doctor);
-            _context.SaveChanges();
+            _context.SaveChangesAsync();
+            return doctor.DoctorID.ToString();
         }
 
         public void Update(DoctorProfile doctor)
