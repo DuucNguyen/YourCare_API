@@ -2,8 +2,14 @@
     import ApiUser from "@/api/ApiUser";
     import ApiSpecialty from "@/api/ApiSpecialty";
 
-    import { reactive, ref, onMounted } from "vue";
+    import { reactive, ref, onMounted, onBeforeMount, nextTick, watch } from "vue";
     import { useRoute, useRouter } from "vue-router";
+
+    //
+    import { createVNode } from "vue";
+    import { Modal } from "ant-design-vue";
+    import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
+    import { notification } from "ant-design-vue";
 
     const route = useRoute();
     const router = useRouter();
@@ -18,6 +24,7 @@
     });
 
     const specialties = ref([]);
+    const chosenSpecialties = ref([]);
 
     const userData = reactive({
         id: "",
@@ -33,75 +40,161 @@
     const getUserData = async () => {
         var result = await ApiUser.GetByID(userData.id);
         if (result.data.isSucceeded) {
-            userData.fullName = result.data.fullName;
-            userData.email = result.data.email;
-            userData.dob = result.data.dob;
-            userData.address = result.data.address;
-            userData.phoneNumber = result.data.phoneNumber;
-            userData.gender = result.data.gender;
-            userData.imageString = result.data.imageString;
+            userData.fullName = result.data.data.fullName;
+            userData.email = result.data.data.email;
+            userData.dob = result.data.data.dob;
+            userData.address = result.data.data.address;
+            userData.phoneNumber = result.data.data.phoneNumber;
+            userData.gender = result.data.data.gender;
+            userData.imageString = result.data.data.imageString;
         }
     };
 
     const getSpecialties = async () => {
-        specialties.value = await ApiSpecialty.GetAllSpeID();
+        var result = await ApiSpecialty.GetAllSpeID();
+        specialties.value = result.data;
     };
 
-    onMounted(() => {
-        var id = route.params.id;
-        if (id) {
-            getUserData(id);
+    onMounted(async () => {
+        userData.id = route.params.id;
+        if (userData.id) {
+            getUserData();
         }
-        getSpecialties();
+        await getSpecialties();
     });
+
+    /**
+     * Image
+     * **/
+
+    const previewUrl = ref(null); // Reactive reference to hold the preview URL
+
+    const handleFileChange = (event) => {
+        const file = event.target.files[0]; // Get the selected file
+
+        if (file) {
+            formState.applicationUserImage = file; //for sending request with file.
+            const reader = new FileReader(); // Create a FileReader object
+            reader.onload = (e) => {
+                previewUrl.value = e.target.result; // Update the reactive `previewUrl`
+            };
+            reader.readAsDataURL(file); // Read the file as a Data URL
+        }
+    };
+
+    /**
+     * Form
+     * **/
+
+    const showUpdateConfirm = () => {
+        Modal.confirm({
+            title: "Are you sure create this specialty?",
+            icon: createVNode(ExclamationCircleOutlined),
+            content: "Are you sure to perform this action.",
+            okText: "Yes",
+            cancelText: "No",
+            async onOk() {
+                var formData = new FormData();
+                formData.append("title", formState.title);
+                formData.append("image", formState.image);
+
+                var result = await ApiSpecialty.Create(formData);
+                var type = result.data.isSucceeded ? "success" : "danger";
+                var context = result.data.message;
+
+                showNotification(type, "Create status", context);
+            },
+            onCancel() {
+                console.log("Cancel update");
+            },
+        });
+    };
+
+    const showModalSpeError = () => {
+        Modal.error({
+            title: "ERROR",
+            content:
+                "You haven't choose any specialty for this doctor. Choose at least one specialty before continue.",
+        });
+    };
+
+    const showNotification = (type, message, context) => {
+        notification[type]({
+            message: message,
+            description: context,
+        });
+    };
+
+    const onFinish = async () => {
+        if (chosenSpecialties.value.length <= 0) {
+            showModalSpeError();
+            return;
+        }
+    };
 </script>
 
 <template>
     <div class="d-flex justify-content-between">
         <div class="col-md-5 basic-information-container">
-            <h4 class="text-center" style="color: #1975DC;">Basic information</h4>
+            <h4 class="text-center" style="color: #1975dc">Basic information</h4>
             <div class="mb-3 form-items">
                 <label class="form-label">Full Name<span class="text-danger">*</span> </label>
-                <input class="form-control" type="text" />
+                <input readonly v-model="userData.fullName" class="form-control" type="text" />
             </div>
             <div class="mb-3 form-items">
                 <label class="form-label">Email<span class="text-danger">*</span></label>
-                <input class="form-control" type="text" />
+                <input readonly v-model="userData.email" class="form-control" type="text" />
             </div>
             <div class="mb-3 form-items">
                 <label class="form-label">Address<span class="text-danger">*</span></label>
-                <input class="form-control" type="text" />
+                <input readonly v-model="userData.address" class="form-control" type="text" />
             </div>
             <div class="mb-3 form-items">
                 <label class="form-label">PhoneNumber<span class="text-danger">*</span></label>
-                <input class="form-control" type="text" />
+                <input readonly v-model="userData.phoneNumber" class="form-control" type="text" />
             </div>
             <div class="mb-3 form-items d-flex">
                 <label class="form-label me-5">Gender<span class="text-danger">*</span></label>
                 <div>
-                    <div class="d-flex">
-                        <input id="male" class="form-check" type="radio" value="true" />
+                    <div v-if="userData.gender === true" class="d-flex">
+                        <input
+                            readonly
+                            v-model="userData.gender"
+                            id="male"
+                            class="form-check"
+                            type="radio"
+                            value="true" />
                         <label class="ms-1" for="male">Male</label>
                     </div>
-                    <div class="d-flex">
-                        <input id="female" class="form-check" type="radio" value="false" />
+                    <div v-else class="d-flex">
+                        <input
+                            readonly
+                            v-model="userData.gender"
+                            id="female"
+                            class="form-check"
+                            type="radio"
+                            value="false" />
                         <label class="ms-1" for="female">Female</label>
                     </div>
                 </div>
             </div>
             <div class="mb-3 form-items">
                 <label class="form-label">Date of birth<span class="text-danger">*</span></label>
-                <input class="form-control" type="date" />
+                <input readonly v-model="userData.dob" class="form-control" type="date" />
             </div>
         </div>
 
-        <form method="post" enctype="multipart/form-data">
+        <form
+            @submit.prevent="onFinish"
+            class="col-md-6"
+            method="post"
+            enctype="multipart/form-data">
             <div class="doctor-information-container">
-                <h4 class="text-center" style="color: #22C55E;">Doctor information</h4>
+                <h4 class="text-center" style="color: #22c55e">Doctor information</h4>
                 <div class="mb-3 d-flex">
                     <img
                         id="previewImage"
-                        src="#"
+                        :src="previewUrl"
                         alt="Avatar Preview"
                         style="padding: 2px; width: 200px; height: 200px; border: 1px solid #ddd" />
                     <div class="p-2 d-flex flex-column">
@@ -109,57 +202,86 @@
                             <label class="form-label"
                                 >AvatarFile<span class="text-danger">*</span></label
                             >
-                            <input id="fileInput" class="form-control" type="file" />
+                            <input
+                                @change="handleFileChange"
+                                id="fileInput"
+                                class="form-control"
+                                type="file"
+                                required />
                         </div>
                         <div class="mb-3 form-items">
                             <label class="form-label"
                                 >DoctorTitle<span class="text-danger">*</span></label
                             >
-                            <input class="form-control" type="text" />
+                            <input
+                                v-model="formState.doctorTitle"
+                                class="form-control"
+                                type="text"
+                                required />
                         </div>
                     </div>
                 </div>
 
-                <div class="mb-3 form-items">
-                    <label class="form-label"
-                        >Specializations<span class="text-danger">*</span></label
-                    >
-                    <div class="dropdown">
-                        <button
-                            class="btn btn-outline-success dropdown-toggle"
-                            type="button"
-                            data-bs-toggle="dropdown"
-                            aria-expanded="false">
-                            Select Specializations
-                        </button>
-                        <ul style="height: 200px; overflow-y: auto" class="p-3 dropdown-menu">
-                            <!-- @foreach (Specialization spe in ViewBag.specializations) {
-                        <li>
-                            <div class="form-check">
-                                <input
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    name="selectedSpecializations"
-                                    value="@spe.Id"
-                                    id="spe_@spe.Id" />
-                                <label class="form-check-label" for="spe_@spe.Id">
-                                    @spe.Name
-                                </label>
-                            </div>
-                        </li>
-                        } -->
-                        </ul>
+                <div class="mb-3 form-items d-flex">
+                    <div>
+                        <span class="form-label"
+                            >Specialties<span class="text-danger">*</span></span
+                        >
+                        <div class="dropdown">
+                            <button
+                                class="btn btn-outline-success dropdown-toggle"
+                                type="button"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                                Select Specialties
+                            </button>
+                            <ul @click.stop class="p-3 dropdown-menu drop-down-spe">
+                                <li v-for="spe in specialties" :key="spe.specialtyID">
+                                    <div class="form-check">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            name="selectedSpecializations"
+                                            :value="spe"
+                                            :id="'spe_' + spe.specialtyID"
+                                            v-model="chosenSpecialties" />
+                                        <label
+                                            @click.stop
+                                            class="form-check-label"
+                                            :for="'spe_' + spe.specialtyID">
+                                            {{ spe.title }}
+                                        </label>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="doctor-specialties-container">
+                        <label
+                            class="specialization-item-capsule"
+                            v-for="item in chosenSpecialties"
+                            >{{ item.title }}</label
+                        >
                     </div>
                 </div>
 
                 <div class="mb-3 form-items">
                     <label class="form-label">Experience<span class="text-danger">*</span></label>
-                    <input class="form-control" type="number" />
+                    <input
+                        v-model="formState.yearExperience"
+                        class="form-control"
+                        type="number"
+                        min="1"
+                        required />
                 </div>
 
                 <div class="mb-3 form-items">
                     <label class="form-label">DoctorDescription</label>
-                    <textarea class="form-control"></textarea>
+                    <textarea
+                        v-model="formState.doctorDescription"
+                        style="min-height: 100px; max-height: 300px"
+                        class="form-control"
+                        required></textarea>
                 </div>
                 <div class="d-flex justify-content-center">
                     <button class="btn btn-success w-100" type="submit">Create</button>
@@ -178,5 +300,27 @@
         padding: 20px;
         border-radius: 8px;
         border: 2px solid #22c55e;
+    }
+
+    .doctor-specialties-container {
+        padding: 10px;
+    }
+
+    .drop-down-spe {
+        width: 300px;
+        height: 200px;
+        overflow-y: auto;
+    }
+    .drop-down-spe label {
+        width: 100%;
+    }
+    .drop-down-spe li {
+        font-weight: 500;
+        padding: 0px 10px;
+    }
+    .drop-down-spe li:hover {
+        background: #22c55e;
+        color: #fff;
+        border-radius: 3px;
     }
 </style>
