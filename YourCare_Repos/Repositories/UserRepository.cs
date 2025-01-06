@@ -108,16 +108,14 @@ namespace YourCare_Repos.Repositories
 
         public async Task<ApplicationUser> GetById(string id)
         {
-            try
-            {
-                var find = await _userManager.FindByIdAsync(id);
-                return find;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                return null;
-            }
+            var find = await _userManager.FindByIdAsync(id);
+            return find;
+        }
+
+        public async Task<ApplicationUser> GetByDoctorId(string doctorID)
+        {
+            var find = await _userDAO.GetUserByDoctorID(doctorID);
+            return find;
         }
 
         public async Task<bool> Update(ApplicationUser request)

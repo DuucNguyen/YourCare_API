@@ -37,9 +37,4 @@
 		</PackageReference>
 	</ItemGroup>
 
-
-	<ItemGroup>
-	  <Folder Include="Models\ApiModel\" />
-	</ItemGroup>
-
 </Project>

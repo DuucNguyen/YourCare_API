@@ -98,6 +98,7 @@
                             type="radio"
                             name="gender"
                             id="male"
+                            value="true"
                             checked />
                         <label class="form-check-label" for="male"> Male </label>
                     </div>
@@ -107,6 +108,7 @@
                             class="form-check-input"
                             type="radio"
                             name="gender"
+                            value="false"
                             id="female" />
                         <label class="form-check-label" for="female"> Female </label>
                     </div>

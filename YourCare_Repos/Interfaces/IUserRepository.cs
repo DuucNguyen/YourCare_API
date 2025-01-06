@@ -15,6 +15,7 @@ namespace YourCare_Repos.Interfaces
         public Task<bool> BanUser(ApplicationUser request);
         public Task<List<ApplicationUser>> GetAll();
         public Task<ApplicationUser> GetById(string id);
+        public Task<ApplicationUser> GetByDoctorId(string doctorID);
         public Task<ApplicationUser> GetByEmail(string email);
     }
 }

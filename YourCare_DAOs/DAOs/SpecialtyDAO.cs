@@ -47,5 +47,6 @@ namespace YourCare_DAOs.DAOs
         {
             return await _context.Specialties.FirstOrDefaultAsync(x => x.Title == title);
         }
+
     }
 }

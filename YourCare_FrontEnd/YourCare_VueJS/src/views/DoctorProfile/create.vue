@@ -3,7 +3,7 @@
     import ApiDoctorProfile from "@/api/ApiDoctorProfile";
     import ApiSpecialty from "@/api/ApiSpecialty";
 
-    import { reactive, ref, onMounted, onBeforeMount, nextTick, watch } from "vue";
+    import { reactive, ref, onMounted } from "vue";
     import { useRoute, useRouter } from "vue-router";
 
     //

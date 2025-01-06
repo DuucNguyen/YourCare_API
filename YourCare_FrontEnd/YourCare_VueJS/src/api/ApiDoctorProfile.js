@@ -1,12 +1,30 @@
 import API from "@/api/api";
 const END_POINTS = {
     GETALL: "Doctor/danh-sach-bac-si",
+    GETBYID: "Doctor/GetByID",
+    GETBYUSERID: "Doctor/GetByUserID",
     CREATE: "Doctor/Create",
 };
 
 class ApiDoctorProfile {
-    GetALl = () => {
+    GETALL = () => {
         return API.get(`${END_POINTS.GETALL}`);
+    };
+
+    GetByUserID = async (id) => {
+        return await API.get(`${END_POINTS.GETBYUSERID}`, {
+            params: {
+                userID: id,
+            },
+        });
+    };
+
+    GetByID = async (id) => {
+        return await API.get(`${END_POINTS.GETBYID}`, {
+            params: {
+                id: id,
+            },
+        });
     };
 
     Create = async (formData) => {

@@ -42,6 +42,12 @@ namespace YourCare_DAOs.DAOs
             await _context.SaveChangesAsync();
         }
 
+        public async Task DeleteRange(List<DoctorSpecialties> docSpes)
+        {
+            _context.DoctorSpecialties.RemoveRange(docSpes);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<List<DoctorSpecialties>> GetAll()
         {
             return await _context.DoctorSpecialties.ToListAsync();
@@ -52,7 +58,11 @@ namespace YourCare_DAOs.DAOs
             return await _context.DoctorSpecialties
                 .Include(x => x.Specialty)
                 .Where(x => x.DoctorID == Guid.Parse(doctorID))
-                .Select(x => x.Specialty)
+                .Select(x => new Specialty
+                {
+                    SpecialtyID = x.SpecialtyID,
+                    Title = x.Specialty.Title,
+                })
                 .ToListAsync();
         }
 
@@ -66,7 +76,7 @@ namespace YourCare_DAOs.DAOs
         public async Task<DoctorSpecialties> GetByID(Guid doctorID, Guid speID)
         {
             return await _context.DoctorSpecialties
-                .FirstOrDefaultAsync(x => x.DoctorID == doctorID 
+                .FirstOrDefaultAsync(x => x.DoctorID == doctorID
                                     && x.SpecialtyID == speID);
         }
     }

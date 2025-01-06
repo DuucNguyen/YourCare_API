@@ -55,6 +55,38 @@ namespace YourCare_WebApi.Controllers
             }
         }
 
+        [HttpGet("GetByDoctorID")]
+
+        public async Task<IActionResult> GetByDoctorID([FromQuery] string doctorID)
+        {
+            try
+            {
+                var find = await _userRepository.GetByDoctorId(doctorID);
+
+                if (find != null)
+                {
+                    find.ImageString = find.Image != null ? $"data:image/png;base64,{Convert.ToBase64String(find.Image)}" : "";
+                }
+
+                return new JsonResult(new ResponseModel<ApplicationUser>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "GetUserByID successfully",
+                    IsSucceeded = find != null,
+                    Data = find
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "GetByID Failed",
+                    IsSucceeded = false,
+                });
+            }
+        }
+
         [HttpGet("GetAllByLimit")]
         public async Task<IActionResult> GetAllByLimit([FromQuery] PaginationFilter filter, string? searchValue)
         {
@@ -97,10 +129,6 @@ namespace YourCare_WebApi.Controllers
                     IsSucceeded = false,
                 });
             }
-
         }
-
-
-        
     }
 }

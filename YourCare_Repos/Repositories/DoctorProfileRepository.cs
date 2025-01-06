@@ -59,6 +59,49 @@ namespace YourCare_Repos.Repositories
             return true;
         }
 
+        public async Task<bool> UpdateProfile(IFormFile? userImage, DoctorProfile request, List<string> spes)
+        {
+            var user = await _userDAO.GetUserByID(request.ApplicationUserID) ?? throw new Exception("User not found.");
+
+            var doctorProfile = await _doctorProfileDAO.GetDoctorByUserID(request.ApplicationUserID);
+            if (doctorProfile != null)
+            {
+                throw new Exception("This user is already a doctor. You should consider update to perform this action.");
+            }
+
+            if (userImage != null)
+            {
+                //update user img
+                using (var ms = new MemoryStream())
+                {
+                    userImage.CopyTo(ms);
+                    var imageBytes = ms.ToArray();
+                    user.Image = imageBytes;
+                }
+                _userDAO.UpdateUser(user);
+            }
+
+            var docSpes = await _doctorSpecialtiesDAO.GetAllSpeByDoctorID(request.DoctorID.ToString());
+            var speToDelete = docSpes.Select(x => x.SpecialtyID.ToString()).Except(spes).ToList();
+            var newSpes = docSpes.Select(x => x.SpecialtyID.ToString()).Except(speToDelete).ToList();
+
+            await _doctorSpecialtiesDAO.DeleteRange(speToDelete.Select(x => new DoctorSpecialties
+            {
+                SpecialtyID = Guid.Parse(x),
+                DoctorID = request.DoctorID,
+            }).ToList());
+
+            await _doctorSpecialtiesDAO.AddRange(newSpes.Select(x => new DoctorSpecialties
+            {
+                SpecialtyID = Guid.Parse(x),
+                DoctorID = request.DoctorID,
+            }).ToList());
+
+            _doctorProfileDAO.Update(request);
+            return true;
+        }
+
+
         public async Task<List<DoctorProfile>> GetAllDoctor()
         {
             try
@@ -72,17 +115,18 @@ namespace YourCare_Repos.Repositories
             }
         }
 
-        public async Task<DoctorProfile> GetDoctorById(Guid id)
+        public async Task<DoctorProfile> GetDoctorByUserID(string id)
         {
-            try
-            {
-                var result = await _doctorProfileDAO.GetDoctorByID(id);
-                return result;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("GetAllDoctor ERROR: " + ex.Message);
-            }
+            var user = await _userDAO.GetUserByID(id) ?? throw new Exception("User not found.");
+
+            var result = await _doctorProfileDAO.GetDoctorByUserID(id);
+            return result;
+        }
+
+        public async Task<DoctorProfile> GetDoctorByID(string id)
+        {
+            var result = await _doctorProfileDAO.GetDoctorByID(Guid.Parse(id));
+            return result;
         }
     }
 }
