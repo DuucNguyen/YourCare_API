@@ -23,5 +23,6 @@ namespace YourCare_BOs
         public virtual ICollection<DoctorSpecialties> DoctorSpecialties { get; set; }
         public virtual ICollection<Appointment> DoctorAppointments { get; set; }
         public virtual ICollection<Timetable> DoctorTimetables { get; set; }
+
     }
 }

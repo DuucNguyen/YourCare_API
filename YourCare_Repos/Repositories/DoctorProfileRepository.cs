@@ -64,9 +64,9 @@ namespace YourCare_Repos.Repositories
             var user = await _userDAO.GetUserByID(request.ApplicationUserID) ?? throw new Exception("User not found.");
 
             var doctorProfile = await _doctorProfileDAO.GetDoctorByUserID(request.ApplicationUserID);
-            if (doctorProfile != null)
+            if (doctorProfile == null)
             {
-                throw new Exception("This user is already a doctor. You should consider update to perform this action.");
+                throw new Exception("This user is not a doctor. Consider creating doctorProfile first.");
             }
 
             if (userImage != null)
@@ -97,7 +97,11 @@ namespace YourCare_Repos.Repositories
                 DoctorID = request.DoctorID,
             }).ToList());
 
-            _doctorProfileDAO.Update(request);
+            doctorProfile.DoctorTitle = request.DoctorTitle;
+            doctorProfile.DoctorDescription = request.DoctorDescription;
+            doctorProfile.YearExperience = request.YearExperience;
+
+            _doctorProfileDAO.Update(doctorProfile);
             return true;
         }
 

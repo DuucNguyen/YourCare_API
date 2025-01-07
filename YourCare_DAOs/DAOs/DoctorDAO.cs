@@ -46,11 +46,15 @@ namespace YourCare_DAOs.DAOs
 
         public async Task<DoctorProfile> GetDoctorByID(Guid id)
         {
-            return await _context.Doctors.Include(x => x.ApplicationUser).FirstOrDefaultAsync(x => x.DoctorID == id);
+            return await _context.Doctors
+                .Include(x=>x.DoctorSpecialties)
+                .Include(x => x.ApplicationUser).FirstOrDefaultAsync(x => x.DoctorID == id);
         }
         public async Task<DoctorProfile> GetDoctorByUserID(string id)
         {
-            return await _context.Doctors.Include(x => x.ApplicationUser).FirstOrDefaultAsync(x => x.ApplicationUserID == id);
+            return await _context.Doctors
+                .Include(x=>x.DoctorSpecialties)
+                .Include(x => x.ApplicationUser).FirstOrDefaultAsync(x => x.ApplicationUserID == id);
         }
 
 

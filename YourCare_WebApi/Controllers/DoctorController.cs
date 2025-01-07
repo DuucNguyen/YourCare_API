@@ -58,6 +58,7 @@ namespace YourCare_WebApi.Controllers
                     YearExperience = x.YearExperience,
 
                     UserID = x.ApplicationUserID,
+                    Gender = x.ApplicationUser.Gender,
                     FullName = x.ApplicationUser.FullName,
                     Email = x.ApplicationUser.Email,
                     PhoneNumber = x.ApplicationUser.PhoneNumber,
@@ -74,7 +75,7 @@ namespace YourCare_WebApi.Controllers
                 var totalRecords = result.Count;
                 var pagedData = Pagination<DoctorResponseModel>.Paginate(result, filter.PageNumber, filter.PageSize);
                 var pagedResponse = PaginationHelper
-                    .CreatePagedResponse<DoctorResponseModel>(pagedData, filter, totalRecords,_uriService, route, false, null);
+                    .CreatePagedResponse<DoctorResponseModel>(pagedData, filter, totalRecords, _uriService, route, false, null);
 
 
                 return Ok(pagedResponse);
@@ -124,14 +125,37 @@ namespace YourCare_WebApi.Controllers
         {
             try
             {
-                var result = await _doctorProfileRepository.GetDoctorByID(id);
+                var doc = await _doctorProfileRepository.GetDoctorByID(id);
+                var user = await _userRepository.GetByDoctorId(id);
 
-                return new JsonResult(new ResponseModel<DoctorProfile>
+                var doctorProfile = new DoctorResponseModel
                 {
-                    StatusCode = result != null ? StatusCodes.Status200OK : StatusCodes.Status404NotFound,
-                    Message = result != null ? "GetDoctorProfileByUserID successfully." : "GetDoctorProfileByUserID failed.",
-                    IsSucceeded = result != null,
-                    Data = result
+                    DoctorProfileID = doc.DoctorID.ToString(),
+                    DoctorDescription = doc.DoctorDescription,
+                    DoctorTitle = doc.DoctorTitle,
+                    YearExperience = doc.YearExperience,
+
+                    UserID = user.Id,
+                    FullName = user.FullName,
+                    Gender = user.Gender,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    Address = user.Address,
+                    Dob = user.Dob,
+
+                    ImageString = user.Image != null
+                    ? $"data:image/png;base64,{Convert.ToBase64String(user.Image)}"
+                    : "",
+
+                    Specialties = _doctorSpecialtiesRepository.GetAllSpeByDoctorID(doc.DoctorID).Result,
+                };
+
+                return new JsonResult(new ResponseModel<DoctorResponseModel>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "GetDoctorProfileByUserID successfully.",
+                    IsSucceeded = true,
+                    Data = doctorProfile
                 });
 
             }
@@ -189,10 +213,36 @@ namespace YourCare_WebApi.Controllers
             }
         }
 
-        //[HttpPost("Update")]
-        //public async Task<IActionResult> Update([FromForm] CreateDoctorProfileModel request)
-        //{
+        [HttpPost("Update")]
+        public async Task<IActionResult> Update([FromForm] RequestDoctorProfileModel request)
+        {
+            try
+            {
+                var update = new DoctorProfile
+                {
+                    DoctorTitle = request.DoctorTitle,
+                    DoctorDescription = request.DoctorDescription,
+                    YearExperience = request.YearExperience,
+                    ApplicationUserID = request.UserID,
+                };
 
-        //}
+                var result = await _doctorProfileRepository.UpdateProfile(request.UserImage, update, request.SpecialtyIDs);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = result ? StatusCodes.Status200OK : StatusCodes.Status500InternalServerError,
+                    Message = result ? "Updated successfully." : "",
+                    IsSucceeded = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    IsSucceeded = false,
+                });
+            }
+        }
     }
 }

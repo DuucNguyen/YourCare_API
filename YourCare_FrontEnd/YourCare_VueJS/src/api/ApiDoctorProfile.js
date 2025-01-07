@@ -1,14 +1,22 @@
 import API from "@/api/api";
 const END_POINTS = {
-    GETALL: "Doctor/danh-sach-bac-si",
+    GETALLBYLIMIT: "Doctor/GetAllByLimit",
     GETBYID: "Doctor/GetByID",
     GETBYUSERID: "Doctor/GetByUserID",
     CREATE: "Doctor/Create",
+    UPDATE: "Doctor/Update",
 };
 
 class ApiDoctorProfile {
-    GETALL = () => {
-        return API.get(`${END_POINTS.GETALL}`);
+    GetAllByLimit = async (pageParams) => {
+        return await API.get(`${END_POINTS.GETALLBYLIMIT}`, {
+            params: {
+                pageNumber: pageParams.pageNumber || 1,
+                pageSize: pageParams.pageSize || 10,
+                searchValue: pageParams.searchValue || "",
+                specialtyID: pageParams.specialtyID || "",
+            },
+        });
     };
 
     GetByUserID = async (id) => {
@@ -28,7 +36,17 @@ class ApiDoctorProfile {
     };
 
     Create = async (formData) => {
-        return API.post(`${END_POINTS.CREATE}`, formData, {
+        return await API.post(`${END_POINTS.CREATE}`, formData, {
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "multipart/form-data;",
+                "cache-control": "no-cache",
+            },
+        });
+    };
+
+    Update = async (formData) => {
+        return await API.post(`${END_POINTS.UPDATE}`, formData, {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "multipart/form-data;",
