@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace YourCare_BOs
@@ -21,6 +22,7 @@ namespace YourCare_BOs
         public string? ImageString { get; set; }
 
         [NotMapped]
+        [JsonIgnore]
         public string? RoleName { get; set; }
 
 

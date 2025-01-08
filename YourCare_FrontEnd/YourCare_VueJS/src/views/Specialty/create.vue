@@ -69,8 +69,12 @@
 </script>
 
 <template>
-    <h2>Specialization - <RouterLink :to="{ name: 'Admin_Specialty_View' }">Index</RouterLink></h2>
-    <hr />
+    <div class="crud-layout-header">
+        <h2 class="crud-layout-header-title">Create Specialty</h2>
+        <RouterLink class="crud-layout-header-button" :to="{ name: 'Admin_Specialty_View' }"
+            >Index</RouterLink
+        >
+    </div>
     <div class="row d-flex justify-content-center">
         <div class="col-md-6 form-create">
             <form @submit.prevent="showUpdateConfirm" enctype="multipart/form-data">
@@ -115,8 +119,10 @@
 <style>
     .form-create {
         padding: 20px 30px;
-        border: 5px solid #1975dc;
-        border-radius: 5px;
+        border: 3px solid #1975dc;
+        border-top: none;
+        border-bottom-right-radius: 5px;
+        border-bottom-left-radius: 5px;
         font-weight: 500;
     }
     .img-container {

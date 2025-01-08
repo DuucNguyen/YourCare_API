@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using YourCare_BOs;
 using YourCare_Repos.Interfaces;
+using YourCare_WebApi.Models.ApiModel;
 using YourCare_WebApi.Models.Auth;
 using YourCare_WebApi.Services.PaginationService;
 using YourCare_WebApi.Services.UriService;
@@ -129,6 +130,13 @@ namespace YourCare_WebApi.Controllers
                     IsSucceeded = false,
                 });
             }
+        }
+
+
+        [HttpPost("Create")]
+        public async Task<IActionResult> Create([FromForm] ApplicationUserViewModel request)
+        {
+            return Ok();
         }
     }
 }

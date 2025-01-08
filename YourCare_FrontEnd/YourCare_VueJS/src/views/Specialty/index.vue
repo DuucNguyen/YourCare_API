@@ -33,7 +33,8 @@
 
                 if (pageParams.statusFilter) {
                     if (
-                        result.data.totalPages < pageParams.pageNumber && pageParams.totalRecords > 0
+                        result.data.totalPages < pageParams.pageNumber &&
+                        pageParams.totalRecords > 0
                     ) {
                         router.push({
                             name: "Admin_Specialty_View",
@@ -117,22 +118,13 @@
 </script>
 
 <template>
-    <div class="d-flex align-items-center">
-        <h1>Specialties -</h1>
-        <RouterLink class="m-1 btn btn-success" :to="{ name: 'Admin_Specialty_Create' }"
+    <div class="crud-layout-header">
+        <h2 class="crud-layout-header-title">Manage Specialty</h2>
+        <RouterLink class="crud-layout-header-button" :to="{ name: 'Admin_Specialty_Create' }"
             >Create</RouterLink
         >
     </div>
-    <div>
-        <a-pagination
-            @change="onChange"
-            v-model:current="pageParams.pageNumber"
-            :total="pageParams.totalRecords"
-            :pageSize="pageParams.pageSize"
-            :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
-            show-size-changer
-            show-quick-jumper
-            class="m-3 text-end"></a-pagination>
+    <div class="crud-layout-table">
         <table class="table table-responsive table-bordered table-hover">
             <thead>
                 <tr>
@@ -173,13 +165,13 @@
             :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
             show-size-changer
             show-quick-jumper
-            class="m-3 text-end"></a-pagination>
+            class="crud-layout-pagination"></a-pagination>
     </div>
 </template>
 <style>
     .img-container {
-        width: 150px;
-        height: 150px;
+        width: 50px;
+        height: 50px;
         padding: 5px;
         border: 1px solid #ddd;
         border-radius: 3px;

@@ -1,7 +1,6 @@
 <script setup>
     import ApiUser from "@/api/ApiUser";
     import { reactive, ref, onMounted, onUpdated } from "vue";
-
     import { RouterLink, useRoute, useRouter } from "vue-router";
 
     const route = useRoute();
@@ -14,6 +13,7 @@
         totalRecords: 0,
         statusFilter: false,
     });
+
     const data = ref([]);
 
     const getData = async () => {
@@ -84,17 +84,13 @@
 </script>
 
 <template>
-    <h1>User</h1>
-    <div>
-        <a-pagination
-            @change="onChange"
-            v-model="pageParams.pageNumber"
-            :total="pageParams.totalRecords"
-            :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
-            show-size-changer
-            show-quick-jumper
-            class="m-3 text-end"></a-pagination>
-
+    <div class="crud-layout-header">
+        <h2 class="crud-layout-header-title">Manage User</h2>
+        <RouterLink class="crud-layout-header-button" :to="{ name: 'Admin_User_Create' }"
+            >Create</RouterLink
+        >
+    </div>
+    <div class="crud-layout-table">
         <table class="table table-responsive table-bordered">
             <thead>
                 <tr>
@@ -129,5 +125,14 @@
                 </tr>
             </tbody>
         </table>
+        <a-pagination
+            @change="onChange"
+            v-model="pageParams.pageNumber"
+            :total="pageParams.totalRecords"
+            :pageSize="pageParams.pageSize"
+            :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
+            show-size-changer
+            show-quick-jumper
+            class="crud-layout-pagination"></a-pagination>
     </div>
 </template>

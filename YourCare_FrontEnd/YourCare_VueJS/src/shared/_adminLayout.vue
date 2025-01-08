@@ -9,3 +9,8 @@
         </main>
     </div>
 </template>
+<style>
+    body {
+        background: #ddd;
+    }
+</style>

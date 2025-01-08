@@ -89,20 +89,10 @@
 </script>
 
 <template>
-    <div>
-        <input @input="getData" v-model="pageParams.searchValue" type="text" />
+    <div class="crud-layout-header">
+        <h2 class="crud-layout-header-title">Manage DoctorProfile</h2>
     </div>
-    <div>
-        <a-pagination
-            @change="onChange"
-            v-model="pageParams.pageNumber"
-            :total="pageParams.totalRecords"
-            :pageSize="pageParams.pageSize"
-            :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
-            show-size-changer
-            show-quick-jumper
-            class="m-3 text-end"></a-pagination>
-
+    <div class="crud-layout-table">
         <table class="table table-responsive table-bordered">
             <thead>
                 <tr>
@@ -135,7 +125,8 @@
                     </td>
 
                     <td>
-                        <RouterLink class="btn btn-primary"
+                        <RouterLink
+                            class="btn btn-primary"
                             :to="{
                                 name: 'Admin_DoctorProfile_Update',
                                 params: { id: item.doctorProfileID },
@@ -147,6 +138,15 @@
                 </tr>
             </tbody>
         </table>
+        <a-pagination
+            @change="onChange"
+            v-model="pageParams.pageNumber"
+            :total="pageParams.totalRecords"
+            :pageSize="pageParams.pageSize"
+            :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
+            show-size-changer
+            show-quick-jumper
+            class="crud-layout-pagination"></a-pagination>
     </div>
 </template>
 <style>
