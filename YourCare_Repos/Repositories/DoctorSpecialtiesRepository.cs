@@ -42,28 +42,33 @@ namespace YourCare_Repos.Repositories
 
         public async Task<int> AddRange(string doctorID, List<string> speIDs)
         {
-            try
+            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var spes = await _doctorSpecialtiesDAO.GetAllSpeByDoctorID(doctorID);
-                var dub =
-                    spes
-                    .Where(x => speIDs.Contains(x.SpecialtyID.ToString()))
-                    .Select(x => x.SpecialtyID.ToString())
-                    .ToList();
-
-                var newValidSpes = speIDs.Except(dub).Select(x => new DoctorSpecialties
+                try
                 {
-                    DoctorID = Guid.Parse(doctorID),
-                    SpecialtyID = Guid.Parse(x)
-                }).ToList();
-                
-                await _doctorSpecialtiesDAO.AddRange(newValidSpes);
-                return dub.Count;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                return -1;
+                    var spes = await _doctorSpecialtiesDAO.GetAllSpeByDoctorID(doctorID);
+                    var dub =
+                        spes
+                        .Where(x => speIDs.Contains(x.SpecialtyID.ToString()))
+                        .Select(x => x.SpecialtyID.ToString())
+                        .ToList();
+
+                    var newValidSpes = speIDs.Except(dub).Select(x => new DoctorSpecialties
+                    {
+                        DoctorID = Guid.Parse(doctorID),
+                        SpecialtyID = Guid.Parse(x)
+                    }).ToList();
+
+                    await _doctorSpecialtiesDAO.AddRange(newValidSpes);
+                    scope.Complete();
+                    return dub.Count;
+                }
+                catch (Exception ex)
+                {
+                    scope.Dispose();
+                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
+                    return -1;
+                }
             }
         }
 

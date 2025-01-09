@@ -7,8 +7,9 @@
     import { useRoute, useRouter } from "vue-router";
 
     //
+    import { PlusOutlined } from "@ant-design/icons-vue";
     import { createVNode } from "vue";
-    import { Modal } from "ant-design-vue";
+    import { message, Modal } from "ant-design-vue";
     import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
     import { notification } from "ant-design-vue";
 
@@ -17,15 +18,62 @@
 
     const formState = reactive({
         applicationUserID: "",
-        applicationUserImage: null,
+        applicationUserImage: [],
         doctorTitle: "",
         doctorDescription: "",
         yearExperience: "",
         specialtyIDs: [],
     });
 
+    const rules = {
+        applicationImage: [
+            {
+                required: "true",
+                message: "Please upload at least one image.",
+                type: "array",
+            },
+        ],
+        doctorTitle: [
+            {
+                required: "true",
+                message: "Please input doctor title.",
+            },
+        ],
+        doctorDescription: [
+            {
+                required: "true",
+                message: "Please input doctor description.",
+            },
+        ],
+        yearExperience: [
+            {
+                required: "true",
+                message: "Please input year experience.",
+            },
+            {
+                type: "number",
+                min: 1,
+                max: 50,
+                message: "number must be in range 1-50.",
+            },
+        ],
+        specialtyIDs: [
+            {
+                required: "true",
+                type: "array",
+                message: "Please choose at least one specialty.",
+            },
+        ],
+    };
+
     const specialties = ref([]);
-    const chosenSpecialties = ref([]);
+    const formRef = ref();
+    const labelCol = {
+        span: 24,
+    };
+    const wrapperCol = {
+        span: 24,
+    };
 
     const userData = reactive({
         id: "",
@@ -59,29 +107,10 @@
     onMounted(async () => {
         userData.id = route.params.id;
         if (userData.id) {
-            getUserData();
+            await getUserData();
         }
         await getSpecialties();
     });
-
-    /**
-     * Image
-     * **/
-
-    const previewUrl = ref(null); // Reactive reference to hold the preview URL
-
-    const handleFileChange = (event) => {
-        const file = event.target.files[0]; // Get the selected file
-
-        if (file) {
-            formState.applicationUserImage = file; //for sending request with file.
-            const reader = new FileReader(); // Create a FileReader object
-            reader.onload = (e) => {
-                previewUrl.value = e.target.result; // Update the reactive `previewUrl`
-            };
-            reader.readAsDataURL(file); // Read the file as a Data URL
-        }
-    };
 
     /**
      * Form
@@ -97,13 +126,14 @@
             async onOk() {
                 var formData = new FormData();
                 formData.append("userID", userData.id);
-                formData.append("userImage", formState.applicationUserImage);
+                formData.append("userImage", formState.applicationUserImage[0].originFileObj);
                 formData.append("doctorTitle", formState.doctorTitle);
                 formData.append("doctorDescription", formState.doctorDescription);
                 formData.append("yearExperience", formState.yearExperience);
 
-                chosenSpecialties.value.forEach((item, index) => {
-                    formData.append(`specialtyIDs[${index}]`, item.specialtyID);
+                formState.specialtyIDs.forEach((id, index) => {
+                    console.log(id);
+                    formData.append(`specialtyIDs[${index}]`, id);
                 });
 
                 var result = await ApiDoctorProfile.Create(formData);
@@ -119,14 +149,6 @@
         });
     };
 
-    const showModalSpeError = () => {
-        Modal.error({
-            title: "ERROR",
-            content:
-                "You haven't choose any specialty for this doctor. Choose at least one specialty before continue.",
-        });
-    };
-
     const showNotification = (type, message, context) => {
         notification[type]({
             message: message,
@@ -134,12 +156,15 @@
         });
     };
 
-    const onFinish = async () => {
-        if (chosenSpecialties.value.length <= 0) {
-            showModalSpeError();
-            return;
-        }
-        showUpdateConfirm();
+    const onFinish = () => {
+        formRef.value
+            .validate()
+            .then(() => {
+                showUpdateConfirm();
+            })
+            .catch((error) => {
+                console.log("error: " + error);
+            });
     };
 </script>
 
@@ -193,8 +218,54 @@
                 <input readonly v-model="userData.dob" class="form-control" type="date" />
             </div>
         </div>
-
-        <form
+        <a-form
+            class="col-md-6 doctor-information-container"
+            ref="formRef"
+            :model="formState"
+            :rules="rules"
+            :label-col="labelCol"
+            :wrapper-col="wrapperCol">
+            <h4 class="text-center" style="color: #22c55e">Doctor information</h4>
+            <div class="d-flex justify-content-between">
+                <a-form-item class="col-md-5" label="Image" name="applicationUserImage">
+                    <a-upload
+                        v-model:fileList="formState.applicationUserImage"
+                        action=""
+                        list-type="picture-card"
+                        :max-count="1">
+                        <div>
+                            <PlusOutlined />
+                            <div style="margin-top: 8px">Upload</div>
+                        </div>
+                    </a-upload>
+                </a-form-item>
+                <a-form-item class="col-md-7" label="Specialties">
+                    <a-select mode="multiple" v-model:value="formState.specialtyIDs">
+                        <a-select-option
+                            v-for="spe in specialties"
+                            :key="spe.specialtyID"
+                            :value="spe.specialtyID"
+                            >{{ spe.title }}</a-select-option
+                        >
+                    </a-select>
+                </a-form-item>
+            </div>
+            <a-form-item label="Doctor title" name="doctorTitle">
+                <a-input v-model:value="formState.doctorTitle"></a-input>
+            </a-form-item>
+            <a-form-item label="Year experience" name="yearExperience">
+                <a-input-number
+                    style="width: 100%"
+                    v-model:value="formState.yearExperience"></a-input-number>
+            </a-form-item>
+            <a-form-item label="Doctor description" name="doctorDescription">
+                <a-textarea v-model:value="formState.doctorDescription"></a-textarea>
+            </a-form-item>
+            <a-form-item class="text-center">
+                <a-button @click="onFinish" style="width: 100%" type="primary">Create</a-button>
+            </a-form-item>
+        </a-form>
+        <!-- <form
             @submit.prevent="onFinish"
             class="col-md-6"
             method="post"
@@ -297,7 +368,7 @@
                     <button class="btn btn-success w-100" type="submit">Create</button>
                 </div>
             </div>
-        </form>
+        </form> -->
     </div>
 </template>
 <style>
@@ -312,7 +383,6 @@
         border-radius: 8px;
         border: 2px solid #22c55e;
         background: #fff;
-    
     }
 
     .doctor-specialties-container {

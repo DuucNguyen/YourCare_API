@@ -29,6 +29,7 @@ import {
     RadioButton,
     Upload,
     Radio,
+    Textarea
 } from "ant-design-vue";
 //
 
@@ -59,6 +60,7 @@ app.use(Switch);
 app.use(Dropdown);
 app.use(Upload);
 app.use(Radio);
+app.use(Textarea);
 
 app.mount("#app");
 

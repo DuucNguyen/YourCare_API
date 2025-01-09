@@ -15,7 +15,6 @@ namespace YourCare_BOs
 
         [ForeignKey("FK_DoctorSpecialties_Specialty")]
         public Guid SpecialtyID { get; set; }
-
         public virtual DoctorProfile Doctor { get; set; }
         public virtual Specialty Specialty { get; set; }
     }

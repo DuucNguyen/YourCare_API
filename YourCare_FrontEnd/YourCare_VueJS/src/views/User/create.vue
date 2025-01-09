@@ -95,7 +95,7 @@
     const onFinish = () => {
         formRef.value
             .validate() //check if form is validate
-            .then(async () => {
+            .then(() => {
                 showUpdateConfirm();
             })
             .catch((error) => {
