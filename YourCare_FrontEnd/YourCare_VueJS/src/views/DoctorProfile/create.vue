@@ -64,6 +64,12 @@
                 message: "Please choose at least one specialty.",
             },
         ],
+        applicationImage: [
+            {
+                required: true,
+                message: "Please upload at least one image."
+            }
+        ]
     };
 
     const specialties = ref([]);

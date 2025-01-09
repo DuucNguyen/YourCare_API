@@ -3,22 +3,31 @@
     import ApiDoctorProfile from "@/api/ApiDoctorProfile";
     import ApiSpecialty from "@/api/ApiSpecialty";
 
-    import { reactive, ref, onMounted } from "vue";
+    import { reactive, ref, onMounted, watch } from "vue";
     import { useRoute, useRouter } from "vue-router";
 
     //
     import { createVNode } from "vue";
     import { Modal } from "ant-design-vue";
+    import { PlusOutlined } from "@ant-design/icons-vue";
     import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
     import { notification } from "ant-design-vue";
 
     const route = useRoute();
     const router = useRouter();
 
+    const formRef = ref();
+    const labelCol = {
+        span: 24,
+    };
+    const wrapperCol = {
+        span: 24,
+    };
+
     const formState = reactive({
         doctorProfileID: "",
         applicationUserID: "",
-        applicationUserImage: null,
+        applicationUserImage: [],
         doctorTitle: "",
         doctorDescription: "",
         yearExperience: "",
@@ -35,6 +44,53 @@
         gender: true,
         imageString: "",
     });
+
+    const rules = {
+        applicationImage: [
+            {
+                required: "true",
+                message: "Please upload at least one image.",
+                type: "array",
+            },
+        ],
+        doctorTitle: [
+            {
+                required: "true",
+                message: "Please input doctor title.",
+            },
+        ],
+        doctorDescription: [
+            {
+                required: "true",
+                message: "Please input doctor description.",
+            },
+        ],
+        yearExperience: [
+            {
+                required: "true",
+                message: "Please input year experience.",
+            },
+            {
+                type: "number",
+                min: 1,
+                max: 50,
+                message: "number must be in range 1-50.",
+            },
+        ],
+        specialties: [
+            {
+                required: "true",
+                type: "array",
+                message: "Please choose at least one specialty.",
+            },
+        ],
+        applicationUserImage: [
+            {
+                required: true,
+                message: "Please upload at least one image.",
+            },
+        ],
+    };
 
     const specialties = ref([]);
 
@@ -69,25 +125,22 @@
             await getDoctorProfileData();
         }
         await getSpecialties();
+
+        //convert to valid format for binding a-select :option
+        formState.specialties = formState.specialties.map((spe) => ({
+            label: spe.title,
+            value: spe.specialtyID,
+        }));
+
+        //for the first time - load from db
+        //convert to valid format for binding
+        formState.applicationUserImage.push({
+            uid: "-1",
+            name: "applicationUserImage",
+            status: "done",
+            thumbUrl: userData.imageString, //set url as thumb associate with file obj.thumbUrl
+        });
     });
-
-    /**
-     * IMAGE
-     * **/
-    const previewUrl = ref(null); // Reactive reference to hold the preview URL
-
-    const handleFileChange = (event) => {
-        const file = event.target.files[0]; // Get the selected file
-
-        if (file) {
-            formState.applicationUserImage = file; //for sending request with file.
-            const reader = new FileReader(); // Create a FileReader object
-            reader.onload = (e) => {
-                previewUrl.value = e.target.result; // Update the reactive `previewUrl`
-            };
-            reader.readAsDataURL(file); // Read the file as a Data URL
-        }
-    };
 
     /**
      * Form
@@ -101,35 +154,37 @@
             okText: "Yes",
             cancelText: "No",
             async onOk() {
-                var formData = new FormData();
-                formData.append("userID", userData.id);
-                formData.append("userImage", formState.applicationUserImage);
-                formData.append("doctorTitle", formState.doctorTitle);
-                formData.append("doctorDescription", formState.doctorDescription);
-                formData.append("yearExperience", formState.yearExperience);
+                try {
+                    var formData = new FormData();
+                    formData.append("userID", userData.id);
+                    formData.append(
+                        "userImage",
+                        base64ToFile(
+                            formState.applicationUserImage[0].thumbUrl,
+                            "applicationUserImage",
+                        ),
+                    );
+                    formData.append("doctorTitle", formState.doctorTitle);
+                    formData.append("doctorDescription", formState.doctorDescription);
+                    formData.append("yearExperience", formState.yearExperience);
 
-                formState.specialties.forEach((item, index) => {
-                    formData.append(`specialtyIDs[${index}]`, item.specialtyID);
-                });
+                    formState.specialties.forEach((item, index) => {
+                        formData.append(`specialtyIDs[${index}]`, item.value);
+                    });
 
-                var result = await ApiDoctorProfile.Update(formData);
+                    var result = await ApiDoctorProfile.Update(formData);
 
-                var type = result.data.isSucceeded ? "success" : "error";
-                var context = result.data.message;
+                    var type = result.data.isSucceeded ? "success" : "error";
+                    var context = result.data.message;
 
-                showNotification(type, "Create status", context);
+                    showNotification(type, "Create status", context);
+                } catch (error) {
+                    this.onCancel();
+                }
             },
             onCancel() {
                 console.log("Cancel update");
             },
-        });
-    };
-
-    const showModalSpeError = () => {
-        Modal.error({
-            title: "ERROR",
-            content:
-                "You haven't choose any specialty for this doctor. Choose at least one specialty before continue.",
         });
     };
 
@@ -141,26 +196,66 @@
     };
 
     const onFinish = async () => {
-        if (formState.specialties.length <= 0) {
-            showModalSpeError();
-            return;
-        }
-        showUpdateConfirm();
+        formRef.value
+            .validate()
+            .then(() => {
+                showUpdateConfirm();
+            })
+            .catch((error) => {
+                console.log("error:" + error);
+            });
     };
 
-    const isChecked = (spe) => {
-        return formState.specialties.some((x) => x.specialtyID === spe.specialtyID);
+    /**
+     * Image
+     * **/
+    const previewVisible = ref(false); //toogle modal
+    const previewImage = ref(""); //base64 - img src
+    const previewTitle = ref(""); //modal title
+
+    //convert file to base 64 to preview
+    function getBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    }
+
+    //convert base64 to File
+    function base64ToFile(base64String, fileName = "file.png") {
+        // Extract the base64 data
+        const byteString = atob(base64String.split(",")[1]); // Decode base64 string
+        const mimeType = base64String.match(/data:(.*?);base64/)[1]; // Extract MIME type
+
+        // Convert binary string to array of bytes
+        const arrayBuffer = new ArrayBuffer(byteString.length);
+        const uint8Array = new Uint8Array(arrayBuffer);
+
+        for (let i = 0; i < byteString.length; i++) {
+            uint8Array[i] = byteString.charCodeAt(i);
+        }
+
+        // Create a Blob and return a File object
+        return new File([uint8Array], fileName, { type: mimeType });
+    }
+
+    //modal preview
+    const handlePreview = async (file) => {
+        if (!file.thumbUrl && !file.preview) {
+            file.preview = await getBase64(file.originFileObj);
+        }
+        previewImage.value = file.thumbUrl || file.preview;
+        previewVisible.value = true;
+        previewTitle.value =
+            file.name || file.thumbUrl.substring(file.thumbUrl.lastIndexOf("/") + 1);
     };
 
-    const toogleSpecialty = (spe) => {
-        console.log(spe.title);
-        var index = formState.specialties.findIndex((x) => x.specialtyID === spe.specialtyID);
-
-        if (index === -1) {
-            formState.specialties.push(spe);
-        } else {
-            formState.specialties.splice(index, 1);
-        }
+    //modal close
+    const handleCancel = () => {
+        previewVisible.value = false;
+        previewTitle.value = "";
     };
 </script>
 <template>
@@ -214,110 +309,61 @@
             </div>
         </div>
 
-        <form
-            @submit.prevent="onFinish"
-            class="col-md-6"
-            method="post"
-            enctype="multipart/form-data">
-            <div class="doctor-information-container">
-                <h4 class="text-center" style="color: #22c55e">Doctor information</h4>
-                <div class="mb-3 d-flex">
-                    <img
-                        id="previewImage"
-                        :src="previewUrl"
-                        alt="Avatar Preview"
-                        style="padding: 2px; width: 200px; height: 200px; border: 1px solid #ddd" />
-                    <div class="p-2 d-flex flex-column">
-                        <div class="mb-3 form-items">
-                            <label class="form-label"
-                                >AvatarFile<span class="text-danger">*</span></label
-                            >
-                            <input
-                                @change="handleFileChange"
-                                id="fileInput"
-                                class="form-control"
-                                type="file"
-                                required />
+        <a-form
+            class="col-md-6 doctor-information-container"
+            ref="formRef"
+            :model="formState"
+            :rules="rules"
+            :label-col="labelCol"
+            :wrapper-col="wrapperCol">
+            <h4 class="text-center" style="color: #22c55e">Doctor information</h4>
+            <div class="d-flex justify-content-between">
+                <a-form-item class="col-md-5" label="Image" name="applicationUserImage">
+                    <a-upload
+                        v-model:file-list="formState.applicationUserImage"
+                        action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                        list-type="picture-card"
+                        :max-count="1"
+                        @preview="handlePreview">
+                        <div>
+                            <PlusOutlined />
+                            <div style="margin-top: 8px">Upload</div>
                         </div>
-                        <div class="mb-3 form-items">
-                            <label class="form-label"
-                                >DoctorTitle<span class="text-danger">*</span></label
-                            >
-                            <input
-                                v-model="formState.doctorTitle"
-                                class="form-control"
-                                type="text"
-                                required />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3 form-items d-flex">
-                    <div>
-                        <span class="form-label"
-                            >Specialties<span class="text-danger">*</span></span
-                        >
-                        <div class="dropdown">
-                            <button
-                                class="btn btn-outline-success dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                Select Specialties
-                            </button>
-                            <ul @click.stop class="p-3 dropdown-menu drop-down-spe">
-                                <li v-for="spe in specialties" :key="spe.specialtyID">
-                                    <div class="form-check">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            name="selectedSpecializations"
-                                            :id="'spe_' + spe.specialtyID"
-                                            :checked="isChecked(spe)"
-                                            @change="toogleSpecialty(spe)" />
-                                        <label
-                                            @click.stop
-                                            class="form-check-label"
-                                            :for="'spe_' + spe.specialtyID">
-                                            {{ spe.title }}
-                                        </label>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="doctor-specialties-container">
-                        <label
-                            class="specialization-item-capsule"
-                            v-for="item in formState.specialties"
-                            >{{ item.title }}</label
-                        >
-                    </div>
-                </div>
-
-                <div class="mb-3 form-items">
-                    <label class="form-label">Experience<span class="text-danger">*</span></label>
-                    <input
-                        v-model="formState.yearExperience"
-                        class="form-control"
-                        type="number"
-                        min="1"
-                        required />
-                </div>
-
-                <div class="mb-3 form-items">
-                    <label class="form-label">DoctorDescription</label>
-                    <textarea
-                        v-model="formState.doctorDescription"
-                        style="min-height: 100px; max-height: 300px"
-                        class="form-control"
-                        required></textarea>
-                </div>
-                <div class="d-flex justify-content-center">
-                    <button class="btn btn-success w-100" type="submit">Update</button>
-                </div>
+                    </a-upload>
+                    <a-modal
+                        :open="previewVisible"
+                        :title="previewTitle"
+                        :footer="null"
+                        @cancel="handleCancel">
+                        <img alt="example" style="width: 100%" :src="previewImage" />
+                    </a-modal>
+                </a-form-item>
+                <a-form-item class="col-md-7" label="Specialties">
+                    <a-select
+                        mode="multiple"
+                        v-model:value="formState.specialties"
+                        :options="
+                            specialties.map((spe) => ({ label: spe.title, value: spe.specialtyID }))
+                        "
+                        placeholder="Select specialties">
+                    </a-select>
+                </a-form-item>
             </div>
-        </form>
+            <a-form-item label="Doctor title" name="doctorTitle">
+                <a-input v-model:value="formState.doctorTitle"></a-input>
+            </a-form-item>
+            <a-form-item label="Year experience" name="yearExperience">
+                <a-input-number
+                    style="width: 100%"
+                    v-model:value="formState.yearExperience"></a-input-number>
+            </a-form-item>
+            <a-form-item label="Doctor description" name="doctorDescription">
+                <a-textarea v-model:value="formState.doctorDescription"></a-textarea>
+            </a-form-item>
+            <a-form-item class="text-center">
+                <a-button @click="onFinish" style="width: 100%" type="primary">Create</a-button>
+            </a-form-item>
+        </a-form>
     </div>
 </template>
 <style>
@@ -325,11 +371,13 @@
         padding: 20px;
         border-radius: 8px;
         border: 2px solid #1975dc;
+        background: #fff;
     }
     .doctor-information-container {
         padding: 20px;
         border-radius: 8px;
         border: 2px solid #22c55e;
+        background: #fff;
     }
 
     .doctor-specialties-container {
