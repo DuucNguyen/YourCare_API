@@ -27,6 +27,8 @@ import {
     Checkbox,
     RadioGroup,
     RadioButton,
+    Upload,
+    Radio,
 } from "ant-design-vue";
 //
 
@@ -55,6 +57,8 @@ app.use(RadioButton);
 app.use(Select);
 app.use(Switch);
 app.use(Dropdown);
+app.use(Upload);
+app.use(Radio);
 
 app.mount("#app");
 

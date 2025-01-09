@@ -72,6 +72,10 @@ CRUD - Layout
     text-align: center;
     background: #fff;
 }
+.crud-layout-form {
+    padding: 20px 10px;
+    background: #f3f4f6;
+}
 
 table {
     table-layout: fixed;

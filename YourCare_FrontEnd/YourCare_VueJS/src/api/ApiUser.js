@@ -3,6 +3,8 @@ const END_POINTS = {
     GETALLBYLIMIT: "User/GetAllByLimit",
     GETBYID: "User/GetByID",
     GETBYDOCTORID: "User/GetByDoctorID",
+    CREATE: "User/Create",
+    UPDATE: "User/Update",
 };
 
 class ApiUser {
@@ -28,6 +30,16 @@ class ApiUser {
         return await API.get(`${END_POINTS.GETBYDOCTORID}`, {
             params: {
                 doctorID: id,
+            },
+        });
+    };
+
+    Create = async (formData) => {
+        return await API.post(`${END_POINTS.CREATE}`, formData, {
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "multi-part/json",
+                "cache-control": "no-cache",
             },
         });
     };

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using YourCare_BOs;
 using YourCare_Repos.Interfaces;
 using YourCare_WebApi.Models.ApiModel;
@@ -15,14 +17,18 @@ namespace YourCare_WebApi.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IUriService _uriService;
+        private readonly UserManager<ApplicationUser> _userManager;
+
 
         public UserController(
             IUserRepository userRepository,
-            IUriService uriService
+            IUriService uriService,
+            UserManager<ApplicationUser> userManger
             )
         {
             _userRepository = userRepository;
             _uriService = uriService;
+            _userManager = userManger;
         }
         [HttpGet("GetByID")]
 
@@ -132,11 +138,52 @@ namespace YourCare_WebApi.Controllers
             }
         }
 
-
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromForm] ApplicationUserViewModel request)
         {
-            return Ok();
+            try
+            {
+                var newApplicationUser = new ApplicationUser
+                {
+                    FullName = request.FullName,
+                    Email = request.Email,
+                    UserName = request.Email,
+                    PhoneNumber = request.PhoneNumber,
+                    Dob = request.Dob,
+                    Gender = request.Gender,
+                    Address = request.Address,
+                    EmailConfirmed = true,
+                    IsActive = true,
+                };
+
+                if (request.Image != null)
+                {
+                    using var ms = new MemoryStream();
+                    request.Image.CopyTo(ms);
+                    var imageBytes = ms.ToArray();
+                    newApplicationUser.Image = imageBytes;
+                }
+
+                await _userManager.CreateAsync(newApplicationUser);
+                await _userManager.AddPasswordAsync(newApplicationUser, request.Password);
+
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Created user successfully.",
+                    IsSucceeded = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Created user failed.",
+                    IsSucceeded = false,
+                });
+            }
+
         }
     }
 }

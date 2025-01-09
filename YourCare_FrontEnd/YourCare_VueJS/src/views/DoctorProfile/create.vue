@@ -305,11 +305,14 @@
         padding: 20px;
         border-radius: 8px;
         border: 2px solid #1975dc;
+        background: #fff;
     }
     .doctor-information-container {
         padding: 20px;
         border-radius: 8px;
         border: 2px solid #22c55e;
+        background: #fff;
+    
     }
 
     .doctor-specialties-container {
