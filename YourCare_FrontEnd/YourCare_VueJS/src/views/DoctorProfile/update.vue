@@ -97,6 +97,7 @@
     const getDoctorProfileData = async () => {
         var result = await ApiDoctorProfile.GetByID(formState.doctorProfileID);
         if (result.data.isSucceeded) {
+            formState.doctorProfileID = result.data.data.doctorProfileID;
             formState.applicationUserID = result.data.data.applicationUserID;
             formState.doctorTitle = result.data.data.doctorTitle;
             formState.doctorDescription = result.data.data.doctorDescription;
@@ -164,12 +165,14 @@
                             "applicationUserImage",
                         ),
                     );
+                    formData.append("doctorProfileID", formState.doctorProfileID);
                     formData.append("doctorTitle", formState.doctorTitle);
                     formData.append("doctorDescription", formState.doctorDescription);
                     formData.append("yearExperience", formState.yearExperience);
 
                     formState.specialties.forEach((item, index) => {
-                        formData.append(`specialtyIDs[${index}]`, item.value);
+                        console.log(item);
+                        formData.append(`specialtyIDs[${index}]`, item);
                     });
 
                     var result = await ApiDoctorProfile.Update(formData);
@@ -179,7 +182,7 @@
 
                     showNotification(type, "Create status", context);
                 } catch (error) {
-                    this.onCancel();
+                    console.log(error);
                 }
             },
             onCancel() {
@@ -361,7 +364,7 @@
                 <a-textarea v-model:value="formState.doctorDescription"></a-textarea>
             </a-form-item>
             <a-form-item class="text-center">
-                <a-button @click="onFinish" style="width: 100%" type="primary">Create</a-button>
+                <a-button @click="onFinish" style="width: 100%" type="primary">Update</a-button>
             </a-form-item>
         </a-form>
     </div>

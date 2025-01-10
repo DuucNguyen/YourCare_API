@@ -138,7 +138,6 @@
                 formData.append("yearExperience", formState.yearExperience);
 
                 formState.specialtyIDs.forEach((id, index) => {
-                    console.log(id);
                     formData.append(`specialtyIDs[${index}]`, id);
                 });
 
@@ -271,110 +270,6 @@
                 <a-button @click="onFinish" style="width: 100%" type="primary">Create</a-button>
             </a-form-item>
         </a-form>
-        <!-- <form
-            @submit.prevent="onFinish"
-            class="col-md-6"
-            method="post"
-            enctype="multipart/form-data">
-            <div class="doctor-information-container">
-                <h4 class="text-center" style="color: #22c55e">Doctor information</h4>
-                <div class="mb-3 d-flex">
-                    <img
-                        id="previewImage"
-                        :src="previewUrl"
-                        alt="Avatar Preview"
-                        style="padding: 2px; width: 200px; height: 200px; border: 1px solid #ddd" />
-                    <div class="p-2 d-flex flex-column">
-                        <div class="mb-3 form-items">
-                            <label class="form-label"
-                                >AvatarFile<span class="text-danger">*</span></label
-                            >
-                            <input
-                                @change="handleFileChange"
-                                id="fileInput"
-                                class="form-control"
-                                type="file"
-                                required />
-                        </div>
-                        <div class="mb-3 form-items">
-                            <label class="form-label"
-                                >DoctorTitle<span class="text-danger">*</span></label
-                            >
-                            <input
-                                v-model="formState.doctorTitle"
-                                class="form-control"
-                                type="text"
-                                required />
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-3 form-items d-flex">
-                    <div>
-                        <span class="form-label"
-                            >Specialties<span class="text-danger">*</span></span
-                        >
-                        <div class="dropdown">
-                            <button
-                                class="btn btn-outline-success dropdown-toggle"
-                                type="button"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                                Select Specialties
-                            </button>
-                            <ul @click.stop class="p-3 dropdown-menu drop-down-spe">
-                                <li v-for="spe in specialties" :key="spe.specialtyID">
-                                    <div class="form-check">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            name="selectedSpecializations"
-                                            :value="spe"
-                                            :id="'spe_' + spe.specialtyID"
-                                            v-model="chosenSpecialties" />
-                                        <label
-                                            @click.stop
-                                            class="form-check-label"
-                                            :for="'spe_' + spe.specialtyID">
-                                            {{ spe.title }}
-                                        </label>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="doctor-specialties-container">
-                        <label
-                            class="specialization-item-capsule"
-                            v-for="item in chosenSpecialties"
-                            >{{ item.title }}</label
-                        >
-                    </div>
-                </div>
-
-                <div class="mb-3 form-items">
-                    <label class="form-label">Experience<span class="text-danger">*</span></label>
-                    <input
-                        v-model="formState.yearExperience"
-                        class="form-control"
-                        type="number"
-                        min="1"
-                        required />
-                </div>
-
-                <div class="mb-3 form-items">
-                    <label class="form-label">DoctorDescription</label>
-                    <textarea
-                        v-model="formState.doctorDescription"
-                        style="min-height: 100px; max-height: 300px"
-                        class="form-control"
-                        required></textarea>
-                </div>
-                <div class="d-flex justify-content-center">
-                    <button class="btn btn-success w-100" type="submit">Create</button>
-                </div>
-            </div>
-        </form> -->
     </div>
 </template>
 <style>

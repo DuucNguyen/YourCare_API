@@ -173,6 +173,7 @@ namespace YourCare_WebApi.Controllers
 
         public class RequestDoctorProfileModel
         {
+            public string? DoctorProfileID { get; set; }
             public string UserID { get; set; }
             public IFormFile UserImage { get; set; }
             public string DoctorTitle { get; set; }
@@ -220,6 +221,7 @@ namespace YourCare_WebApi.Controllers
             {
                 var update = new DoctorProfile
                 {
+                    DoctorID = Guid.Parse(request.DoctorProfileID),
                     DoctorTitle = request.DoctorTitle,
                     DoctorDescription = request.DoctorDescription,
                     YearExperience = request.YearExperience,
@@ -239,7 +241,7 @@ namespace YourCare_WebApi.Controllers
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
-                    Message = ex.Message,
+                    Message = "controller: " + ex.Message,
                     IsSucceeded = false,
                 });
             }

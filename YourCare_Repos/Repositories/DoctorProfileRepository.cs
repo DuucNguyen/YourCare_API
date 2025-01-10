@@ -82,16 +82,24 @@ namespace YourCare_Repos.Repositories
             }
 
             var docSpes = await _doctorSpecialtiesDAO.GetAllSpeByDoctorID(request.DoctorID.ToString());
-            var speToDelete = docSpes.Select(x => x.SpecialtyID.ToString()).Except(spes).ToList();
-            var newSpes = docSpes.Select(x => x.SpecialtyID.ToString()).Except(speToDelete).ToList();
-
-            await _doctorSpecialtiesDAO.DeleteRange(speToDelete.Select(x => new DoctorSpecialties
+            if (docSpes.Count > 0)
             {
-                SpecialtyID = Guid.Parse(x),
-                DoctorID = request.DoctorID,
-            }).ToList());
+                var speToDelete = docSpes.Select(x => x.SpecialtyID.ToString()).Except(spes).ToList();
+                var newSpes = docSpes.Select(x => x.SpecialtyID.ToString()).Except(speToDelete).ToList();
 
-            await _doctorSpecialtiesDAO.AddRange(newSpes.Select(x => new DoctorSpecialties
+                await _doctorSpecialtiesDAO.DeleteRange(speToDelete.Select(x => new DoctorSpecialties
+                {
+                    SpecialtyID = Guid.Parse(x),
+                    DoctorID = request.DoctorID,
+                }).ToList());
+
+                await _doctorSpecialtiesDAO.AddRange(newSpes.Select(x => new DoctorSpecialties
+                {
+                    SpecialtyID = Guid.Parse(x),
+                    DoctorID = request.DoctorID,
+                }).ToList());
+            }
+            await _doctorSpecialtiesDAO.AddRange(spes.Select(x => new DoctorSpecialties
             {
                 SpecialtyID = Guid.Parse(x),
                 DoctorID = request.DoctorID,
