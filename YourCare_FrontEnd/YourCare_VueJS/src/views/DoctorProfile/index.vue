@@ -105,7 +105,9 @@
             <tbody>
                 <tr v-for="item in data">
                     <td>
-                        <div class="list-image-container">
+                        <div
+                            style="width: 90px; height: 120px; object-fit: cover"
+                            class="list-image-container">
                             <img :src="item.imageString" alt="avatar" />
                         </div>
                     </td>
@@ -125,22 +127,39 @@
                     </td>
 
                     <td>
-                        <RouterLink
-                            class="btn btn-primary"
-                            :to="{
-                                name: 'Admin_DoctorProfile_Update',
-                                params: { id: item.doctorProfileID },
-                            }"
-                            >Update</RouterLink
-                        >
-                        <button class="btn btn-danger">Delete</button>
+                        <a-tooltip placement="top">
+                            <template #title>
+                                <span>Update</span>
+                            </template>
+                            <RouterLink
+                                class="fs-3 text-success"
+                                :to="{
+                                    name: 'Admin_DoctorProfile_Update',
+                                    params: { id: item.doctorProfileID },
+                                }"
+                                ><i class="bx bxs-edit"></i
+                            ></RouterLink>
+                        </a-tooltip>
+                        <a-tooltip placement="top">
+                            <template #title>
+                                <span>Delete</span>
+                            </template>
+                            <RouterLink
+                                class="fs-3 text-danger"
+                                :to="{
+                                    name: 'Admin_DoctorProfile_Update',
+                                    params: { id: item.doctorProfileID },
+                                }"
+                                ><i class="bx bxs-trash"></i
+                            ></RouterLink>
+                        </a-tooltip>
                     </td>
                 </tr>
             </tbody>
         </table>
         <a-pagination
             @change="onChange"
-            v-model="pageParams.pageNumber"
+            v-model:current="pageParams.pageNumber"
             :total="pageParams.totalRecords"
             :pageSize="pageParams.pageSize"
             :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"

@@ -29,10 +29,12 @@ import {
     RadioButton,
     Upload,
     Radio,
-    Textarea
+    Textarea,
+    Tooltip
 } from "ant-design-vue";
-//
 
+//
+import 'boxicons/css/boxicons.min.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "ant-design-vue/dist/reset.css";
@@ -61,6 +63,7 @@ app.use(Dropdown);
 app.use(Upload);
 app.use(Radio);
 app.use(Textarea);
+app.use(Tooltip);
 
 app.mount("#app");
 

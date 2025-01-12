@@ -171,7 +171,6 @@
                     formData.append("yearExperience", formState.yearExperience);
 
                     formState.specialties.forEach((item, index) => {
-                        console.log(item);
                         formData.append(`specialtyIDs[${index}]`, item);
                     });
 

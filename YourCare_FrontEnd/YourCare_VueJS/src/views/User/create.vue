@@ -43,13 +43,6 @@
                 message: "Please input user full name", //error message
                 trigger: "change", //event to trigger this validation // default = change
             },
-            {
-                //length
-                min: 3,
-                max: 5,
-                message: "Length should be 3 to 5",
-                trigger: "blur", //when leave input (unfocus)
-            },
         ],
         email: [
             {
@@ -69,6 +62,19 @@
                 message: "Please input default password",
                 trigger: "change",
             },
+            {
+                validator: (rule, value, callback) => {
+                    if (!/[A-Z]/.test(value)) {
+                        callback(new Error("Password must include at least one upper case."));
+                    } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(value)) {
+                        callback(new Error("Password must include at least one special character."));
+                    } else {
+                        callback();
+                    }
+                },
+                trigger: "change",
+            },
+            
         ],
         dob: [
             {

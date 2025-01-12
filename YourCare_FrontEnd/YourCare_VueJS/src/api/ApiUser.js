@@ -11,8 +11,8 @@ class ApiUser {
     GetAllByLimit = async (pageParams) => {
         return await API.get(`${END_POINTS.GETALLBYLIMIT}`, {
             params: {
-                PageNumber: pageParams.PageNumber || 1,
-                PageSize: pageParams.PageSize || 10,
+                PageNumber: pageParams.pageNumber || 1,
+                PageSize: pageParams.pageSize || 10,
                 SearchValue: pageParams.searchValue || "",
             },
         });

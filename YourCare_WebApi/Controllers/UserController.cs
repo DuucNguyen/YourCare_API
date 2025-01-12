@@ -121,9 +121,9 @@ namespace YourCare_WebApi.Controllers
                 var route = Request.Path.Value;
                 var totalRecords = query.Count();
 
-                var paginatedData = Pagination<ApplicationUser>.Paginate(query, filter.PageNumber, filter.PageSize);
+                var pagedData = Pagination<ApplicationUser>.Paginate(query, filter.PageNumber, filter.PageSize);
 
-                var pagedResponse = PaginationHelper.CreatePagedResponse<ApplicationUser>(query, filter, totalRecords, _uriService, route, false, null);
+                var pagedResponse = PaginationHelper.CreatePagedResponse<ApplicationUser>(pagedData, filter, totalRecords, _uriService, route, false, null);
 
                 return Ok(pagedResponse);
             }

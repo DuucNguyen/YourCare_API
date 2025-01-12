@@ -64,12 +64,12 @@
                 message: "Please choose at least one specialty.",
             },
         ],
-        applicationImage: [
+        applicationUserImage: [
             {
                 required: true,
-                message: "Please upload at least one image."
-            }
-        ]
+                message: "Please upload at least one image.",
+            },
+        ],
     };
 
     const specialties = ref([]);
@@ -116,6 +116,13 @@
             await getUserData();
         }
         await getSpecialties();
+
+        formState.applicationUserImage.push({
+            uid: "-1",
+            name: "applicationUserImage",
+            status: "done",
+            thumbUrl: userData.imageString, //set url as thumb associate with file obj.thumbUrl
+        });
     });
 
     /**
@@ -132,7 +139,15 @@
             async onOk() {
                 var formData = new FormData();
                 formData.append("userID", userData.id);
-                formData.append("userImage", formState.applicationUserImage[0].originFileObj);
+
+                // formData.append("userImage", formState.applicationUserImage[0].originFileObj);
+                formData.append(
+                    "userImage",
+                    base64ToFile(
+                        formState.applicationUserImage[0].thumbUrl,
+                        "applicationUserImage",
+                    ),
+                );
                 formData.append("doctorTitle", formState.doctorTitle);
                 formData.append("doctorDescription", formState.doctorDescription);
                 formData.append("yearExperience", formState.yearExperience);
@@ -171,6 +186,58 @@
                 console.log("error: " + error);
             });
     };
+
+    /**
+     * Image
+     * **/
+    const previewVisible = ref(false); //toogle modal
+    const previewImage = ref(""); //base64 - img src
+    const previewTitle = ref(""); //modal title
+
+    //convert file to base 64 to preview
+    function getBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    }
+
+    //modal preview
+    const handlePreview = async (file) => {
+        if (!file.thumbUrl && !file.preview) {
+            file.preview = await getBase64(file.originFileObj);
+        }
+        previewImage.value = file.thumbUrl || file.preview;
+        previewVisible.value = true;
+        previewTitle.value =
+            file.name || file.thumbUrl.substring(file.thumbUrl.lastIndexOf("/") + 1);
+    };
+
+    //modal close
+    const handleCancel = () => {
+        previewVisible.value = false;
+        previewTitle.value = "";
+    };
+
+    //convert base64 to File
+    function base64ToFile(base64String, fileName = "file.png") {
+        // Extract the base64 data
+        const byteString = atob(base64String.split(",")[1]); // Decode base64 string
+        const mimeType = base64String.match(/data:(.*?);base64/)[1]; // Extract MIME type
+
+        // Convert binary string to array of bytes
+        const arrayBuffer = new ArrayBuffer(byteString.length);
+        const uint8Array = new Uint8Array(arrayBuffer);
+
+        for (let i = 0; i < byteString.length; i++) {
+            uint8Array[i] = byteString.charCodeAt(i);
+        }
+
+        // Create a Blob and return a File object
+        return new File([uint8Array], fileName, { type: mimeType });
+    }
 </script>
 
 <template>
@@ -237,14 +304,22 @@
                         v-model:fileList="formState.applicationUserImage"
                         action=""
                         list-type="picture-card"
-                        :max-count="1">
+                        :max-count="1"
+                        @preview="handlePreview">
                         <div>
                             <PlusOutlined />
                             <div style="margin-top: 8px">Upload</div>
                         </div>
                     </a-upload>
+                    <a-modal
+                        :open="previewVisible"
+                        :title="previewTitle"
+                        :footer="null"
+                        @cancel="handleCancel">
+                        <img alt="example" style="width: 100%" :src="previewImage" />
+                    </a-modal>
                 </a-form-item>
-                <a-form-item class="col-md-7" label="Specialties">
+                <a-form-item class="col-md-7" label="Specialties" name="specialtyIDs">
                     <a-select mode="multiple" v-model:value="formState.specialtyIDs">
                         <a-select-option
                             v-for="spe in specialties"

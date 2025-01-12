@@ -6,6 +6,11 @@ const adminRoutes = [
         redirect: { path: "/dashboards" }, //redirect props
         component: () => import("@/shared/_adminLayout.vue"),
         children: [
+            {
+                path: "dashboard",
+                name: "Admin_Dashboards"
+            },
+
             /**
              *
              * DoctorProfile

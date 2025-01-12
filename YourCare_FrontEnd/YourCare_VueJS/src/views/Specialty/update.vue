@@ -143,6 +143,7 @@
         border-bottom-right-radius: 5px;
         border-bottom-left-radius: 5px;
         font-weight: 500;
+        background: #fff;
     }
     .img-container {
         width: 200px;

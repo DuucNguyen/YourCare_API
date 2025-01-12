@@ -7,9 +7,9 @@
     const router = useRouter();
 
     const pageParams = reactive({
-        pageNumber: route.query.pageNumber || 1,
-        pageSize: route.query.pageSize || 10,
-        searchValue: route.query.searchValue || "",
+        pageNumber: route.params.pageNumber || 1,
+        pageSize: route.params.pageSize || 10,
+        searchValue: route.params.searchValue || "",
         totalRecords: 0,
         statusFilter: false,
     });
@@ -18,6 +18,8 @@
 
     const getData = async () => {
         try {
+            console.log(pageParams.pageNumber);
+
             var result = await ApiUser.GetAllByLimit(pageParams);
 
             if (result.data.isSucceeded) {
@@ -29,9 +31,10 @@
                 if (pageParams.statusFilter) {
                     //check changes in pageParams
                     if (
-                        result.data.totalPages < pageParams.pageNumber &&
+                        pageParams.pageNumber > result.data.totalPages &&
                         pageParams.totalRecords > 0
                     ) {
+                        pageParams.pageNumber = 1;
                         router.push({
                             name: "Admin_User_View",
                             query: {
@@ -63,7 +66,6 @@
         //pagination call this
         pageParams.pageNumber = page;
         pageParams.pageSize = pageSize;
-
         pageParams.statusFilter = true; //mark as changed
         getData();
     };
@@ -74,9 +76,9 @@
 
     onUpdated(() => {
         if (Object.keys(route.query).length === 0) {
-            pageParams.pageNumber = route.query.pageNumber || 1;
-            pageParams.pageSize = route.query.pageSize || 10;
-            pageParams.searchValue = route.query.searchValue || "";
+            pageParams.pageNumber = route.params.pageNumber || 1;
+            pageParams.pageSize = route.params.pageSize || 10;
+            pageParams.searchValue = route.params.searchValue || "";
             pageParams.statusFilter = true;
             getData();
         }
@@ -95,39 +97,88 @@
             <thead>
                 <tr>
                     <th>Image</th>
-                    <th>FullName</th>
-                    <th>Email</th>
+                    <th>Information</th>
+                    <th>Appointments</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="user in data">
                     <td>
-                        <div style="width: 100px; height: 100px">
+                        <div style="width: 90px; height: 120px">
                             <img
-                                style="width: 100%; height: 100%; object-fit: contain"
+                                style="width: 100%; height: 100%; object-fit: cover"
                                 :src="user.imageString"
                                 alt="avatar" />
                         </div>
                     </td>
-                    <td>{{ user.fullName }}</td>
-                    <td>{{ user.email }}</td>
                     <td>
-                        <RouterLink
-                            class="m-1 btn btn-primary"
-                            :to="{
-                                name: 'Admin_DoctorProfile_Create',
-                                params: { id: user.id },
-                            }"
-                            >Create Doctor Profile</RouterLink
-                        >
+                        <div class="d-flex flex-column information-container">
+                            <div><span>FullName:</span>{{ user.fullName }}</div>
+                            <div><span>Email:</span>{{ user.email }}</div>
+                        </div>
+                    </td>
+                    <td></td>
+                    <td>
+                        <a-tooltip placement="top">
+                            <template #title>
+                                <span>Details</span>
+                            </template>
+                            <RouterLink
+                                class="fs-3 text-primary"
+                                :to="{
+                                    name: 'Admin_User_Detail',
+                                    params: { id: user.id },
+                                }"
+                                ><i class="bx bxs-user-detail"></i
+                            ></RouterLink>
+                        </a-tooltip>
+                        <a-tooltip placement="top">
+                            <template #title>
+                                <span>Create doctor profile</span>
+                            </template>
+                            <RouterLink
+                                class="fs-3 text-success"
+                                :to="{
+                                    name: 'Admin_DoctorProfile_Create',
+                                    params: { id: user.id },
+                                }"
+                                ><i class="bx bxs-user-badge"></i
+                            ></RouterLink>
+                        </a-tooltip>
+                        <a-tooltip placement="top">
+                            <template #title>
+                                <span>Update</span>
+                            </template>
+                            <RouterLink
+                                class="fs-3 text-success"
+                                :to="{
+                                    name: 'Admin_User_Update',
+                                    params: { id: user.id },
+                                }"
+                                ><i class="bx bxs-edit"></i
+                            ></RouterLink>
+                        </a-tooltip>
+                        <a-tooltip placement="top">
+                            <template #title>
+                                <span>Deactivate</span>
+                            </template>
+                            <RouterLink
+                                class="fs-3 text-danger"
+                                :to="{
+                                    name: 'Admin_User_Update',
+                                    params: { id: user.id },
+                                }"
+                                ><i class="bx bxs-trash"></i
+                            ></RouterLink>
+                        </a-tooltip>
                     </td>
                 </tr>
             </tbody>
         </table>
         <a-pagination
             @change="onChange"
-            v-model="pageParams.pageNumber"
+            v-model:current="pageParams.pageNumber"
             :total="pageParams.totalRecords"
             :pageSize="pageParams.pageSize"
             :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"

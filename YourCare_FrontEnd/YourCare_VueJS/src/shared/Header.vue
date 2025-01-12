@@ -4,7 +4,7 @@
             class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="d-flex pe-5 ps-5">
                 <div class="logo-container">
-                    <a class="logo navbar-brand" href="/">YourCARE</a>
+                    <a class="logo navbar-brand" href="/">YourCare</a>
                 </div>
                 <button
                     class="navbar-toggler"

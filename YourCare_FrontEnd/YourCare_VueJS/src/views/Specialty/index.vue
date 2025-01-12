@@ -121,8 +121,8 @@
     <div class="crud-layout-header">
         <h2 class="crud-layout-header-title">Manage Specialty</h2>
         <RouterLink class="crud-layout-header-button" :to="{ name: 'Admin_Specialty_Create' }"
-            >Create</RouterLink
-        >
+            >Create <i class="ms-1 bx bx-plus-circle"></i
+        ></RouterLink>
     </div>
     <div class="crud-layout-table">
         <table class="table table-responsive table-bordered table-hover">
@@ -142,17 +142,29 @@
                     </td>
                     <td>{{ item.title }}</td>
                     <td>
-                        <RouterLink
-                            class="m-1 btn btn-primary"
-                            :to="{
-                                name: 'Admin_Specialty_Update',
-                                params: { id: item.specialtyID },
-                            }"
-                            >Update</RouterLink
-                        >
-                        <button @click="showDeleteConfirm(item.specialtyID)" class="btn btn-danger">
-                            Delete
-                        </button>
+                        <a-tooltip placement="top">
+                            <template #title>
+                                <span>Update</span>
+                            </template>
+                            <RouterLink
+                                class="fs-3 text-primary"
+                                :to="{
+                                    name: 'Admin_Specialty_Update',
+                                    params: { id: item.specialtyID },
+                                }"
+                                ><i class="bx bxs-edit"></i
+                            ></RouterLink>
+                        </a-tooltip>
+                        <a-tooltip placement="top">
+                            <template #title>
+                                <span>Delete</span>
+                            </template>
+                            <a
+                                class="fs-3 text-danger"
+                                @click="showDeleteConfirm(item.specialtyID)">
+                                <i class="bx bxs-trash"></i>
+                            </a>
+                        </a-tooltip>
                     </td>
                 </tr>
             </tbody>

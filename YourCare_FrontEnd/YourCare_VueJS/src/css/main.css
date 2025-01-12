@@ -60,6 +60,8 @@ CRUD - Layout
     text-decoration: none;
     font-size: 18px;
     font-weight: 500;
+    display: flex;
+    align-items: center;
 }
 .crud-layout-header-button:hover {
     background: #22c55e;
