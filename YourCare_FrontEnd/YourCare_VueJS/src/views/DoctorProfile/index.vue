@@ -125,8 +125,7 @@
                             {{ spe.title }}
                         </label>
                     </td>
-
-                    <td>
+                    <td class="text-end">
                         <a-tooltip placement="top">
                             <template #title>
                                 <span>Update</span>

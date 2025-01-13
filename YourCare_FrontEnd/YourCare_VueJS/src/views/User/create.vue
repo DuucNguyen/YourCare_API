@@ -1,11 +1,9 @@
 <script setup>
     import ApiUser from "@/api/ApiUser";
-    import { message } from "ant-design-vue";
-    import { ref, reactive, watch } from "vue";
+    import { ref, reactive } from "vue";
 
     //
     import { PlusOutlined } from "@ant-design/icons-vue";
-
     //
     import { createVNode } from "vue";
     import { Modal } from "ant-design-vue";
@@ -108,6 +106,8 @@
                 console.log("CREATE FROM ERROR: ", error);
             });
     };
+
+
     const resetForm = () => {
         formRef.value.resetFields(); // remove all valud in form
     };
@@ -135,9 +135,9 @@
                     console.log(result.data.message);
                 }
                 var type = result.data.isSucceeded ? "success" : "error";
-                var context = result.data.message;
+                var description = result.data.message;
 
-                showNotification(type, "Create user", context);
+                showNotification(type, "Create user", description);
             },
             onCancel() {
                 console.log("Cancel create");
@@ -145,10 +145,10 @@
         });
     };
 
-    const showNotification = (type, message, context) => {
+    const showNotification = (type, message, description) => {
         notification[type]({
             message: message,
-            description: context,
+            description: description,
         });
     };
 </script>

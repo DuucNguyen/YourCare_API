@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Transactions;
 using YourCare_BOs;
 using YourCare_Repos.Interfaces;
 using YourCare_WebApi.Models.ApiModel;
@@ -41,6 +42,7 @@ namespace YourCare_WebApi.Controllers
                 if (find != null)
                 {
                     find.ImageString = find.Image != null ? $"data:image/png;base64,{Convert.ToBase64String(find.Image)}" : "";
+                    find.Image = null;
                 }
 
                 return new JsonResult(new ResponseModel<ApplicationUser>
@@ -56,7 +58,7 @@ namespace YourCare_WebApi.Controllers
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
-                    Message = "GetByID Failed",
+                    Message = "GetByID Failed+ " + ex.Message,
                     IsSucceeded = false,
                 });
             }
@@ -132,7 +134,7 @@ namespace YourCare_WebApi.Controllers
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
-                    Message = "GetAllBYLimit Failed",
+                    Message = "GetAllByLimit Failed",
                     IsSucceeded = false,
                 });
             }
@@ -141,36 +143,83 @@ namespace YourCare_WebApi.Controllers
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromForm] ApplicationUserViewModel request)
         {
+            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    var newApplicationUser = new ApplicationUser
+                    {
+                        FullName = request.FullName,
+                        Email = request.Email,
+                        UserName = request.Email,
+                        PhoneNumber = request.PhoneNumber,
+                        Dob = request.Dob,
+                        Gender = request.Gender,
+                        Address = request.Address,
+                        EmailConfirmed = true,
+                        IsActive = true,
+                    };
+
+                    if (request.Image != null)
+                    {
+                        using var ms = new MemoryStream();
+                        request.Image.CopyTo(ms);
+                        var imageBytes = ms.ToArray();
+                        newApplicationUser.Image = imageBytes;
+                    }
+
+                    await _userManager.CreateAsync(newApplicationUser);
+                    await _userManager.AddPasswordAsync(newApplicationUser, request.Password);
+                    scope.Complete();
+                    return new JsonResult(new ResponseModel<string>
+                    {
+                        StatusCode = StatusCodes.Status200OK,
+                        Message = "Created user successfully.",
+                        IsSucceeded = true,
+                    });
+                }
+                catch (Exception ex)
+                {
+                    scope.Dispose();
+                    return new JsonResult(new ResponseModel<string>
+                    {
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                        Message = "Created user failed.",
+                        IsSucceeded = false,
+                    });
+                }
+            }
+
+        }
+
+        [HttpPost("Update")]
+        public async Task<IActionResult> Update([FromForm] ApplicationUserViewModel request)
+        {
             try
             {
-                var newApplicationUser = new ApplicationUser
-                {
-                    FullName = request.FullName,
-                    Email = request.Email,
-                    UserName = request.Email,
-                    PhoneNumber = request.PhoneNumber,
-                    Dob = request.Dob,
-                    Gender = request.Gender,
-                    Address = request.Address,
-                    EmailConfirmed = true,
-                    IsActive = true,
-                };
+                var find = await _userManager.FindByIdAsync(request.Id) ?? throw new Exception("User not found.");
+
+                find.FullName = request.FullName;
+                find.Email = request.Email;
+                find.PhoneNumber = request.PhoneNumber;
+                find.Address = request.Address;
+                find.Dob = request.Dob;
+                find.Gender = request.Gender;
 
                 if (request.Image != null)
                 {
                     using var ms = new MemoryStream();
                     request.Image.CopyTo(ms);
                     var imageBytes = ms.ToArray();
-                    newApplicationUser.Image = imageBytes;
+                    find.Image = imageBytes;
                 }
 
-                await _userManager.CreateAsync(newApplicationUser);
-                await _userManager.AddPasswordAsync(newApplicationUser, request.Password);
+                await _userManager.UpdateAsync(find);
 
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status200OK,
-                    Message = "Created user successfully.",
+                    Message = "Update user successfully.",
                     IsSucceeded = true,
                 });
             }
@@ -179,7 +228,7 @@ namespace YourCare_WebApi.Controllers
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
-                    Message = "Created user failed.",
+                    Message = "Update user failed: " + ex.Message,
                     IsSucceeded = false,
                 });
             }

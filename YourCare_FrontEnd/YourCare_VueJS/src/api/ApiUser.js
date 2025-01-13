@@ -43,6 +43,15 @@ class ApiUser {
             },
         });
     };
+    Update = async (formData) => {
+        return await API.post(`${END_POINTS.UPDATE}`, formData, {
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "multi-part/json",
+                "cache-control": "no-cache",
+            },
+        });
+    };
 }
 
 export default new ApiUser();

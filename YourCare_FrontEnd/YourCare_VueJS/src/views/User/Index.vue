@@ -18,8 +18,6 @@
 
     const getData = async () => {
         try {
-            console.log(pageParams.pageNumber);
-
             var result = await ApiUser.GetAllByLimit(pageParams);
 
             if (result.data.isSucceeded) {
