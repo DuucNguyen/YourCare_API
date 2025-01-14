@@ -117,7 +117,7 @@
 
     const getSpecialties = async () => {
         var result = await ApiSpecialty.GetAllSpeID();
-        specialties.value = result.data;
+        specialties.value = result.data.data;
     };
 
     onMounted(async () => {

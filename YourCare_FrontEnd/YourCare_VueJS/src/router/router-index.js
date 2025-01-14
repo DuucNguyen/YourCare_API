@@ -59,6 +59,13 @@ router.beforeEach(async (to, from, next) => {
         Admin_DoctorProfile_Create: "Admin_DoctorProfile_Create",
         Admin_DoctorProfile_Update: "Admin_DoctorProfile_Update",
         Admin_DoctorProfile_Detail: "Admin_DoctorProfile_Detail",
+        Admin_Specialty_View: "Admin_Specialty_View",
+        Admin_Specialty_Create: "Admin_Specialty_Create",
+        Admin_Specialty_Update: "Admin_Specialty_Update",
+        Admin_User_View: "Admin_User_Create",
+        Admin_User_Create: "Admin_User_Create",
+        Admin_User_Update: "Admin_User_Update",
+        Admin_User_Detail: "Admin_User_Detail"
     };
 
     if (claimRoutes[to.name]) {

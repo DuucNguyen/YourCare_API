@@ -11,6 +11,6 @@
 </template>
 <style>
     body {
-        background: #ddd;
+        background: #ececec;
     }
 </style>

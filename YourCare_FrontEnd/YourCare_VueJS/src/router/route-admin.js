@@ -7,8 +7,9 @@ const adminRoutes = [
         component: () => import("@/shared/_adminLayout.vue"),
         children: [
             {
-                path: "dashboard",
-                name: "Admin_Dashboards"
+                path: "dashboards",
+                name: "Admin_Dashboards",
+                component: () => import("@/views/Dashboard.vue"),
             },
 
             /**
@@ -68,28 +69,27 @@ const adminRoutes = [
             {
                 path: "user",
                 name: "Admin_User_View",
-                meta: {title: "User"},
-                component: () => import("@/views/User/Index.vue")
+                meta: { title: "User" },
+                component: () => import("@/views/User/Index.vue"),
             },
             {
                 path: "user-create",
                 name: "Admin_User_Create",
-                meta: {title: "User-Create"},
-                component: () => import("@/views/User/create.vue")
+                meta: { title: "User-Create" },
+                component: () => import("@/views/User/create.vue"),
             },
             {
                 path: "user-update/:id",
                 name: "Admin_User_Update",
-                meta: {title: "User-Update"},
-                component: () => import("@/views/User/update.vue")
+                meta: { title: "User-Update" },
+                component: () => import("@/views/User/update.vue"),
             },
             {
                 path: "user-detail/:id",
                 name: "Admin_User_Detail",
-                meta: {title: "User-Detai"},
-                component: () => import("@/views/User/detail.vue")
-            }
-            
+                meta: { title: "User-Detai" },
+                component: () => import("@/views/User/detail.vue"),
+            },
         ],
     },
 ];

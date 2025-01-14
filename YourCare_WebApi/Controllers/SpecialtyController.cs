@@ -89,13 +89,20 @@ namespace YourCare_WebApi.Controllers
             try
             {
                 var query = await _specialtyRepository.GetAll();
-                var result = query.Select(x => new
+                var result = query.Select(x => new Specialty
                 {
-                    SpecialtyID= x.SpecialtyID,
-                    Title = x.Title
+                    SpecialtyID = x.SpecialtyID,
+                    Title = x.Title,
+                    ImageString = x.Image != null ? $"data:image/png;base64,{Convert.ToBase64String(x.Image)}" : ""
                 }).ToList();
 
-                return Ok(result);
+                return new JsonResult(new ResponseModel<List<Specialty>>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Get all specualty successfully",
+                    IsSucceeded = true,
+                    Data = result
+                });
             }
             catch (Exception ex)
             {
