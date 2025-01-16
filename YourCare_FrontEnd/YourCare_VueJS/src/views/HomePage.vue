@@ -40,9 +40,9 @@
                     <p class="mb-0">Phiếu khám kèm số thứ tự và thời gian của bạn được xác nhận.</p>
                 </div>
                 <div class="d-flex align-items-center">
-                    <a asp-page="/DatKham/BacSi/Index" class="button-hover"
-                        >Xem thêm <i class="bx bx-right-arrow-alt"></i
-                    ></a>
+                    <RouterLink class="button-hover" :to="{ name: 'Public_DanhSachBacSi' }">
+                        Xem thêm <i class="bx bx-right-arrow-alt"></i>
+                    </RouterLink>
                 </div>
             </div>
             <div class="doctor-items">
@@ -77,49 +77,25 @@
                 <p class="mb-0">Danh sách bác sĩ theo chuyên khoa</p>
             </div>
             <div class="specialization-items">
-                <a v-for="spe in speData" class="text-decoration-none">
+                <RouterLink
+                    v-for="spe in speData"
+                    class="text-decoration-none"
+                    :to="{
+                        name: 'Public_DanhSachBacSi',
+                        query: { specialtyID: spe.specialtyID },
+                    }">
                     <div class="specialization-item">
                         <div class="specialization-img">
                             <img :src="spe.imageString" alt="spe" />
                         </div>
                         <p>{{ spe.title }}</p>
                     </div>
-                </a>
+                </RouterLink>
             </div>
         </div>
     </div>
 </template>
 <style>
-    .button-hover {
-        max-height: 35px;
-        max-width: 170px;
-        padding: 5px 15px;
-        display: flex;
-        align-items: center;
-        background: #1975dc;
-        border: none;
-        border-radius: 50px;
-        color: #fff;
-        font-weight: 500;
-        text-decoration: none;
-        cursor: pointer;
-    }
-
-    .button-hover i {
-        font-size: 18px;
-        font-weight: 500;
-        transition: transform 0.1s ease-in-out;
-    }
-
-    .button-hover:hover {
-        background: #1e3a8a;
-        color: #fff;
-    }
-
-    .button-hover:hover i {
-        transform: translateX(5px);
-    }
-
     /* Custom CSS to make the radio buttons larger */
     .radio-lg {
         width: 1rem;

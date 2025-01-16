@@ -1,5 +1,3 @@
-import { compile } from "vue";
-
 const adminRoutes = [
     {
         path: "/admin",
@@ -11,7 +9,6 @@ const adminRoutes = [
                 name: "Admin_Dashboards",
                 component: () => import("@/views/Dashboard.vue"),
             },
-
             /**
              *
              * DoctorProfile

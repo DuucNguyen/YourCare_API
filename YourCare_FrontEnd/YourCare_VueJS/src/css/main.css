@@ -79,6 +79,36 @@ CRUD - Layout
     background: #f3f4f6;
 }
 
+.button-hover {
+    max-height: 35px;
+    max-width: 170px;
+    padding: 5px 15px;
+    display: flex;
+    align-items: center;
+    background: #1975dc;
+    border: none;
+    border-radius: 50px;
+    color: #fff;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.button-hover i {
+    font-size: 18px;
+    font-weight: 500;
+    transition: transform 0.1s ease-in-out;
+}
+
+.button-hover:hover {
+    background: #1e3a8a;
+    color: #fff;
+}
+
+.button-hover:hover i {
+    transform: translateX(5px);
+}
+
 table {
     table-layout: fixed;
 }

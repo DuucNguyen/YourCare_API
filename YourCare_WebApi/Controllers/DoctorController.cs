@@ -40,7 +40,7 @@ namespace YourCare_WebApi.Controllers
 
         [Authorize(Policy = "AdminOnly")]
         [HttpGet("GetAllByLimit")]
-        public async Task<IActionResult> GetAllDoctor([FromQuery] PaginationFilter filter, string? searchValue)
+        public async Task<IActionResult> GetAllDoctor([FromQuery] PaginationFilter filter, string? searchValue, string? specialtyID)
         {
             try
             {
@@ -49,6 +49,7 @@ namespace YourCare_WebApi.Controllers
                 {
                     query = query.Where(x => x.ApplicationUser.FullName.Contains(searchValue)).ToList();
                 }
+                
 
                 var result = query.Select(x => new DoctorResponseModel
                 {
@@ -70,6 +71,11 @@ namespace YourCare_WebApi.Controllers
                     : "",
                     Specialties = _doctorSpecialtiesRepository.GetAllSpeByDoctorID(x.DoctorID).Result,
                 }).ToList();
+
+                if (!string.IsNullOrEmpty(specialtyID) && specialtyID!="all")
+                {
+                    result = result.Where(x => x.Specialties.Select(x => x.SpecialtyID).Contains(Guid.Parse(specialtyID))).ToList();
+                }
 
                 var route = Request.Path.Value;
                 var totalRecords = result.Count;

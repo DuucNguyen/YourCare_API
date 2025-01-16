@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import adminRoutes from "@/router/route-admin";
 import authRoutes from "@/router/router-auth";
 import { useAuthStore } from "@/stores/auth-store";
+import userRoutes from "@/router/route-user";
 import TokenService from "@/api/TokenService";
 
 const indexRoutes = [
@@ -17,7 +18,7 @@ const indexRoutes = [
     },
 ];
 
-const routes = [...authRoutes, ...adminRoutes, ...indexRoutes];
+const routes = [...authRoutes, ...adminRoutes, ...userRoutes, ...indexRoutes];
 const publicRoutes = [
     "home",
     "login",
@@ -65,7 +66,7 @@ router.beforeEach(async (to, from, next) => {
         Admin_User_View: "Admin_User_Create",
         Admin_User_Create: "Admin_User_Create",
         Admin_User_Update: "Admin_User_Update",
-        Admin_User_Detail: "Admin_User_Detail"
+        Admin_User_Detail: "Admin_User_Detail",
     };
 
     if (claimRoutes[to.name]) {
