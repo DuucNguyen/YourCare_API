@@ -40,7 +40,7 @@
                     <p class="mb-0">Phiếu khám kèm số thứ tự và thời gian của bạn được xác nhận.</p>
                 </div>
                 <div class="d-flex align-items-center">
-                    <RouterLink class="button-hover" :to="{ name: 'Public_DanhSachBacSi' }">
+                    <RouterLink class="button-hover" :to="{ name: 'User_Doctor_View' }">
                         Xem thêm <i class="bx bx-right-arrow-alt"></i>
                     </RouterLink>
                 </div>
@@ -81,7 +81,7 @@
                     v-for="spe in speData"
                     class="text-decoration-none"
                     :to="{
-                        name: 'Public_DanhSachBacSi',
+                        name: 'User_Doctor_View',
                         query: { specialtyID: spe.specialtyID },
                     }">
                     <div class="specialization-item">

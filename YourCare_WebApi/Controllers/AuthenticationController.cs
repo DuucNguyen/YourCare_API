@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -73,6 +74,36 @@ namespace YourCare_WebApi.Controllers
             public bool Gender { get; set; }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetLoginProviders()
+        {
+            List<AuthenticationScheme> externalLogins = new List<AuthenticationScheme>();
+
+            try
+            {
+                // Clear the existing external cookie to ensure a clean login process
+                await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+                externalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+                return new JsonResult(new ResponseModel<List<AuthenticationScheme>>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Get external login successfully.",
+                    IsSucceeded = true,
+                    Data = externalLogins
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Get external login failed.",
+                    IsSucceeded = false,
+                });
+            }
+        }
 
         [HttpPost]
         public async Task<IActionResult> SendEmailRegister([FromBody] string email)
@@ -577,7 +608,7 @@ namespace YourCare_WebApi.Controllers
                 Secure = true,
                 SameSite = SameSiteMode.None, //Allow cross origin cookies
                                               //Expires = DateTime.UtcNow.AddDays(3)
-                Expires = DateTime.UtcNow.AddMinutes(5) //temp
+                Expires = DateTime.UtcNow.AddMinutes(600) //temp
             });
 
             HttpContext.Response.Cookies.Append("user", userData,
@@ -587,7 +618,7 @@ namespace YourCare_WebApi.Controllers
                 Secure = true,
                 SameSite = SameSiteMode.None, //Allow cross origin cookies
                                               //Expires = DateTime.UtcNow.AddDays(3)
-                Expires = DateTime.UtcNow.AddMinutes(5) //temp
+                Expires = DateTime.UtcNow.AddMinutes(600) //temp
             });
         }
         private DateTime ConvertUnixTimeToDateTime(long utcExpireDate)

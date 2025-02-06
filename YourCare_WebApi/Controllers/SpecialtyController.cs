@@ -11,7 +11,6 @@ namespace YourCare_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class SpecialtyController : ControllerBase
     {
         private readonly ISpecialtyRepository _specialtyRepository;
@@ -27,7 +26,10 @@ namespace YourCare_WebApi.Controllers
             _uriService = uriService;
         }
 
+
+
         [HttpGet("GetByID")]
+        [Authorize]
         public async Task<IActionResult> GetByID(string id)
         {
             try
@@ -58,6 +60,7 @@ namespace YourCare_WebApi.Controllers
 
         [HttpGet]
         [Route("GetAllByLimit")]
+        [Authorize]
         public async Task<IActionResult> GetAllByLimit([FromQuery] PaginationFilter filter, string? searchValue)
         {
             var query = await _specialtyRepository.GetAll();
@@ -84,6 +87,7 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpGet("GetAll")]
+
         public async Task<IActionResult> GetAll()
         {
             try
@@ -124,6 +128,8 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpPost("Create")]
+        [Authorize]
+
 
         public async Task<IActionResult> Create([FromForm] FormModel request)
         {
@@ -163,6 +169,7 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpDelete("Delete")]
+        [Authorize]
 
         public async Task<IActionResult> Delete(string id)
         {
@@ -189,6 +196,8 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpPost("Update")]
+        [Authorize]
+
         public async Task<IActionResult> Update([FromForm] FormModel request)
         {
             try

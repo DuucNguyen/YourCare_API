@@ -5,7 +5,8 @@ const userRoutes = [
         children: [
             {
                 path: "/danh-sach-bac-si/:specicaltyID?",
-                name: "Public_DanhSachBacSi",
+                name: "User_Doctor_View",
+                meta: {title: "DoctorList"},
                 component: () => import("@/views/Public/Doctor/index.vue"),
             },
         ],

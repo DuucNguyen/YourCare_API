@@ -7,6 +7,7 @@ const adminRoutes = [
             {
                 path: "dashboards",
                 name: "Admin_Dashboards",
+                meta: {title: "Dasboards"},
                 component: () => import("@/views/Dashboard.vue"),
             },
             /**

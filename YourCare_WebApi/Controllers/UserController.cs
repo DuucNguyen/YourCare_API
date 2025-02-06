@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -14,6 +15,8 @@ namespace YourCare_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
+
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
@@ -31,8 +34,8 @@ namespace YourCare_WebApi.Controllers
             _uriService = uriService;
             _userManager = userManger;
         }
-        [HttpGet("GetByID")]
 
+        [HttpGet("GetByID")]
         public async Task<IActionResult> GetByID([FromQuery] string id)
         {
             try

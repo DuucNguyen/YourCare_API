@@ -38,7 +38,6 @@ namespace YourCare_WebApi.Controllers
             _uriService = uriService;
         }
 
-        [Authorize(Policy = "AdminOnly")]
         [HttpGet("GetAllByLimit")]
         public async Task<IActionResult> GetAllDoctor([FromQuery] PaginationFilter filter, string? searchValue, string? specialtyID)
         {
@@ -99,6 +98,8 @@ namespace YourCare_WebApi.Controllers
 
 
         [HttpGet("GetByUserID")]
+        [Authorize]
+
         public async Task<IActionResult> GetDoctorProfileByUserID(string userID)
         {
             try
@@ -127,6 +128,8 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpGet("GetByID")]
+        [Authorize]
+
         public async Task<IActionResult> GetDoctorProfileByID(string id)
         {
             try
@@ -189,6 +192,8 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpPost("Create")]
+        [Authorize]
+
         public async Task<IActionResult> Create([FromForm] RequestDoctorProfileModel request)
         {
             try
@@ -221,6 +226,8 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpPost("Update")]
+        [Authorize]
+
         public async Task<IActionResult> Update([FromForm] RequestDoctorProfileModel request)
         {
             try

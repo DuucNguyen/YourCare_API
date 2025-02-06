@@ -106,7 +106,7 @@
                 <tr v-for="item in data">
                     <td>
                         <div
-                            style="width: 90px; height: 120px; object-fit: cover"
+                            style="width: 90px; height: 120px; object-fit: fill"
                             class="list-image-container">
                             <img :src="item.imageString" alt="avatar" />
                         </div>

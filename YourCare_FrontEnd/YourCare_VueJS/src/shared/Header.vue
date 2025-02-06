@@ -1,10 +1,10 @@
 <template>
     <header>
         <nav
-            class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow">
             <div class="d-flex pe-5 ps-5">
                 <div class="logo-container">
-                    <a class="logo navbar-brand" href="/">YourCare</a>
+                    <RouterLink class="logo navbar-brand" :to="{ name: 'home' }">YourCare</RouterLink>
                 </div>
                 <button
                     class="navbar-toggler"
@@ -19,7 +19,9 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" href="/">Trang chủ</a>
+                            <RouterLink class="nav-link text-dark" :to="{ name: 'home' }"
+                                >Trang chủ</RouterLink
+                            >
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" href="/About">Giới thiệu</a>
