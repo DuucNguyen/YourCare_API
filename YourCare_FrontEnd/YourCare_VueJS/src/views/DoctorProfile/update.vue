@@ -8,7 +8,7 @@
 
     //
     import { createVNode } from "vue";
-    import { Modal } from "ant-design-vue";
+    import { message, Modal } from "ant-design-vue";
     import { PlusOutlined } from "@ant-design/icons-vue";
     import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
     import { notification } from "ant-design-vue";
@@ -30,7 +30,7 @@
         applicationUserImage: [],
         doctorTitle: "",
         doctorDescription: "",
-        yearExperience: "",
+        startCareerYear: "",
         specialties: [],
     });
 
@@ -65,16 +65,18 @@
                 message: "Please input doctor description.",
             },
         ],
-        yearExperience: [
+        startCareerYear: [
             {
                 required: "true",
-                message: "Please input year experience.",
+                message: "Please input start career year",
             },
             {
                 type: "number",
-                min: 1,
-                max: 50,
-                message: "number must be in range 1-50.",
+                message: "Input must be a year",
+            },
+            {
+                pattern: generateYearRegex(),
+                message: "Input must be from 1980 - now",
             },
         ],
         specialties: [
@@ -92,6 +94,11 @@
         ],
     };
 
+    function generateYearRegex() { //get current year regex
+        const currentYear = new Date().getFullYear();
+        return new RegExp(`^(198[0-9]|199[0-9]|20[0-${Math.floor(currentYear / 100) % 10}][0-${currentYear % 10}])$`);
+    }
+
     const specialties = ref([]);
 
     const getDoctorProfileData = async () => {
@@ -101,7 +108,7 @@
             formState.applicationUserID = result.data.data.applicationUserID;
             formState.doctorTitle = result.data.data.doctorTitle;
             formState.doctorDescription = result.data.data.doctorDescription;
-            formState.yearExperience = result.data.data.yearExperience;
+            formState.startCareerYear = result.data.data.startCareerYear;
             formState.specialties = result.data.data.specialties;
 
             userData.id = result.data.data.userID;
@@ -168,7 +175,7 @@
                     formData.append("doctorProfileID", formState.doctorProfileID);
                     formData.append("doctorTitle", formState.doctorTitle);
                     formData.append("doctorDescription", formState.doctorDescription);
-                    formData.append("yearExperience", formState.yearExperience);
+                    formData.append("startCareerYear", formState.startCareerYear);
 
                     formState.specialties.forEach((item, index) => {
                         formData.append(`specialtyIDs[${index}]`, item);
@@ -354,10 +361,10 @@
             <a-form-item label="Doctor title" name="doctorTitle">
                 <a-input v-model:value="formState.doctorTitle"></a-input>
             </a-form-item>
-            <a-form-item label="Year experience" name="yearExperience">
+            <a-form-item label="Start Career Year" name="startCareerYear">
                 <a-input-number
                     style="width: 100%"
-                    v-model:value="formState.yearExperience"></a-input-number>
+                    v-model:value="formState.startCareerYear"></a-input-number>
             </a-form-item>
             <a-form-item label="Doctor description" name="doctorDescription">
                 <a-textarea v-model:value="formState.doctorDescription"></a-textarea>

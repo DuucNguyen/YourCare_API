@@ -25,6 +25,7 @@ namespace YourCare_DAOs
         public DbSet<Specialty> Specialties { get; set; }
         public DbSet<PatientProfile> PatientProfiles { get; set; }
         public DbSet<Timetable> Timetables { get; set; }
+        public DbSet<TimeSlot> TimeSlots { get; set; }
         public DbSet<DoctorSpecialties> DoctorSpecialties { get; set; }
 
 
@@ -83,17 +84,16 @@ namespace YourCare_DAOs
                 .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK_Timetable_Doctor");
 
-                e.HasIndex(x => new { x.DoctorID, x.Date, x.StartTime, x.EndTime })
+                e.HasIndex(x => new { x.DoctorID, x.Date, x.TimeSlotID })
                 .IsUnique();
-
-                e.Property(x => x.StartTime)
-                .HasColumnType("time");
-
-                e.Property(x => x.EndTime)
-                .HasColumnType("time");
 
                 e.Property(x => x.Date)
                 .HasColumnType("date");
+
+                e.HasOne<TimeSlot>(x => x.TimeSlot)
+                .WithMany(x=>x.Timetables)
+                .HasForeignKey(x=>x.TimeSlotID)
+                .HasConstraintName("FK_TimeTable_TimeSlot");
             });
 
 
@@ -145,8 +145,18 @@ namespace YourCare_DAOs
                 .WithMany(x => x.PatientProfiles)
                 .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK_Patient_User");
+            });
 
+            builder.Entity<TimeSlot>(e =>
+            {
+                e.ToTable("TimeSlot");
+                e.HasKey(x => x.Id);
 
+                e.Property(x => x.StartTime)
+                .HasColumnType("time");
+
+                e.Property(x => x.EndTime)
+                .HasColumnType("time");
             });
 
             base.OnModelCreating(builder);

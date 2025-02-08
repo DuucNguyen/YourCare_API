@@ -55,42 +55,42 @@ namespace YourCare_Repos.Repositories
             {
                 try
                 {
-                    var qry = await _timetableDAO.GetAll();
+                    //var qry = await _timetableDAO.GetAll();
 
-                    // get properties
-                    var doctorIds = timetables.Select(t => t.DoctorID).Distinct();
-                    var dates = timetables.Select(t => t.Date).Distinct();
-                    var startTimes = timetables.Select(t => t.StartTime).Distinct();
-                    var EndTimes = timetables.Select(t => t.EndTime).Distinct();
+                    //// get properties
+                    //var doctorIds = timetables.Select(t => t.DoctorID).Distinct();
+                    //var dates = timetables.Select(t => t.Date).Distinct();
+                    //var startTimes = timetables.Select(t => t.StartTime).Distinct();
+                    //var EndTimes = timetables.Select(t => t.EndTime).Distinct();
 
-                    // Get existing
-                    var existingTimetables = qry
-                        .Where(dbTimetable =>
-                        doctorIds.Contains(dbTimetable.DoctorID)
-                        && dates.Contains(dbTimetable.Date)
-                        && startTimes.Contains(dbTimetable.StartTime)
-                        && EndTimes.Contains(dbTimetable.EndTime)
-                        ).ToList();
+                    //// Get existing
+                    //var existingTimetables = qry
+                    //    .Where(dbTimetable =>
+                    //    doctorIds.Contains(dbTimetable.DoctorID)
+                    //    && dates.Contains(dbTimetable.Date)
+                    //    && startTimes.Contains(dbTimetable.StartTime)
+                    //    && EndTimes.Contains(dbTimetable.EndTime)
+                    //    ).ToList();
 
-                    var newTimetables = new List<Timetable>();
-                    foreach (var timetable in timetables)
-                    {
-                        var isExists = existingTimetables.Any(dbTimetable =>
-                            dbTimetable.DoctorID == timetable.DoctorID &&
-                            dbTimetable.Date == timetable.Date &&
-                            dbTimetable.StartTime == timetable.StartTime &&
-                            dbTimetable.EndTime == timetable.EndTime);
+                    //var newTimetables = new List<Timetable>();
+                    //foreach (var timetable in timetables)
+                    //{
+                    //    var isExists = existingTimetables.Any(dbTimetable =>
+                    //        dbTimetable.DoctorID == timetable.DoctorID &&
+                    //        dbTimetable.Date == timetable.Date &&
+                    //        dbTimetable.StartTime == timetable.StartTime &&
+                    //        dbTimetable.EndTime == timetable.EndTime);
 
-                        if (!isExists)
-                        {
-                            newTimetables.Add(timetable);
-                        }
-                    }
+                    //    if (!isExists)
+                    //    {
+                    //        newTimetables.Add(timetable);
+                    //    }
+                    //}
                     //Add new only
-                    if (newTimetables.Any())
-                    {
-                        await _timetableDAO.AddRangeBulk(newTimetables);
-                    }
+                    //if (newTimetables.Any())
+                    //{
+                    //    await _timetableDAO.AddRangeBulk(newTimetables);
+                    //}
 
                     scope.Dispose();
                     return true;

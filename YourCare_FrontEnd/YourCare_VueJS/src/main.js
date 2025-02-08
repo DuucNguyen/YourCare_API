@@ -20,6 +20,8 @@ import {
     Form,
     Input,
     DatePicker,
+    TimePicker,
+    TimeRangePicker,
     InputNumber,
     Select,
     Switch,
@@ -54,6 +56,8 @@ app.use(Form);
 app.use(Input);
 app.use(InputNumber);
 app.use(DatePicker);
+app.use(TimePicker);
+app.use(TimeRangePicker);
 app.use(Checkbox);
 app.use(RadioGroup);
 app.use(RadioButton);

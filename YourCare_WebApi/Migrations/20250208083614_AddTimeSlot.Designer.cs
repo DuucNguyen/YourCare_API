@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using YourCare_DAOs;
 
@@ -11,9 +12,10 @@ using YourCare_DAOs;
 namespace YourCare_WebApi.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250208083614_AddTimeSlot")]
+    partial class AddTimeSlot
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -447,7 +449,7 @@ namespace YourCare_WebApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("AvailableSlots")
+                    b.Property<int>("AvailableSLots")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Date")
@@ -456,17 +458,18 @@ namespace YourCare_WebApi.Migrations
                     b.Property<Guid>("DoctorID")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
-                    b.Property<int>("TimeSlotID")
-                        .HasColumnType("int");
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("TimeSlotID");
-
-                    b.HasIndex("DoctorID", "Date", "TimeSlotID")
+                    b.HasIndex("DoctorID", "Date", "StartTime", "EndTime")
                         .IsUnique();
 
                     b.ToTable("Timetable", (string)null);
@@ -616,16 +619,7 @@ namespace YourCare_WebApi.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Timetable_Doctor");
 
-                    b.HasOne("YourCare_BOs.TimeSlot", "TimeSlot")
-                        .WithMany("Timetables")
-                        .HasForeignKey("TimeSlotID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_TimeTable_TimeSlot");
-
                     b.Navigation("Doctor");
-
-                    b.Navigation("TimeSlot");
                 });
 
             modelBuilder.Entity("YourCare_BOs.ApplicationUser", b =>
@@ -655,11 +649,6 @@ namespace YourCare_WebApi.Migrations
             modelBuilder.Entity("YourCare_BOs.Specialty", b =>
                 {
                     b.Navigation("DoctorSpecialties");
-                });
-
-            modelBuilder.Entity("YourCare_BOs.TimeSlot", b =>
-                {
-                    b.Navigation("Timetables");
                 });
 
             modelBuilder.Entity("YourCare_BOs.Timetable", b =>

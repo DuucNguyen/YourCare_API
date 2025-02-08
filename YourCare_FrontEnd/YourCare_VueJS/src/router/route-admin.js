@@ -7,7 +7,7 @@ const adminRoutes = [
             {
                 path: "dashboards",
                 name: "Admin_Dashboards",
-                meta: {title: "Dasboards"},
+                meta: { title: "Dasboards" },
                 component: () => import("@/views/Dashboard.vue"),
             },
             /**
@@ -87,6 +87,16 @@ const adminRoutes = [
                 name: "Admin_User_Detail",
                 meta: { title: "User-Detai" },
                 component: () => import("@/views/User/detail.vue"),
+            },
+            /**
+             *
+             * TimeSlot
+             * **/
+            {
+                path: "time-slot",
+                name: "Admin_TimeSlot_View",
+                meta: { title: "TimeSlot" },
+                component: () => import("@/views/TimeSlot/index.vue"),
             },
         ],
     },

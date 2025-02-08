@@ -60,6 +60,9 @@ namespace YourCare_WebApi
 
             builder.Services.AddScoped<UserDAO>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+            builder.Services.AddScoped<TimeSlotDAO>();
+            builder.Services.AddScoped<ITimeSlotRepository, TimeSlotRepository>();
             #endregion
 
             #region EmailService

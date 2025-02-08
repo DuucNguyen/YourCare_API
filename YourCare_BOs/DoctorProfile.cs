@@ -13,7 +13,7 @@ namespace YourCare_BOs
         public Guid DoctorID { get; set; }
         public string DoctorTitle { get; set; }
         public string DoctorDescription { get; set; }
-        public int YearExperience { get; set; }
+        public int StartCareerYear { get; set; }
 
         public string ApplicationUserID { get; set; }
 

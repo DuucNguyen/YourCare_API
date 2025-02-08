@@ -107,7 +107,7 @@ namespace YourCare_Repos.Repositories
 
             doctorProfile.DoctorTitle = request.DoctorTitle;
             doctorProfile.DoctorDescription = request.DoctorDescription;
-            doctorProfile.YearExperience = request.YearExperience;
+            doctorProfile.StartCareerYear = request.StartCareerYear;
 
             _doctorProfileDAO.Update(doctorProfile);
             return true;

@@ -55,7 +55,7 @@ namespace YourCare_WebApi.Controllers
                     DoctorProfileID = x.DoctorID.ToString(),
                     DoctorTitle = x.DoctorTitle,
                     DoctorDescription = x.DoctorDescription,
-                    YearExperience = x.YearExperience,
+                    StartCareerYear = x.StartCareerYear,
 
                     UserID = x.ApplicationUserID,
                     Gender = x.ApplicationUser.Gender,
@@ -142,8 +142,7 @@ namespace YourCare_WebApi.Controllers
                     DoctorProfileID = doc.DoctorID.ToString(),
                     DoctorDescription = doc.DoctorDescription,
                     DoctorTitle = doc.DoctorTitle,
-                    YearExperience = doc.YearExperience,
-
+                    StartCareerYear = doc.StartCareerYear,
                     UserID = user.Id,
                     FullName = user.FullName,
                     Gender = user.Gender,
@@ -187,7 +186,7 @@ namespace YourCare_WebApi.Controllers
             public IFormFile UserImage { get; set; }
             public string DoctorTitle { get; set; }
             public string DoctorDescription { get; set; }
-            public int YearExperience { get; set; }
+            public int StartCareerYear { get; set; }
             public List<string> SpecialtyIDs { get; set; }
         }
 
@@ -202,7 +201,7 @@ namespace YourCare_WebApi.Controllers
                 {
                     DoctorTitle = request.DoctorTitle,
                     DoctorDescription = request.DoctorDescription,
-                    YearExperience = request.YearExperience,
+                    StartCareerYear = request.StartCareerYear,
                     ApplicationUserID = request.UserID,
                 };
                 var result = await _doctorProfileRepository.CreateNewProfile(request.UserImage, newProfile, request.SpecialtyIDs);
@@ -237,7 +236,7 @@ namespace YourCare_WebApi.Controllers
                     DoctorID = Guid.Parse(request.DoctorProfileID),
                     DoctorTitle = request.DoctorTitle,
                     DoctorDescription = request.DoctorDescription,
-                    YearExperience = request.YearExperience,
+                    StartCareerYear = request.StartCareerYear,
                     ApplicationUserID = request.UserID,
                 };
 

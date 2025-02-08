@@ -39,6 +39,9 @@ export const useAuthStore = defineStore({
                 return false;
             }
         },
+        getUser() {
+            return this.user;
+        },
         async register(email, password, confirmationPassword) {
             const result = await API.post(`${baseURL}/register`, {
                 email,
