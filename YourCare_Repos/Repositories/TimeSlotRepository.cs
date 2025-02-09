@@ -35,13 +35,45 @@ namespace YourCare_Repos.Repositories
             }
         }
 
+        class TimeSlotComparer : IEqualityComparer<TimeSlot>
+        {
+            public bool Equals(TimeSlot x, TimeSlot y)
+            {
+                return x.StartTime == y.StartTime && x.EndTime == y.EndTime;
+            }
+
+            public int GetHashCode(TimeSlot obj)
+            {
+                return obj.Id.GetHashCode();
+            }
+        }
+
+
         public async Task<bool> AddRange(List<TimeSlot> timeSlots)
         {
             try
             {
                 var listInDB = await _timeSlotDAO.GetAll();
-                var validItems = listInDB.Except(timeSlots).ToList();
-
+                if (listInDB.Count <= 0)
+                {
+                    _timeSlotDAO.AddRange(timeSlots);
+                    return true;
+                }
+                foreach (var timeSlot in listInDB)
+                {
+                    Console.WriteLine(timeSlot.Id + " - " + timeSlot.StartTime + " - " + timeSlot.EndTime);
+                }
+                Console.WriteLine("------------");
+                foreach (var timeSlot in timeSlots)
+                {
+                    Console.WriteLine(timeSlot.Id + " - " + timeSlot.StartTime + " - " + timeSlot.EndTime);
+                }
+                var validItems = timeSlots.Except(listInDB, new TimeSlotComparer()).ToList();
+                Console.WriteLine("------------");
+                foreach (var timeSlot in validItems)
+                {
+                    Console.WriteLine(timeSlot.Id + " - " + timeSlot.StartTime + " - " + timeSlot.EndTime);
+                }
                 _timeSlotDAO.AddRange(validItems);//add new only
                 return true;
             }
@@ -64,7 +96,7 @@ namespace YourCare_Repos.Repositories
 
         public async Task<TimeSlot> GetById(int id)
         {
-           return await _timeSlotDAO.GetById(id);
+            return await _timeSlotDAO.GetById(id);
         }
 
         public async Task<bool> Update(TimeSlot request)

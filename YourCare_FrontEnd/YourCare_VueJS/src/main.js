@@ -13,6 +13,7 @@ window.api = api;
 
 //
 import {
+    Alert,
     Pagination,
     Button,
     Modal,
@@ -48,6 +49,7 @@ app.use(createPinia());
 /**
  * ant-design
  * **/
+app.use(Alert);
 app.use(Pagination);
 app.use(Button);
 app.use(Modal);

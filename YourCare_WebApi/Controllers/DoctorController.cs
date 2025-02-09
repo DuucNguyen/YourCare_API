@@ -39,6 +39,7 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpGet("GetAllByLimit")]
+        [ResponseCache(Duration = 86400, Location = ResponseCacheLocation.Client)]
         public async Task<IActionResult> GetAllDoctor([FromQuery] PaginationFilter filter, string? searchValue, string? specialtyID)
         {
             try
@@ -48,7 +49,6 @@ namespace YourCare_WebApi.Controllers
                 {
                     query = query.Where(x => x.ApplicationUser.FullName.Contains(searchValue)).ToList();
                 }
-                
 
                 var result = query.Select(x => new DoctorResponseModel
                 {

@@ -27,9 +27,15 @@ class ApiTimeSlot {
         return API.post(`${END_POINTS.UPDATE}`, formState);
     };
 
-    CreateRange = () => {
-        return API.post(`${END_POINTS.CREATERANGE}`, formState)
-    }
+    CreateRange = (formState) => {
+        return API.post(`${END_POINTS.CREATERANGE}`, formState, {
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "multipart/form-data",
+                "cache-control": "no-cache",
+            },
+        });
+    };
 }
 
 export default new ApiTimeSlot();

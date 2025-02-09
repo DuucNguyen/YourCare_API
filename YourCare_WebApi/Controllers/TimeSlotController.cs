@@ -19,17 +19,26 @@ namespace YourCare_WebApi.Controllers
             _timeSlotRepository = timeSlotRepository;
         }
 
+        public class CreateRangeModel
+        {
+            public List<TimeSlot> TimeSlots { get; set; }
+            public CreateRangeModel()
+            {
+                TimeSlots = new List<TimeSlot>();
+            }
+        }
+
         [HttpPost("CreateRange")]
-        public async Task<IActionResult> CreateRange([FromForm] List<TimeSlot> request)
+        public async Task<IActionResult> CreateRange([FromForm] CreateRangeModel request)
         {
             try
             {
-                var result = await _timeSlotRepository.AddRange(request);
+                var result = await _timeSlotRepository.AddRange(request.TimeSlots);
 
                 return new JsonResult(new ResponseModel<string>
                 {
-                    StatusCode = StatusCodes.Status200OK,
-                    Message = result ? "Create successfully" : "",
+                    StatusCode = result ? StatusCodes.Status200OK : StatusCodes.Status500InternalServerError,
+                    Message = result ? "Create successfully" : "Create failed",
                     IsSucceeded = result,
                 });
             }

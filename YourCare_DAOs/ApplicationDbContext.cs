@@ -84,16 +84,19 @@ namespace YourCare_DAOs
                 .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK_Timetable_Doctor");
 
-                e.HasIndex(x => new { x.DoctorID, x.Date, x.TimeSlotID })
+                //e.HasIndex(x => new { x.DoctorID, x.Date, x.TimeSlotID })
+                //.IsUnique();
+
+                e.HasIndex(x => new { x.DoctorID, x.Date, x.StartTime, x.EndTime })
                 .IsUnique();
 
                 e.Property(x => x.Date)
                 .HasColumnType("date");
 
-                e.HasOne<TimeSlot>(x => x.TimeSlot)
-                .WithMany(x=>x.Timetables)
-                .HasForeignKey(x=>x.TimeSlotID)
-                .HasConstraintName("FK_TimeTable_TimeSlot");
+                //e.HasOne<TimeSlot>(x => x.TimeSlot)
+                //.WithMany(x=>x.Timetables)
+                //.HasForeignKey(x=>x.TimeSlotID)
+                //.HasConstraintName("FK_TimeTable_TimeSlot");
             });
 
 
