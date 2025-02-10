@@ -1,13 +1,12 @@
 <script setup>
-    import { useAuthStore } from "@/stores/auth-store";
     import { reactive, ref, onMounted } from "vue";
+    import ApiUser from "@/api/ApiUser";
 
-    const authStore = useAuthStore();
     const user = ref({});
 
-    onMounted(() => {
-        user.value = authStore.getUser();
-        console.log(user);
+    onMounted(async () => {
+        var result = await ApiUser.GetUser();
+        user.value = result.data;
     });
 </script>
 
@@ -46,19 +45,16 @@
             </div>
             <div class="nav-user-container" v-if="user">
                 <div class="nav-user">
-                    <i class='bx bx-user-circle fs-4'></i>
+                    <i class="bx bx-user-circle fs-4"></i>
                     <span>
-                        {{ user.Username }}
+                        {{ user.fullName }}
                     </span>
                 </div>
             </div>
         </nav>
     </header>
 </template>
-
 <style>
-
-
     html {
         font-size: 14px;
     }

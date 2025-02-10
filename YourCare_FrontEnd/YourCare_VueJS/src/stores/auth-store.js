@@ -3,6 +3,7 @@ import { useRoute, useRouter } from "vue-router";
 import API from "@/api/api";
 const baseURL = `${import.meta.env.VITE_API_URL_LOCAL}/Authentication`;
 import TokenService from "@/api/TokenService";
+import ApiUser from "@/api/ApiUser";
 
 // function
 export const useAuthStore = defineStore({
@@ -10,7 +11,7 @@ export const useAuthStore = defineStore({
     state: () => ({
         router: useRouter(),
         returnURL: null,
-        user: TokenService.getCookieUser(),
+        user_claims: TokenService.getCookieUser(),
         message: "",
         tokenValidate: false,
         isSucceeded: false,
@@ -22,7 +23,7 @@ export const useAuthStore = defineStore({
                 password,
             });
 
-            this.user = JSON.parse(result.data.data);
+            this.user_claims = JSON.parse(result.data.data);
             this.message = result.data.message;
             this.isSucceeded = result.data.isSucceeded;
 
@@ -39,8 +40,8 @@ export const useAuthStore = defineStore({
                 return false;
             }
         },
-        getUser() {
-            return this.user;
+        getUserClaims() {
+            return this.user_claims;
         },
         async register(email, password, confirmationPassword) {
             const result = await API.post(`${baseURL}/register`, {

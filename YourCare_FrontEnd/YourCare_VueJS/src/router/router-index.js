@@ -45,7 +45,7 @@ router.beforeEach(async (to, from, next) => {
         return;
     }
     if (to.name === "login" && useAuthStore().checkUser()) {
-        if (useAuthStore().user.Claims["Admin_Dashboards_View"] === "1") {
+        if (useAuthStore().user_claims.Claims["Admin_Dashboards_View"] === "1") {
             //test
             next({ name: "Admin_Dashboards_View" });
         } else {
@@ -72,7 +72,7 @@ router.beforeEach(async (to, from, next) => {
 
     if (claimRoutes[to.name]) {
         const claimKey = claimRoutes[to.name];
-        if (useAuthStore().user.Claims[claimKey] !== "1") {
+        if (useAuthStore().user_claims.Claims[claimKey] !== "1") {
             next({ name: "404" });
         }
         next();

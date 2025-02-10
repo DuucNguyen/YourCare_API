@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Security.Claims;
 using System.Transactions;
 using YourCare_BOs;
 using YourCare_Repos.Interfaces;
@@ -34,6 +35,40 @@ namespace YourCare_WebApi.Controllers
             _uriService = uriService;
             _userManager = userManger;
         }
+
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> GetUserInfo()
+        {
+            try
+            {
+                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                var user = await _userRepository.GetById(id);
+                var roleName = await _userManager.GetRolesAsync(user);
+
+                var image = user.Image != null ? $"data:img/png;base64,{Convert.ToBase64String(user.Image)}" : "";
+                return Ok(new {
+                    user.Id, 
+                    user.Email, 
+                    user.FullName, 
+                    user.Gender, 
+                    user.PhoneNumber, 
+                    user.Dob,
+                    image,
+                    roleName });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = "User not found.",
+                    IsSucceeded = false,
+                });
+            }
+        }
+
 
         [HttpGet("GetByID")]
         public async Task<IActionResult> GetByID([FromQuery] string id)

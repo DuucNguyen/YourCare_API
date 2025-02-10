@@ -5,6 +5,7 @@ const END_POINTS = {
     GETBYDOCTORID: "User/GetByDoctorID",
     CREATE: "User/Create",
     UPDATE: "User/Update",
+    ME: "User/me",
 };
 
 class ApiUser {
@@ -51,6 +52,9 @@ class ApiUser {
                 "cache-control": "no-cache",
             },
         });
+    };
+    GetUser = async () => {
+        return await API.get(`${END_POINTS.ME}`);
     };
 }
 

@@ -517,6 +517,7 @@ namespace YourCare_WebApi.Controllers
             var jsonData = JsonSerializer.Serialize(new
             {
                 Username = user.FullName,
+                UserID = user.Id,
                 Claims = _roleRepository.GetRoleClaimsByRoles(roleIDs)
             });
 
@@ -550,6 +551,7 @@ namespace YourCare_WebApi.Controllers
             var authClaims = new List<Claim>
             {
                 new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
@@ -579,7 +581,7 @@ namespace YourCare_WebApi.Controllers
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(secretKeyBytes),
-                ValidateLifetime = false
+                ValidateLifetime = true
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();

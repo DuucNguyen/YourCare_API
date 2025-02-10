@@ -1,6 +1,13 @@
 <script setup>
+    import { ref, reactive, onMounted, onBeforeMount } from "vue";
+    import ApiUser from "@/api/ApiUser";
 
-    
+    const user = ref({});
+
+    onBeforeMount(async () => {
+        var result = await ApiUser.GetUser();
+        user.value = result.data;
+    });
 </script>
 <template>
     <div class="admin_header border-bottom">
@@ -9,7 +16,19 @@
         </div>
     </div>
     <div class="sidebar container">
-        <div class="sidebar_header"></div>
+        <div class="sidebar_header">
+            <div class="sidebar_header_img">
+                <img :src="user.image" />
+            </div>
+            <div class="sidebar_header_user_info">
+                <span>{{ user.fullName }}</span>
+                <div>
+                    <span v-for="role in user.roleName">
+                        {{ role }}
+                    </span>
+                </div>
+            </div>
+        </div>
         <div class="sidebar_body">
             <div class="sidebar_body_item_container">
                 <ul>
@@ -90,6 +109,39 @@
         font-weight: 700;
         text-decoration: none;
     }
+
+    .sidebar_header {
+        padding: 10px 0;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #fff;
+    }
+    .sidebar_header_img {
+        width: 50px;
+        height: 50px;
+        margin-right: 10px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .sidebar_header_img img {
+        width: 100%;
+        object-fit: cover;
+    }
+
+    .sidebar_header_user_info {
+        color: #fff;
+        visibility: hidden;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar_header_user_info div:nth-child(2) {
+        color: #999;
+        font-size: 14px;
+    }
+
     .sidebar {
         margin-top: 60px;
         position: fixed;
@@ -142,6 +194,11 @@
     .sidebar_body_item_title i {
         visibility: hidden;
         opacity: 0;
+    }
+
+    .sidebar:hover .sidebar_header_user_info {
+        visibility: visible;
+        opacity: 1;
     }
 
     .sidebar:hover .sidebar_body_item_title {
