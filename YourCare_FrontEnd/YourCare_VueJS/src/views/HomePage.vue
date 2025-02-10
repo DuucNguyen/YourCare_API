@@ -27,7 +27,7 @@
 </script>
 <template>
     <Header />
-    <div class="container">
+    <div  class="container">
         <div class="text-center">
             <h1 class="display-6 fw-bold">Đặt lịch khám trực tuyến</h1>
             <p>Tìm Bác sĩ chính xác - Đặt lịch khám dễ dàng</p>

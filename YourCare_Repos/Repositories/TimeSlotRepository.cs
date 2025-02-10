@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using YourCare_BOs;
 using YourCare_DAOs.DAOs;
 using YourCare_Repos.Interfaces;
@@ -51,36 +52,31 @@ namespace YourCare_Repos.Repositories
 
         public async Task<bool> AddRange(List<TimeSlot> timeSlots)
         {
-            try
+            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var listInDB = await _timeSlotDAO.GetAll();
-                if (listInDB.Count <= 0)
+                try
                 {
-                    _timeSlotDAO.AddRange(timeSlots);
+                    var itemInDb = await _timeSlotDAO.GetAll();
+
+                    if (itemInDb.Count <= 0)
+                    {
+                        _timeSlotDAO.AddRange(timeSlots);
+                        return true;
+                    }
+
+                    _timeSlotDAO.RemoveRange(itemInDb);
+
+                    _timeSlotDAO.AddRange(timeSlots.OrderBy(x=>x.StartTime).ToList());
+
+                    scope.Complete();
                     return true;
                 }
-                foreach (var timeSlot in listInDB)
+                catch (Exception ex)
                 {
-                    Console.WriteLine(timeSlot.Id + " - " + timeSlot.StartTime + " - " + timeSlot.EndTime);
+                    Console.WriteLine(ex.Message);
+                    scope.Dispose();
+                    return false;
                 }
-                Console.WriteLine("------------");
-                foreach (var timeSlot in timeSlots)
-                {
-                    Console.WriteLine(timeSlot.Id + " - " + timeSlot.StartTime + " - " + timeSlot.EndTime);
-                }
-                var validItems = timeSlots.Except(listInDB, new TimeSlotComparer()).ToList();
-                Console.WriteLine("------------");
-                foreach (var timeSlot in validItems)
-                {
-                    Console.WriteLine(timeSlot.Id + " - " + timeSlot.StartTime + " - " + timeSlot.EndTime);
-                }
-                _timeSlotDAO.AddRange(validItems);//add new only
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("TimeSlotRepo:ERROR: " + ex.Message + " - " + ex.StackTrace);
-                return false;
             }
         }
 

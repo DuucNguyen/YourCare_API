@@ -67,6 +67,7 @@ router.beforeEach(async (to, from, next) => {
         Admin_User_Create: "Admin_User_Create",
         Admin_User_Update: "Admin_User_Update",
         Admin_User_Detail: "Admin_User_Detail",
+        Admin_TimeSlot_View : "Admin_TimeSlot_View"
     };
 
     if (claimRoutes[to.name]) {

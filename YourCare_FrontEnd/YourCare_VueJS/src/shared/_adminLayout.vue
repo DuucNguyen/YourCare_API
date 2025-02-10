@@ -1,9 +1,14 @@
 <script setup>
-    import Header from "./Header.vue";
+
+    
 </script>
 <template>
-    <Header />
-    <div class="sidebar">
+    <div class="admin_header border-bottom">
+        <div class="admin_header_title">
+            <RouterLink :to="{ name: 'Admin_Dashboards' }">Dashboads</RouterLink>
+        </div>
+    </div>
+    <div class="sidebar container">
         <div class="sidebar_header"></div>
         <div class="sidebar_body">
             <div class="sidebar_body_item_container">
@@ -56,19 +61,43 @@
     }
 
     .body_container {
+        margin-top: 80px;
         width: 92%;
         position: absolute;
         right: 0;
-        margin-right: 20px;
+        margin-right: 30px;
+    }
+    .admin_header {
+        padding: 5px 20px;
+        background-color: #fff;
+        position: fixed;
+        width: 100%;
+        height: 60px;
+        z-index: 99;
+        display: flex;
+        align-items: center;
+    }
+    .admin_header_title {
+        background: linear-gradient(to right, #3903fc, #03fc5e);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
     }
 
+    .admin_header_title a {
+        font-size: 30px;
+        font-weight: 700;
+        text-decoration: none;
+    }
     .sidebar {
+        margin-top: 60px;
         position: fixed;
         height: 100vh;
         width: 60px;
         background: #fff;
         padding: 0 5px;
-        z-index: 100;
+        z-index: 99;
         transition: width 0.3s ease, background-color 0.1s ease;
     }
 

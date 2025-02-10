@@ -30,6 +30,12 @@ namespace YourCare_DAOs.DAOs
             _context.TimeSlots.AddRange(timeSlots);
             _context.SaveChanges();
         }
+        public void RemoveRange(List<TimeSlot> timeSlots)
+        {
+            _context.TimeSlots.RemoveRange(timeSlots);
+            _context.SaveChanges();
+        }
+
         public void Update(TimeSlot request)
         {
             _context.TimeSlots.Update(request);
@@ -52,7 +58,7 @@ namespace YourCare_DAOs.DAOs
 
         public async Task<List<TimeSlot>> GetAll()
         {
-            return await _context.TimeSlots.ToListAsync();
+            return await _context.TimeSlots.OrderBy(x => x.StartTime).ToListAsync();
         }
     }
 }

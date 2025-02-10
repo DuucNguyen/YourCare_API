@@ -26,7 +26,6 @@
         timeSlots.value = result.data.data;
         timeSlots.value.forEach((item) => {
             formState.timeSlots.push({
-                id: item.id,
                 timeRange: [dayjs(item.startTime, "HH:mm:ss"), dayjs(item.endTime, "HH:mm:ss")],
             });
         });
@@ -110,14 +109,9 @@
             onOk: async () => {
                 var formData = new FormData();
                 formState.timeSlots.forEach((timeSlot, index) => {
-                    // Convert timestamps to "HH:mm:ss" format
                     // Convert timestamp to "HH:mm:ss" format using Day.js
                     const formatTime = (timestamp) => dayjs(timestamp).format("HH:mm:ss");
 
-                    console.log(timeSlot.timeRange[0]);
-                    console.log(timeSlot.timeRange[1]);
-
-                    formData.append(`timeSlots[${index}].id`, timeSlot.id ?? 0);
                     formData.append(
                         `timeSlots[${index}].startTime`,
                         formatTime(timeSlot.timeRange[0]),
@@ -130,7 +124,7 @@
 
                 var result = await ApiTimeSlot.CreateRange(formData);
 
-                var type = result.data.isSucceed ? "success" : "error";
+                var type = result.data.isSucceeded ? "success" : "error";
                 var description = result.data.message;
 
                 showNotification(type, "Save changes status", description);
@@ -189,7 +183,7 @@
                         @click="addTimeSlot()"
                         class="d-flex align-items-center justify-content-center"
                         type="dashed">
-                        <PlusOutlined />Add
+                        <PlusOutlined />Add slot
                     </a-button>
                 </a-form-item>
                 <a-form-item class="d-flex justify-content-end">
