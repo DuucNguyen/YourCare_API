@@ -21,6 +21,7 @@ import {
     Form,
     Input,
     DatePicker,
+    RangePicker,
     TimePicker,
     TimeRangePicker,
     InputNumber,
@@ -28,12 +29,13 @@ import {
     Switch,
     Dropdown,
     Checkbox,
+    CheckboxGroup,
     RadioGroup,
     RadioButton,
     Upload,
     Radio,
     Textarea,
-    Tooltip
+    Tooltip,
 } from "ant-design-vue";
 
 //
@@ -58,9 +60,11 @@ app.use(Form);
 app.use(Input);
 app.use(InputNumber);
 app.use(DatePicker);
+app.use(RangePicker);
 app.use(TimePicker);
 app.use(TimeRangePicker);
 app.use(Checkbox);
+app.use(CheckboxGroup);
 app.use(RadioGroup);
 app.use(RadioButton);
 app.use(Select);

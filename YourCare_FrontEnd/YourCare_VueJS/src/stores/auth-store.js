@@ -28,8 +28,21 @@ export const useAuthStore = defineStore({
             this.isSucceeded = result.data.isSucceeded;
 
             if (result.data.isSucceeded) {
+                var user_result = await ApiUser.GetUser();
+                this.setUserInfo(user_result.data);
                 this.router.push(this.returnURL || "/");
             }
+        },
+        async getUserInfo() {
+            var user = localStorage.getItem("user");
+            if (user == null) {
+                var user_result = await ApiUser.GetUser();
+                this.setUserInfo(user_result.data);
+            }
+            return JSON.parse(localStorage.getItem("user"));
+        },
+        setUserInfo(user) {
+            localStorage.setItem("user", JSON.stringify(user));
         },
         checkUser() {
             if (TokenService.getCookieUser()) {

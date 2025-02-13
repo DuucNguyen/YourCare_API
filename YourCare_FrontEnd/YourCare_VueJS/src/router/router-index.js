@@ -60,6 +60,7 @@ router.beforeEach(async (to, from, next) => {
         Admin_DoctorProfile_Create: "Admin_DoctorProfile_Create",
         Admin_DoctorProfile_Update: "Admin_DoctorProfile_Update",
         Admin_DoctorProfile_Detail: "Admin_DoctorProfile_Detail",
+        Admin_DoctorProfile_Timetable: "Admin_DoctorProfile_Timetable",
         Admin_Specialty_View: "Admin_Specialty_View",
         Admin_Specialty_Create: "Admin_Specialty_Create",
         Admin_Specialty_Update: "Admin_Specialty_Update",

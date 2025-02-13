@@ -38,6 +38,12 @@ const adminRoutes = [
                 meta: { title: "DoctorProfile-Detail" },
                 component: () => import("@/views/DoctorProfile/detail.vue"),
             },
+            {
+                path: "doctor-profile-timetable/:id",
+                name: "Admin_DoctorProfile_Timetable",
+                meta: { title: "DoctorProfile-Schedule" },
+                component: () => import("@/views/DoctorProfile/createTimetable.vue"),
+            },
             /**
              *
              * Specialty

@@ -128,6 +128,19 @@
                     <td class="text-end">
                         <a-tooltip placement="top">
                             <template #title>
+                                <span>Timetable</span>
+                            </template>
+                            <RouterLink
+                                class="fs-3 text-primary"
+                                :to="{
+                                    name: 'Admin_DoctorProfile_Timetable',
+                                    params: { id: item.doctorProfileID },
+                                }"
+                                ><i class="bx bx-calendar"></i
+                            ></RouterLink>
+                        </a-tooltip>
+                        <a-tooltip placement="top">
+                            <template #title>
                                 <span>Update</span>
                             </template>
                             <RouterLink

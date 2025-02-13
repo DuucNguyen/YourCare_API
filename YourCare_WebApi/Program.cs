@@ -63,10 +63,14 @@ namespace YourCare_WebApi
 
             builder.Services.AddScoped<TimeSlotDAO>();
             builder.Services.AddScoped<ITimeSlotRepository, TimeSlotRepository>();
+
+            builder.Services.AddScoped<TimetableDAO>();
+            builder.Services.AddScoped<ITimetableRepository, TimetableRepository>();
+
             #endregion
 
             #region EmailService
-            IConfiguration _configuration = builder.Configuration;
+                        IConfiguration _configuration = builder.Configuration;
 
             builder.Services.Configure<MailKitEmailSenderOptions>(
                 _configuration.GetSection("MailKit:SMTP"));

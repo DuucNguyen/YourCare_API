@@ -51,10 +51,17 @@ namespace YourCare_DAOs.DAOs
             return await _context.Timetables.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task AddRangeBulk(List<Timetable> timebles)
+        public async Task AddRangeBulk(List<Timetable> timetables)
         {
-            await _context.BulkInsertAsync(timebles);
-            await _context.SaveChangesAsync();
+            try
+            {
+                await _context.BulkInsertAsync(timetables);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message );
+            }
         }
 
     }

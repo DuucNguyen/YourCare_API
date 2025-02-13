@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\YourCare_DAOs\YourCare_DAOs.csproj" />
+	  <PackageReference Include="EFCore.BulkExtensions" Version="6.8.1" />
   </ItemGroup>
 
 </Project>

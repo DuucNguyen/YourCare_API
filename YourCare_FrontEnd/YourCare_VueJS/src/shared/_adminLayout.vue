@@ -1,12 +1,14 @@
 <script setup>
     import { ref, reactive, onMounted, onBeforeMount } from "vue";
     import ApiUser from "@/api/ApiUser";
+    import { useAuthStore } from "@/stores/auth-store";
 
+    const authStore = useAuthStore();
     const user = ref({});
 
     onBeforeMount(async () => {
-        var result = await ApiUser.GetUser();
-        user.value = result.data;
+        user.value = await authStore.getUserInfo();
+        console.log(user);
     });
 </script>
 <template>
@@ -59,6 +61,15 @@
                             <i class="bx bxs-user-circle fs-2"></i>
                             <div class="sidebar_body_item_title">
                                 <span>User</span>
+                                <i class="bx bx-link-external"></i>
+                            </div>
+                        </RouterLink>
+                    </li>
+                    <li>
+                        <RouterLink class="sidebar_body_item" :to="{ name: 'Admin_TimeSlot_View' }">
+                            <i class='bx bxs-time-five fs-2' ></i>
+                            <div class="sidebar_body_item_title">
+                                <span>TimeSlot</span>
                                 <i class="bx bx-link-external"></i>
                             </div>
                         </RouterLink>

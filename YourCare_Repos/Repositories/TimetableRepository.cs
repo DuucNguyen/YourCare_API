@@ -16,12 +16,15 @@ namespace YourCare_Repos.Repositories
     public class TimetableRepository : ITimetableRepository
     {
         private readonly TimetableDAO _timetableDAO;
+        private readonly TimeSlotDAO _timeSlotDAO;
 
         public TimetableRepository(
-            TimetableDAO timetableDAO
+            TimetableDAO timetableDAO,
+           TimeSlotDAO timeSlotDAO
             )
         {
             _timetableDAO = timetableDAO;
+            _timeSlotDAO = timeSlotDAO;
         }
 
 
@@ -49,50 +52,79 @@ namespace YourCare_Repos.Repositories
             }
         }
 
-        public async Task<bool> AddRange(List<Timetable> timetables)
+        public async Task<bool> AddRange(string id, List<int> timetableIDs, DateTime startDate, DateTime endDate)
         {
             using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 try
                 {
-                    //var qry = await _timetableDAO.GetAll();
+                    var timeSlots = await _timeSlotDAO.GetAll();
+                    var timetablesInDB = await _timetableDAO.GetAllByDoctorID(Guid.Parse(id));
 
-                    //// get properties
-                    //var doctorIds = timetables.Select(t => t.DoctorID).Distinct();
-                    //var dates = timetables.Select(t => t.Date).Distinct();
-                    //var startTimes = timetables.Select(t => t.StartTime).Distinct();
-                    //var EndTimes = timetables.Select(t => t.EndTime).Distinct();
+                    var validTimeSlots = timeSlots
+                        .Where(x => timetableIDs.Contains(x.Id))
+                        .ToList();
 
-                    //// Get existing
-                    //var existingTimetables = qry
-                    //    .Where(dbTimetable =>
-                    //    doctorIds.Contains(dbTimetable.DoctorID)
-                    //    && dates.Contains(dbTimetable.Date)
-                    //    && startTimes.Contains(dbTimetable.StartTime)
-                    //    && EndTimes.Contains(dbTimetable.EndTime)
-                    //    ).ToList();
+                    var newTimetables = new List<Timetable>();
+                    var currentDate = startDate;
 
-                    //var newTimetables = new List<Timetable>();
-                    //foreach (var timetable in timetables)
-                    //{
-                    //    var isExists = existingTimetables.Any(dbTimetable =>
-                    //        dbTimetable.DoctorID == timetable.DoctorID &&
-                    //        dbTimetable.Date == timetable.Date &&
-                    //        dbTimetable.StartTime == timetable.StartTime &&
-                    //        dbTimetable.EndTime == timetable.EndTime);
+                    while (currentDate <= endDate)
+                    {
+                        if (currentDate.DayOfWeek != DayOfWeek.Sunday || currentDate.DayOfWeek != DayOfWeek.Saturday)
+                        {
+                            foreach (var t in validTimeSlots)
+                            {
+                                Timetable timetable = new Timetable
+                                {
+                                    DoctorID = Guid.Parse(id),
+                                    Date = currentDate,
+                                    StartTime = t.StartTime,
+                                    EndTime = t.EndTime,
+                                    IsAvailable = true
+                                };
+                                newTimetables.Add(timetable);
+                            }
+                        }
+                        currentDate = currentDate.AddDays(1);
+                    }
 
-                    //    if (!isExists)
-                    //    {
-                    //        newTimetables.Add(timetable);
-                    //    }
-                    //}
+                    // get properties
+                    var doctorIds = newTimetables.Select(t => t.DoctorID).Distinct();
+                    var dates = newTimetables.Select(t => t.Date).Distinct();
+                    var startTimes = newTimetables.Select(t => t.StartTime).Distinct();
+                    var EndTimes = newTimetables.Select(t => t.EndTime).Distinct();
+
+                    // Get existing
+                    var existingTimetables = timetablesInDB
+                        .Where(dbTimetable =>
+                        doctorIds.Contains(dbTimetable.DoctorID)
+                        && dates.Contains(dbTimetable.Date)
+                        && startTimes.Contains(dbTimetable.StartTime)
+                        && EndTimes.Contains(dbTimetable.EndTime)
+                        ).ToList();
+
+                    var validTimetables = new List<Timetable>();
+                    foreach (var timetable in newTimetables)
+                    {
+                        var isExists = existingTimetables.Any(dbTimetable =>
+                            dbTimetable.DoctorID == timetable.DoctorID &&
+                            dbTimetable.Date == timetable.Date &&
+                            dbTimetable.StartTime == timetable.StartTime &&
+                            dbTimetable.EndTime == timetable.EndTime);
+
+                        if (!isExists)
+                        {
+                            validTimetables.Add(timetable);
+                        }
+                    }
+                    var i = 0;
                     //Add new only
-                    //if (newTimetables.Any())
-                    //{
-                    //    await _timetableDAO.AddRangeBulk(newTimetables);
-                    //}
+                    if (newTimetables.Any())
+                    {
+                        await _timetableDAO.AddRangeBulk(newTimetables);
+                    }
 
-                    scope.Dispose();
+                    scope.Complete();
                     return true;
                 }
                 catch (DbUpdateException ex) when (ex.InnerException is SqlException sqlEx && (sqlEx.Number == 2627 || sqlEx.Number == 2601))
@@ -149,8 +181,8 @@ namespace YourCare_Repos.Repositories
                         return false;
                     }
 
-                   
-                    
+
+
                     await _timetableDAO.Delete(find);
                     return true;
                 }
