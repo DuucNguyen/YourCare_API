@@ -16,6 +16,7 @@ namespace YourCare_Repos.Interfaces
         public Task<bool> Deactivate(int timetableID);
         public Task<Timetable> GetById(int id);
         public Task<List<Timetable>> GetAll();
+        public Task<List<Timetable>> GetAllByDoctorID(Guid doctorID);
         public Task<List<Timetable>> GetInRange(Guid doctorID, DateTime startDate, DateTime endDate);
     }
 }

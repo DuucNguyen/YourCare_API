@@ -2,6 +2,7 @@ import API from "@/api/api";
 
 const END_POINTS = {
     CREATE_RANGE: "Timetable/CreateRange",
+    GET_TIMETABLE_BY_DOCTOR_ID: "Timetable/GetAllByDoctorID",
 };
 
 class ApiTimetable {
@@ -12,6 +13,9 @@ class ApiTimetable {
                 "Content-Type": "multipart/form-data",
             },
         });
+    };
+    GetTimetableByDoctorID = async (doctorID) => {
+        return await API.get(`${END_POINTS.GET_TIMETABLE_BY_DOCTOR_ID}?doctorID=${doctorID}`);
     };
 }
 

@@ -49,5 +49,30 @@ namespace YourCare_WebApi.Controllers
                 });
             }
         }
+
+        [HttpGet("GetAllByDoctorID")]
+        public async Task<IActionResult> GetAllByDoctorID([FromQuery] Guid doctorID)
+        {
+            try
+            {
+                var result = await _timetableRepository.GetAllByDoctorID(doctorID);
+                return new JsonResult(new ResponseModel<List<Timetable>>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "GetAllByDoctorID successfully.",
+                    IsSucceeded = true,
+                    Data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = ex.Message,
+                    IsSucceeded = false,
+                });
+            }
+        }
     }
 }

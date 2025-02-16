@@ -67,6 +67,9 @@ namespace YourCare_WebApi
             builder.Services.AddScoped<TimetableDAO>();
             builder.Services.AddScoped<ITimetableRepository, TimetableRepository>();
 
+            builder.Services.AddScoped<PatientProfileDAO>();
+            builder.Services.AddScoped<IPatientProfileRepository, PatientProfileRepository>();
+
             #endregion
 
             #region EmailService

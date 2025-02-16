@@ -4,6 +4,10 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import router from "./router/router-index";
 import { createPinia } from "pinia";
+import { createPersistedState } from "pinia-plugin-persistedstate";
+import $ from "jquery";
+
+window.$ = window.jQuery = $; //register jqueyr as global
 
 import axios from "axios";
 window.axios = axios;
@@ -36,17 +40,23 @@ import {
     Radio,
     Textarea,
     Tooltip,
+    Row,
+    Col,
+    Divider
 } from "ant-design-vue";
 
 //
-import 'boxicons/css/boxicons.min.css';
+import "boxicons/css/boxicons.min.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "ant-design-vue/dist/reset.css";
 const app = createApp(App);
 
+const pinia = createPinia();
+pinia.use(createPersistedState());
+
 app.use(router);
-app.use(createPinia());
+app.use(pinia);
 
 /**
  * ant-design
@@ -74,6 +84,9 @@ app.use(Upload);
 app.use(Radio);
 app.use(Textarea);
 app.use(Tooltip);
+app.use(Row);
+app.use(Col);
+app.use(Divider);
 
 app.mount("#app");
 

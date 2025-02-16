@@ -2,7 +2,7 @@
     import ApiDoctorProfile from "@/api/ApiDoctorProfile";
     import ApiSpecialty from "@/api/ApiSpecialty";
     import { reactive, ref, onMounted } from "vue";
-    import { useRoute, useRouter } from "vue-router";
+    import { RouterLink, useRoute, useRouter } from "vue-router";
 
     const route = useRoute();
     const router = useRouter();
@@ -175,12 +175,11 @@
                             </div>
                         </div>
                         <div class="d-flex align-items-center">
-                            <a
-                                asp-page="./ThongTinBacSi"
-                                asp-route-doctorID="@doc.Id"
+                            <RouterLink
                                 class="button-hover"
-                                >Đặt khám <i class="bx bx-right-arrow-alt"></i
-                            ></a>
+                                :to="{ name: 'User_Doctor_Detail', params: { doctorID: doc.doctorProfileID } }">
+                                Đặt khám <i class="bx bx-right-arrow-alt"></i>
+                            </RouterLink>
                         </div>
                     </div>
                 </div>

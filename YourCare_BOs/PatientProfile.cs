@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace YourCare_BOs
 {
@@ -16,11 +17,12 @@ namespace YourCare_BOs
         public string ApplicationUserID { get; set; }
 
         [MaxLength(256, ErrorMessage = "Tên phải nhỏ hơn 250 kí tự")]
-        public string? Name { get; set; }
+        [Required]
+        public string Name { get; set; }
 
-        public bool? Gender { get; set; }
+        public bool Gender { get; set; }
 
-        public DateTime? Dob { get; set; }
+        public DateTime Dob { get; set; }
 
         [MaxLength(256, ErrorMessage = "Địa chỉ phải nhỏ hơn 250 kí tự !")]
         public string? Address { get; set; }
@@ -42,10 +44,17 @@ namespace YourCare_BOs
         [MaxLength(100)]
         public string? Ethnic { get; set; }
 
-        [ForeignKey("ApplicationUserID")]
-        public virtual ApplicationUser ApplicationUser { get; set; }
+        public bool? IsActive { get; set; }
 
-        public virtual ICollection<Appointment> Appointments { get; set; }
+        [ForeignKey("ApplicationUserID")]
+        [JsonIgnore]
+        [NotMapped]
+        public virtual ApplicationUser? ApplicationUser { get; set; }
+
+
+        [JsonIgnore]
+        [NotMapped]
+        public virtual ICollection<Appointment>? Appointments { get; set; }
 
     }
 }

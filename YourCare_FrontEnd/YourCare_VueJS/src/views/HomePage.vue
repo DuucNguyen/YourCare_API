@@ -27,7 +27,7 @@
 </script>
 <template>
     <Header />
-    <div  class="container">
+    <div class="container">
         <div class="text-center">
             <h1 class="display-6 fw-bold">Đặt lịch khám trực tuyến</h1>
             <p>Tìm Bác sĩ chính xác - Đặt lịch khám dễ dàng</p>
@@ -65,9 +65,11 @@
                         </div>
                         <p class="mb-0">{{ doc.address }}</p>
                     </div>
-                    <a class="appointment-link"
-                        >Đặt lịch khám <i class="fs-4 bx bx-chevron-right"></i
-                    ></a>
+                    <RouterLink
+                        class="appointment-link"
+                        :to="{ name: 'User_Doctor_Detail', params: { doctorID: doc.doctorProfileID } }">
+                        Đặt lịch khám <i class="fs-4 bx bx-chevron-right"></i>
+                    </RouterLink>
                 </div>
             </div>
         </div>

@@ -37,7 +37,7 @@ namespace YourCare_DAOs.DAOs
 
         public async Task<List<PatientProfile>> GetAllByUserID(string userID)
         {
-            return await _context.PatientProfiles.Where(x => x.ApplicationUserID == userID).ToListAsync();
+            return await _context.PatientProfiles.Where(x => x.ApplicationUserID == userID && x.IsActive == true).ToListAsync();
         }
 
         public async Task<PatientProfile> GetByID(Guid id)

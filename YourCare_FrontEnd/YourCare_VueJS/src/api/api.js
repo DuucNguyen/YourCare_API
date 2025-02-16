@@ -38,7 +38,7 @@ instance.interceptors.response.use(
             if (error.response.status === 401 && !originalConfig._retry) {
                 originalConfig._retry = true;
                 try {
-                    console.log("tra ve sau khi login vaf refreshtoken neu co");
+                    console.log("sau login & refresh token");
                     await instance.post("/Authentication/RenewTokens");
 
                     // var rsData = rs.data.data;

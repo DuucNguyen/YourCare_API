@@ -15,6 +15,12 @@ const userRoutes = [
                 meta: {title: "DoctorDetail"},
                 component: () => import("@/views/Public/Doctor/detail.vue"),
             },
+            {
+                path: "/make-appointment",
+                name: "User_Doctor_MakeAppointment",
+                meta: {title: "MakeAppointment"},
+                component: () => import("@/views/Public/Doctor/makeAppointment.vue"),
+            },
         ],
     },
 ];

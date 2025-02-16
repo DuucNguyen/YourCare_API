@@ -30,26 +30,14 @@ namespace YourCare_Repos.Repositories
 
         public async Task<bool> Add(Timetable request)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            var find = await _timetableDAO.GetByID(request.Id);
+            if (find != null)
             {
-                try
-                {
-                    var find = await _timetableDAO.GetByID(request.Id);
-                    if (find != null)
-                    {
-                        scope.Dispose();
-                        return false;
-                    }
-
-                    await _timetableDAO.Create(request);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    scope.Dispose();
-                    return false;
-                }
+                return false;
             }
+
+            await _timetableDAO.Create(request);
+            return true;
         }
 
         public async Task<bool> AddRange(string id, List<int> timetableIDs, DateTime startDate, DateTime endDate)
@@ -70,7 +58,8 @@ namespace YourCare_Repos.Repositories
 
                     while (currentDate <= endDate)
                     {
-                        if (currentDate.DayOfWeek != DayOfWeek.Sunday || currentDate.DayOfWeek != DayOfWeek.Saturday)
+                        if (currentDate.DayOfWeek != DayOfWeek.Sunday
+                            && currentDate.DayOfWeek != DayOfWeek.Saturday)
                         {
                             foreach (var t in validTimeSlots)
                             {
@@ -145,137 +134,72 @@ namespace YourCare_Repos.Repositories
 
         public async Task<bool> Deactivate(int timetableID)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            var find = await _timetableDAO.GetByID(timetableID);
+            if (find == null)
             {
-                try
-                {
-                    var find = await _timetableDAO.GetByID(timetableID);
-                    if (find == null)
-                    {
-                        scope.Dispose();
-                        return false;
-                    }
-
-                    find.IsAvailable = false;
-                    await _timetableDAO.Update(find);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    scope.Dispose();
-                    return false;
-                }
+                return false;
             }
+
+            find.IsAvailable = false;
+            await _timetableDAO.Update(find);
+            return true;
         }
 
         public async Task<bool> Delete(Timetable request)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+
+            var find = await _timetableDAO.GetByID(request.Id);
+            if (find == null)
             {
-                try
-                {
-                    var find = await _timetableDAO.GetByID(request.Id);
-                    if (find == null)
-                    {
-                        scope.Dispose();
-                        return false;
-                    }
-
-
-
-                    await _timetableDAO.Delete(find);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    scope.Dispose();
-                    return false;
-                }
+                return false;
             }
+
+            await _timetableDAO.Delete(find);
+            return true;
         }
 
         public async Task<List<Timetable>> GetAll()
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    var result = await _timetableDAO.GetAll();
+            return await _timetableDAO.GetAll();
+        }
 
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    scope.Dispose();
-                    return null;
-                }
-            }
+        public async Task<List<Timetable>> GetAllByDoctorID(Guid doctorID)
+        {
+            var currentDate = DateTime.Now.Date;
+            var toNext14Day = currentDate.AddDays(14);
+            var qry = await _timetableDAO.GetAllByDoctorID(doctorID);
+            return qry.Where(x => x.Date >= currentDate && x.Date <= toNext14Day).ToList();
         }
 
         public async Task<Timetable> GetById(int id)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    var result = await _timetableDAO.GetByID(id);
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    scope.Dispose();
-                    return null;
-                }
-            }
+            return await _timetableDAO.GetByID(id);
         }
 
         public async Task<List<Timetable>> GetInRange(Guid doctorID, DateTime startDate, DateTime endDate)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    var qry = await _timetableDAO.GetAll();
+            var qry = await _timetableDAO.GetAll();
 
-                    var result = qry
-                        .Where(x => x.DoctorID == doctorID
-                        && x.Date >= startDate
-                        && x.Date <= endDate)
-                        .ToList();
+            var result = qry
+                .Where(x => x.DoctorID == doctorID
+                && x.Date >= startDate
+                && x.Date <= endDate)
+                .ToList();
 
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    scope.Dispose();
-                    return null;
-                }
-            }
+            return result;
         }
 
         public async Task<bool> Update(Timetable request)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            var find = await _timetableDAO.GetByID(request.Id);
+            if (find == null)
             {
-                try
-                {
-                    var find = await _timetableDAO.GetByID(request.Id);
-                    if (find == null)
-                    {
-                        scope.Dispose();
-                        return false;
-                    }
-
-                    find = request;
-                    await _timetableDAO.Update(find);
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    scope.Dispose();
-                    return false;
-                }
+                return false;
             }
+
+            find = request;
+            await _timetableDAO.Update(find);
+            return true;
         }
     }
 }
