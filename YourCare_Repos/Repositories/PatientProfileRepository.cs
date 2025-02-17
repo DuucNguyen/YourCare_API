@@ -63,7 +63,6 @@ namespace YourCare_Repos.Repositories
                 });
                 result = await _patientProfileDAO.GetAllByUserID(userID);
             }
-
             return result;
         }
 

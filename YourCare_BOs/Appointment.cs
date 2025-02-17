@@ -33,7 +33,7 @@ namespace YourCare_BOs
 
         public decimal TotalPrice { get; set; }
         
-        public int TimetableSlot {  get; set; } //STT
+        public int TimetableOrder {  get; set; } //STT
 
         public int TimetableID { get; set; }
 
@@ -52,6 +52,6 @@ namespace YourCare_BOs
 
         public string? PatientFeedBack { get; set; }
 
-        public virtual AppointmentStatusEnum Status { get; set; }
+        public virtual AppointmentStatus Status { get; set; }
     }
 }

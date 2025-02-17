@@ -238,6 +238,8 @@ header {
     flex-wrap: wrap;
     height: 150px;
     overflow-y: scroll;
+    border-radius: 5px;
+    border-top: 1px solid #ddd;
 }
 
 .timeSlot-slot-container::-webkit-scrollbar {
@@ -256,7 +258,23 @@ header {
     background: linear-gradient(to bottom, #03fc5e, #3903fc);
     border: 1px solid #f1f1f1;
 }
-
+.timeSlot-slot-instructions{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    padding: 5px 0;
+    /* border-bottom: 1px solid #ddd; */
+}
+.timeSlot-slot-instruction-item{
+    display: flex;
+}
+.timeSlot-slot-instruction-item div{
+    height: 25px;
+    width: 20px;
+    margin: 0 3px;
+    border-radius: 3px;
+    text-align: center;
+}
 .timeSlot-slot {
     max-height: 40px;
     margin: 5px;
@@ -271,10 +289,12 @@ header {
 .timeSlot-slot:hover {
     color: #fff;
     background: #1975dc;
+    border: 1px solid #1975dc;
     transition: background-color 0.1s ease-in-out;
 }
 
 .timeSlot-chosen {
+    color: #fff !important;
     background: #1975dc;
     color: #fff;
     cursor: not-allowed;
@@ -291,6 +311,21 @@ header {
     color: #fff;
     background: #676767;
 }
+.timeSlot-available-chosen{
+    color: #fff;
+    background-color: #1975dc;
+}
+
+.timeSlot-available-1{
+    color: #FF5252;
+    border: 1px solid #FF5252;
+}
+
+.timeSlot-available-2{
+    color: #FDD835;
+    border: 1px solid #FDD835;
+}
+
 /* ============================================END-DOCTOR-Detail.vue========================================================= */
 /* ============================================DOCTOR-makeAppointment.vue========================================================= */
 .btn-slideToggle {

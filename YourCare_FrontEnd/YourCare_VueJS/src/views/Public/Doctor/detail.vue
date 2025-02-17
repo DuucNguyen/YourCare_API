@@ -119,6 +119,24 @@
                 </div>
                 <div class="mt-4 d-flex flex-column">
                     <h4>Khung giờ</h4>
+                    <div class="timeSlot-slot-instructions">
+                        <div class="timeSlot-slot-instruction-item">
+                            <div class="timeSlot-available-chosen">#</div>
+                            <span>-Đang chọn</span>
+                        </div>
+                        <div class="timeSlot-slot-instruction-item">
+                            <div class="timeSlot-available-1">1</div>
+                            <span>-Còn 01 chỗ trống</span>
+                        </div>
+                        <div class="timeSlot-slot-instruction-item">
+                            <div class="timeSlot-available-2">2</div>
+                            <span>-Còn 02 chỗ trống</span>
+                        </div>
+                        <div class="timeSlot-slot-instruction-item">
+                            <div class="slot-unavailable">0</div>
+                            <span>-Hết chỗ trống</span>
+                        </div>
+                    </div>
                     <p v-if="day_timeTable.length <= 0" class="w-100 alert alert-warning m-0">
                         <span class="d-flex align-items-center"
                             ><span class="me-2"
@@ -130,15 +148,25 @@
                     </p>
                     <div v-else class="timeSlot-slot-container">
                         <template v-for="item in day_timeTable">
-                            <div
-                                @click="redirect(item)"
-                                v-if="item.isAvailable"
-                                class="timeSlot-slot">
-                                {{ dayjs(item.startTime, "HH:mm:ss").format("HH:mm") }} -
-                                {{ dayjs(item.endTime, "HH:mm:ss").format("HH:mm") }}
-                            </div>
-                            <div v-else="item.isAvailable" class="timeSlot-slot slot-unavailable">
-                                {{ dayjs(item.startTime, "HH:mm:ss").format("HH:mm") }} -
+                            <a-tooltip v-if="item.isAvailable" placement="top">
+                                <template #title>
+                                    <span>Chỗ trống: {{ item.availableSlots }}</span>
+                                </template>
+                                <div
+                                    @click="redirect(item)"
+                                    :class="
+                                        'timeSlot-slot' +
+                                        (item.availableSlots === 1 ? ' timeSlot-available-1' : '') +
+                                        (item.availableSlots === 2 ? ' timeSlot-available-2' : '')
+                                    ">
+                                    {{ dayjs(item.startTime, "HH:mm:ss").format("HH:mm") }}
+                                    -
+                                    {{ dayjs(item.endTime, "HH:mm:ss").format("HH:mm") }}
+                                </div>
+                            </a-tooltip>
+                            <div v-else class="timeSlot-slot slot-unavailable">
+                                {{ dayjs(item.startTime, "HH:mm:ss").format("HH:mm") }}
+                                -
                                 {{ dayjs(item.endTime, "HH:mm:ss").format("HH:mm") }}
                             </div>
                         </template>

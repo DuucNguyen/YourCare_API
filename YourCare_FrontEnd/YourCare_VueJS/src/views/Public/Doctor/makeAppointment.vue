@@ -16,6 +16,7 @@
     import { createVNode } from "vue";
     import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
     import { icons } from "ant-design-vue/es/image/PreviewGroup";
+    import { Item } from "ant-design-vue/es/menu";
 
     const actions = {
         create: "Tạo mới",
@@ -222,7 +223,6 @@
                     formData.append("id", chosenPatientProfile.value.id);
                     result = await ApiPatientProfile.Update(formData);
                 }
-                console.log(result);
 
                 var type = result.data.isSucceeded ? "success" : "error";
                 var description = result.data.message;
@@ -296,6 +296,24 @@
                                 <span v-else>{{ getNumberOfTimeSlots(item.date) }} khung giờ</span>
                             </div>
                         </div>
+                        <div class="timeSlot-slot-instructions">
+                            <div class="timeSlot-slot-instruction-item">
+                                <div class="timeSlot-available-chosen">#</div>
+                                <span>-Đang chọn</span>
+                            </div>
+                            <div class="timeSlot-slot-instruction-item">
+                                <div class="timeSlot-available-1">1</div>
+                                <span>-Còn 01 chỗ trống</span>
+                            </div>
+                            <div class="timeSlot-slot-instruction-item">
+                                <div class="timeSlot-available-2">2</div>
+                                <span>-Còn 02 chỗ trống</span>
+                            </div>
+                            <div class="timeSlot-slot-instruction-item">
+                                <div class="slot-unavailable">0</div>
+                                <span>-Hết chỗ trống</span>
+                            </div>
+                        </div>
                         <div>
                             <p
                                 v-if="day_timeTable.length <= 0"
@@ -310,21 +328,37 @@
                             </p>
                             <div v-else class="timeSlot-slot-container">
                                 <template v-for="item in day_timeTable">
-                                    <div
-                                        @click="selectTimetable(item)"
-                                        v-if="item.isAvailable"
-                                        :class="
-                                            item.id === timetable.id
-                                                ? 'timeSlot-slot timeSlot-chosen'
-                                                : 'timeSlot-slot'
-                                        ">
-                                        {{ dayjs(item.startTime, "HH:mm:ss").format("HH:mm") }} -
-                                        {{ dayjs(item.endTime, "HH:mm:ss").format("HH:mm") }}
-                                    </div>
-                                    <div
-                                        v-else="item.isAvailable"
-                                        class="timeSlot-slot slot-unavailable">
-                                        {{ dayjs(item.startTime, "HH:mm:ss").format("HH:mm") }} -
+                                    <a-tooltip v-if="item.isAvailable" placement="top">
+                                        <template #title>
+                                            <span>Chỗ trống: {{ item.availableSlots }}</span>
+                                        </template>
+                                        <div
+                                            @click="selectTimetable(item)"
+                                            :class="
+                                                item.id === timetable.id
+                                                    ? 'timeSlot-slot timeSlot-chosen' +
+                                                      (item.availableSlots === 1
+                                                          ? ' timeSlot-available-1'
+                                                          : '') +
+                                                      (item.availableSlots === 2
+                                                          ? ' timeSlot-available-2'
+                                                          : '')
+                                                    : 'timeSlot-slot' +
+                                                      (item.availableSlots === 1
+                                                          ? ' timeSlot-available-1'
+                                                          : '') +
+                                                      (item.availableSlots === 2
+                                                          ? ' timeSlot-available-2'
+                                                          : '')
+                                            ">
+                                            {{ dayjs(item.startTime, "HH:mm:ss").format("HH:mm") }}
+                                            -
+                                            {{ dayjs(item.endTime, "HH:mm:ss").format("HH:mm") }}
+                                        </div>
+                                    </a-tooltip>
+                                    <div v-else class="timeSlot-slot slot-unavailable">
+                                        {{ dayjs(item.startTime, "HH:mm:ss").format("HH:mm") }}
+                                        -
                                         {{ dayjs(item.endTime, "HH:mm:ss").format("HH:mm") }}
                                     </div>
                                 </template>
