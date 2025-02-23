@@ -17,10 +17,16 @@ namespace YourCare_BOs
 
         public Guid DoctorID { get; set; }
 
-        [ForeignKey("DoctorID")]
-        public virtual DoctorProfile Doctor { get; set; }
-
         public Guid PatientProfileID { get; set; }
+
+        public int TimetableOrder { get; set; } //STT
+
+        public int TimetableID { get; set; }
+
+        public DateTime UpdatedOn { get; set; }
+
+        [MaxLength(100)]
+        public virtual string Status { get; set; }
 
         public string? PatientNote { get; set; }
 
@@ -28,30 +34,26 @@ namespace YourCare_BOs
 
         public string? DoctorNote { get; set; }
 
+        public decimal? TotalPrice { get; set; }
+
+        [ForeignKey("CreatedBy")]
+        public string CreatedBy { get; set; }
+
+        public int? PatientRating { get; set; }
+
+        [MaxLength(500)]
+        public string? PatientFeedBack { get; set; }
+
         [ForeignKey("PatientProfileID")]
         public virtual PatientProfile PatientProfile { get; set; }
-
-        public decimal TotalPrice { get; set; }
-        
-        public int TimetableOrder {  get; set; } //STT
-
-        public int TimetableID { get; set; }
 
         [ForeignKey("TimetableID")]
         public virtual Timetable TimeTable { get; set; }
 
-        [Required]
-        public string CreatedBy { get; set; }
+        [ForeignKey("DoctorID")]
+        public virtual DoctorProfile Doctor { get; set; }
 
-        [ForeignKey("CreatedBy")]
         public virtual ApplicationUser CreatedByUser { get; set; }
 
-        public DateTime UpdatedOn { get; set; }
-
-        public int? PatientRating { get; set; }
-
-        public string? PatientFeedBack { get; set; }
-
-        public virtual AppointmentStatus Status { get; set; }
     }
 }

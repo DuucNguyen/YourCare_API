@@ -69,6 +69,7 @@ namespace YourCare_Repos.Repositories
                                     Date = currentDate,
                                     StartTime = t.StartTime,
                                     EndTime = t.EndTime,
+                                    AvailableSlots = 3,
                                     IsAvailable = true
                                 };
                                 newTimetables.Add(timetable);

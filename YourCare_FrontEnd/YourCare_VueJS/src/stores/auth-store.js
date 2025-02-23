@@ -28,14 +28,13 @@ export const useAuthStore = defineStore({
             this.isSucceeded = result.data.isSucceeded;
 
             if (result.data.isSucceeded) {
-                var user_result = await ApiUser.GetUser();
-                this.setUserInfo(user_result.data);
+                this.getUserInfo();
                 this.router.push(this.returnURL || "/");
             }
         },
         async getUserInfo() {
             var user = localStorage.getItem("user");
-            if (user == null) {
+            if (user === null) {
                 var user_result = await ApiUser.GetUser();
                 this.setUserInfo(user_result.data);
             }
@@ -62,7 +61,6 @@ export const useAuthStore = defineStore({
                 password,
                 confirmationPassword,
             });
-            console.log(result);
         },
         async sendEmailRegister(email) {
             const result = await API.post(`${baseURL}/sendEmailRegister`, email);

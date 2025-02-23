@@ -12,82 +12,95 @@
     });
 </script>
 <template>
-    <div class="admin_header border-bottom">
-        <div class="admin_header_title">
-            <RouterLink :to="{ name: 'Admin_Dashboards' }">Dashboads</RouterLink>
-        </div>
-    </div>
-    <div class="sidebar container">
-        <div class="sidebar_header">
-            <div class="sidebar_header_img">
-                <img :src="user.image" />
+    <div class="admin_body">
+        <div class="admin_header border-bottom">
+            <div class="admin_header_title">
+                <RouterLink :to="{ name: 'Admin_Dashboards' }">Dashboads</RouterLink>
             </div>
-            <div class="sidebar_header_user_info">
-                <span>{{ user.fullName }}</span>
-                <div>
-                    <span v-for="role in user.roleName">
-                        {{ role }}
-                    </span>
+        </div>
+        <div class="sidebar container">
+            <div class="sidebar_header">
+                <div class="sidebar_header_img">
+                    <img :src="user.image" />
+                </div>
+                <div class="sidebar_header_user_info">
+                    <span>{{ user.fullName }}</span>
+                    <div>
+                        <span v-for="role in user.roleName">
+                            {{ role }}
+                        </span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="sidebar_body">
-            <div class="sidebar_body_item_container">
-                <ul>
-                    <li>
-                        <RouterLink
-                            class="sidebar_body_item"
-                            :to="{ name: 'Admin_DoctorProfile_View' }">
-                            <i class="bx bxs-user-rectangle fs-2"></i>
-                            <div class="sidebar_body_item_title">
-                                <span>DoctorProfile</span>
-                                <i class="bx bx-link-external"></i>
-                            </div>
-                        </RouterLink>
-                    </li>
-                    <li>
-                        <RouterLink
-                            class="sidebar_body_item"
-                            :to="{ name: 'Admin_Specialty_View' }">
-                            <i class="bx bxs-category fs-2"></i>
-                            <div class="sidebar_body_item_title">
-                                <span>Specialty</span>
-                                <i class="bx bx-link-external"></i>
-                            </div>
-                        </RouterLink>
-                    </li>
-                    <li>
-                        <RouterLink class="sidebar_body_item" :to="{ name: 'Admin_User_View' }">
-                            <i class="bx bxs-user-circle fs-2"></i>
-                            <div class="sidebar_body_item_title">
-                                <span>User</span>
-                                <i class="bx bx-link-external"></i>
-                            </div>
-                        </RouterLink>
-                    </li>
-                    <li>
-                        <RouterLink class="sidebar_body_item" :to="{ name: 'Admin_TimeSlot_View' }">
-                            <i class='bx bxs-time-five fs-2' ></i>
-                            <div class="sidebar_body_item_title">
-                                <span>TimeSlot</span>
-                                <i class="bx bx-link-external"></i>
-                            </div>
-                        </RouterLink>
-                    </li>
-                </ul>
+            <div class="sidebar_body">
+                <div class="sidebar_body_item_container">
+                    <ul>
+                        <li>
+                            <RouterLink class="sidebar_body_item" :to="{ name: 'home' }">
+                                <i class="bx bxs-home-heart "></i>
+                                <div class="sidebar_body_item_title">
+                                    <span>Home</span>
+                                    <i class="bx bx-link-external"></i>
+                                </div>
+                            </RouterLink>
+                        </li>
+                        <li>
+                            <RouterLink
+                                class="sidebar_body_item"
+                                :to="{ name: 'Admin_DoctorProfile_View' }">
+                                <i class="bx bxs-user-rectangle "></i>
+                                <div class="sidebar_body_item_title">
+                                    <span>DoctorProfile</span>
+                                    <i class="bx bx-link-external"></i>
+                                </div>
+                            </RouterLink>
+                        </li>
+                        <li>
+                            <RouterLink
+                                class="sidebar_body_item"
+                                :to="{ name: 'Admin_Specialty_View' }">
+                                <i class="bx bxs-category "></i>
+                                <div class="sidebar_body_item_title">
+                                    <span>Specialty</span>
+                                    <i class="bx bx-link-external"></i>
+                                </div>
+                            </RouterLink>
+                        </li>
+                        <li>
+                            <RouterLink class="sidebar_body_item" :to="{ name: 'Admin_User_View' }">
+                                <i class="bx bxs-user-circle "></i>
+                                <div class="sidebar_body_item_title">
+                                    <span>User</span>
+                                    <i class="bx bx-link-external"></i>
+                                </div>
+                            </RouterLink>
+                        </li>
+                        <li>
+                            <RouterLink
+                                class="sidebar_body_item"
+                                :to="{ name: 'Admin_TimeSlot_View' }">
+                                <i class="bx bxs-time-five "></i>
+                                <div class="sidebar_body_item_title">
+                                    <span>TimeSlot</span>
+                                    <i class="bx bx-link-external"></i>
+                                </div>
+                            </RouterLink>
+                        </li>
+                    </ul>
+                </div>
             </div>
+            <div class="sidebar_footer"></div>
         </div>
-        <div class="sidebar_footer"></div>
-    </div>
-    <div class="body_container">
-        <main role="main" class="pb-3">
-            <RouterView />
-        </main>
+        <div class="body_container">
+            <main role="main" class="pb-3">
+                <RouterView />
+            </main>
+        </div>
     </div>
 </template>
-<style>
-    body {
-        background: #ececec;
+<style scoped>
+    .admin_body {
+        background: #cecece;
     }
 
     .body_container {
@@ -171,7 +184,7 @@
 
     .sidebar_body_item_container ul {
         list-style: none;
-        padding: 0 5px;
+        padding: 0px;
     }
 
     .sidebar_body_item {
@@ -182,11 +195,15 @@
         text-decoration: none;
         font-size: 18px;
         font-weight: 300;
-        color: #101a33;
+        color: #0D61C1;
         border-bottom: 2px solid transparent;
     }
 
-    .sidebar_body_item i {
+    .sidebar_body_item i:first-child{
+        padding: 4px;
+        border: 2px solid #0D61C1;
+        font-size: 30px;
+        border-radius: 50%;
         margin-right: 10px;
         transition: color 0.2s ease;
     }
@@ -218,6 +235,7 @@
     }
     .sidebar:hover .sidebar_body_item i {
         color: #fff;
+        border-color: transparent;
     }
 
     .sidebar_body_item:hover {

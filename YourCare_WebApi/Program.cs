@@ -70,6 +70,10 @@ namespace YourCare_WebApi
             builder.Services.AddScoped<PatientProfileDAO>();
             builder.Services.AddScoped<IPatientProfileRepository, PatientProfileRepository>();
 
+
+            builder.Services.AddScoped<AppointmentDAO>();
+            builder.Services.AddScoped<IAppointmentReposiory, AppointmentRepository>();
+
             #endregion
 
             #region EmailService

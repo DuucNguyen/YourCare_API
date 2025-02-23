@@ -23,21 +23,8 @@ namespace YourCare_Repos.Repositories
 
         public async Task<bool> Add(Appointment request)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    await _appointmentDAO.Create(request);
-                    scope.Dispose();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return false;
-                }
-            }
+            await _appointmentDAO.Create(request);
+            return true;
         }
 
         public Task<bool> CancelAppointment(Appointment request)
@@ -47,130 +34,51 @@ namespace YourCare_Repos.Repositories
 
         public async Task<bool> Delete(Appointment request)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            var find = await _appointmentDAO.GetByID(request.Id);
+            if (find == null)
             {
-                try
-                {
-                    var find = await _appointmentDAO.GetByID(request.Id);
-                    if(find == null)
-                    {
-                        scope.Dispose();
-                        return false;
-                    }
-
-                    await _appointmentDAO.Delete(find);
-                    scope.Dispose();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return false;
-                }
+                return false;
             }
+
+            await _appointmentDAO.Delete(find);
+            return true;
         }
 
         public async Task<List<Appointment>> GetAll()
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    var result = await _appointmentDAO.GetAll();
-                    scope.Dispose();
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return null;
-                }
-            }
+            var result = await _appointmentDAO.GetAll();
+            return result;
         }
 
         public async Task<List<Appointment>> GetAllByDoctorId(Guid doctorID)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    var result = await _appointmentDAO.GetAllByDoctorID(doctorID);
-                    scope.Dispose();
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return null;
-                }
-            }
+            var result = await _appointmentDAO.GetAllByDoctorID(doctorID);
+            return result;
         }
 
         public async Task<List<Appointment>> GetAllByUserId(string userID)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    var result = await _appointmentDAO.GetAllByUserID(userID);
-                    scope.Dispose();
-                    return result;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return null;
-                }
-            }
+            var result = await _appointmentDAO.GetAllByUserID(userID);
+            return result;
         }
 
         public async Task<Appointment> GetById(int id)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
-            {
-                try
-                {
-                    var find = await _appointmentDAO.GetByID(id);
-                    scope.Dispose();
-                    return find;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return null;
-                }
-            }
+            var find = await _appointmentDAO.GetByID(id);
+            return find;
+
         }
 
         public async Task<bool> Update(Appointment request)
         {
-            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            var find = await _appointmentDAO.GetByID(request.Id);
+            if (find == null)
             {
-                try
-                {
-                    var find = await _appointmentDAO.GetByID(request.Id);
-                    if (find == null)
-                    {
-                        scope.Dispose();
-                        return false;
-                    }
-                    find = request;
-                    await _appointmentDAO.Update(find);
-                    scope.Dispose();
-                    return true;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("ERROR: " + ex.Message + " - " + ex.StackTrace);
-                    scope.Dispose();
-                    return false;
-                }
+                return false;
             }
+            find = request;
+            await _appointmentDAO.Update(find);
+            return true;
         }
     }
 }

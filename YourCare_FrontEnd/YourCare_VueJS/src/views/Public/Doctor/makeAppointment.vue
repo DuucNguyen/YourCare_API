@@ -8,7 +8,7 @@
     import { useAuthStore } from "@/stores/auth-store";
 
     import { useRoute } from "vue-router";
-    import { ref, reactive, onMounted, nextTick } from "vue";
+    import { ref, reactive, onMounted, nextTick, computed } from "vue";
     import dayjs from "dayjs";
 
     //
@@ -94,6 +94,28 @@
     const day_timeTable = ref([]); //time slots of a day - dynamic
     const chosenDate = ref();
 
+    //appointment form
+    //
+    const createAppointmentForm = ref();
+    const appointmentFormState = computed(() => ({
+        doctorID: doctor.value.doctorProfileID ?? "",
+        timetableID: timetable.value.id ?? "",
+        timetableOrder: getTimetableOrder(timetable.value.availableSlots),
+        patientProfileID: chosenPatientProfile.value.id ?? "",
+        patientNote: "",
+    }));
+
+    const getTimetableOrder = (availableSlot) => {
+        switch (availableSlot) {
+            case 1:
+                return 3;
+            case 2:
+                return 2;
+            case 3:
+                return 1;
+        }
+    };
+
     const getNumberOfTimeSlots = (date) => {
         // return [...new Map(doctor_timetables.value.map((item) => [item.startTime, item])).values()]
         //     .length;
@@ -137,15 +159,6 @@
 
     //init functions
     const initTimetableData = async () => {
-        if (timetable.value) {
-            var doctor_result = await ApiDoctorProfile.GetByID(timetable.value.doctorID);
-            if (doctor_result.data.isSucceeded) {
-                doctor.value = doctor_result.data.data;
-            }
-        }
-    };
-
-    const initDoctorData = async () => {
         var doctor_timetables_result = await ApiTimetable.GetTimetableByDoctorID(
             timetable.value.doctorID ?? 0,
         );
@@ -154,7 +167,16 @@
             doctor_timetables_day.value = [
                 ...new Map(doctor_timetables.value.map((item) => [item.date, item])).values(),
             ];
-            getTimeSlotByDate(doctor_timetables_day.value[0].date);
+            getTimeSlotByDate(timetable.value.date);
+        }
+    };
+
+    const initDoctorData = async () => {
+        if (timetable.value) {
+            var doctor_result = await ApiDoctorProfile.GetByID(timetable.value.doctorID);
+            if (doctor_result.data.isSucceeded) {
+                doctor.value = doctor_result.data.data;
+            }
         }
     };
 
@@ -241,8 +263,8 @@
 
     onMounted(async () => {
         timetable.value = routeStore.data;
-        await initTimetableData();
         await initDoctorData();
+        await initTimetableData();
         await initPatientProfileData();
 
         $("#profile-patient-timeSlot").hide();
