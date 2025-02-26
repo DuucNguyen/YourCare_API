@@ -15,6 +15,9 @@ namespace YourCare_BOs
         [Key]
         public int Id { get; set; }
 
+        [MaxLength(50)]
+        public string AppointmentCode { get; set; }
+
         public Guid DoctorID { get; set; }
 
         public Guid PatientProfileID { get; set; }

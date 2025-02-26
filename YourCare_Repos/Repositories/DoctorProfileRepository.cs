@@ -140,5 +140,10 @@ namespace YourCare_Repos.Repositories
             var result = await _doctorProfileDAO.GetDoctorByID(Guid.Parse(id));
             return result;
         }
+        public async Task<string> GetDoctorNameByID(string id)
+        {
+            var result = await _doctorProfileDAO.GetDoctorByID(Guid.Parse(id));
+            return result.ApplicationUser.FullName;
+        }
     }
 }

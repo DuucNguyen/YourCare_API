@@ -11,5 +11,7 @@
         public int TimetableOrder { get; set; } //STT
 
         public string? PatientNote { get; set; }
+
+        public string AppointmentCode { get; set; }
     }
 }

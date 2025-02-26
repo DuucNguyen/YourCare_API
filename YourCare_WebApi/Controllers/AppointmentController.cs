@@ -16,10 +16,12 @@ namespace YourCare_WebApi.Controllers
     public class AppointmentController : ControllerBase
     {
         private readonly IAppointmentReposiory _appointmentRepository;
+        private readonly IDoctorProfileRepository _doctorRepository;
 
-        public AppointmentController(IAppointmentReposiory appointmentRepository)
+        public AppointmentController(IAppointmentReposiory appointmentRepository, IDoctorProfileRepository doctorRepository)
         {
             _appointmentRepository = appointmentRepository;
+            _doctorRepository = doctorRepository;
         }
 
         [HttpPost("create")]
@@ -35,6 +37,7 @@ namespace YourCare_WebApi.Controllers
                     TimetableID = request.TimetableID,
                     TimetableOrder = request.TimetableOrder,
                     PatientNote = request.PatientNote,
+                    AppointmentCode = request.AppointmentCode,
 
                     CreatedBy = userId,
                     UpdatedOn = DateTime.Now,
@@ -57,6 +60,59 @@ namespace YourCare_WebApi.Controllers
                     StatusCode = StatusCodes.Status500InternalServerError,
                     Message = ex.Message,
                     IsSucceeded = false
+                });
+            }
+        }
+
+        [HttpGet("GetAllByUserID")]
+        public async Task<IActionResult> GetAllByUserID([FromQuery] string userId)
+        {
+            try
+            {
+                if (userId == null)
+                {
+                    return NotFound();
+                }
+
+                var query = await _appointmentRepository.GetAllByUserId(userId);
+
+                var result = query.Select(x => new AppointmentResponseModel
+                {
+                    Id = x.Id,
+                    PatientProfileName = x.PatientProfile.Name,
+                    TimetableDate = x.TimeTable.Date,
+                    TimeTableStartTime = x.TimeTable.StartTime,
+                    TimeTableEndTime = x.TimeTable.EndTime,
+                    TimeTableOrder = x.TimetableOrder,
+                    Status = x.Status,
+
+                    DoctorID = x.DoctorID,
+                    TimetableID = x.TimetableID,
+                    PatientProfileID = x.PatientProfileID,
+                }).ToList();
+
+                foreach (var item in result)
+                {
+                    item.DoctorName = await _doctorRepository.GetDoctorNameByID(item.DoctorID.ToString());
+                }
+
+                return new JsonResult(new ResponseModel<List<AppointmentResponseModel>>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "GetAllByUserID successfully",
+                    IsSucceeded = true,
+                    Data = result
+                });
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " - " + ex.StackTrace);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "GetAllByUserID failed",
+                    IsSucceeded = false,
                 });
             }
         }

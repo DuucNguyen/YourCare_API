@@ -29,10 +29,16 @@ namespace YourCare_Repos.Repositories
             {
                 try
                 {
-                    await _appointmentDAO.Create(request);
-
-
-
+                    var timetable = await _timetableRepository.GetById(request.TimetableID);
+                    if (timetable == null)
+                    {
+                        return false;
+                    }
+                    else if (timetable.IsAvailable)
+                    {
+                        await _appointmentDAO.Create(request);
+                        await _timetableRepository.UpdateAvailableSlot(request.TimetableID);
+                    }
                     scope.Complete();
                 }
                 catch (Exception ex)

@@ -44,12 +44,47 @@
                 </div>
             </div>
             <div class="nav-user-container" v-if="user">
-                <div class="nav-user">
+                <!-- <div class="nav-user">
                     <i class="bx bx-user-circle fs-4"></i>
                     <span>
                         {{ user.fullName }}
+                        <i class="text-secondary bx bxs-down-arrow" style="font-size: 10px"></i>
                     </span>
-                </div>
+                </div> -->
+                <a-dropdown>
+                    <!-- <a class="ant-dropdown-link" @click.prevent>
+                        Hover me
+                        <DownOutlined />
+                    </a> -->
+                    <div class="nav-user">
+                        <i class="bx bx-user-circle fs-4"></i>
+                        <span>
+                            {{ user.fullName }}
+                            <i class="text-secondary bx bxs-down-arrow" style="font-size: 10px"></i>
+                        </span>
+                    </div>
+                    <template #overlay>
+                        <a-menu>
+                            <a-menu-item key="0" class="profile-menu-item">
+                                <RouterLink :to="{ name: 'User_Appointment_View' }">
+                                    Lịch sử đặt khám
+                                </RouterLink>
+                            </a-menu-item>
+                            <a-menu-item key="1" class="profile-menu-item">
+                                <RouterLink :to="{ name: 'User_PatientProfile_View' }"
+                                    >Hồ sơ</RouterLink
+                                >
+                            </a-menu-item>
+                            <a-menu-item class="profile-menu-item">
+                                <RouterLink :to="{ name: 'User_Profile_View' }">
+                                    Tài khoản</RouterLink
+                                >
+                            </a-menu-item>
+                            <a-menu-divider />
+                            <a-menu-item key="3" class="profile-menu-item">Đăng xuất</a-menu-item>
+                        </a-menu>
+                    </template>
+                </a-dropdown>
             </div>
         </nav>
     </header>
@@ -123,5 +158,13 @@
     .button-authen:hover {
         background: linear-gradient(to left, #03fc5e, #3903fc);
         color: white;
+    }
+
+    .profile-menu-item a {
+        text-decoration: none;
+    }
+    .profile-menu-item:hover {
+        background: #f1f5f9 !important;
+        color: #1975dc !important;
     }
 </style>

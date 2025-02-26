@@ -7,15 +7,18 @@ const END_POINTS = {
     GET_ALL_BY_DOCTOR_ID: "Appointment/GetAllByDoctorID",
     GET_ALL_BY_TIMETABLE_ID: "Appointment/GetAllByTimetableID",
 };
-class ApiAppointment{
-
-    Create = async (formData) =>{
+class ApiAppointment {
+    Create = async (formData) => {
         return await API.post(`${END_POINTS.CREATE}`, formData);
     };
-    Update = () => {
-        
+    Update = () => {};
+    GetAllByUserID = async (id) => {
+        return await API.get(`${END_POINTS.GET_ALL_BY_USER_ID}`, {
+            params: {
+                userId: id,
+            },
+        });
     };
-
 }
 
 export default new ApiAppointment();

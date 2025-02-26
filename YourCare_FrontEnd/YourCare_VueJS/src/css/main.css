@@ -258,17 +258,17 @@ header {
     background: linear-gradient(to bottom, #03fc5e, #3903fc);
     border: 1px solid #f1f1f1;
 }
-.timeSlot-slot-instructions{
+.timeSlot-slot-instructions {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
     padding: 5px 0;
     /* border-bottom: 1px solid #ddd; */
 }
-.timeSlot-slot-instruction-item{
+.timeSlot-slot-instruction-item {
     display: flex;
 }
-.timeSlot-slot-instruction-item div{
+.timeSlot-slot-instruction-item div {
     height: 25px;
     width: 20px;
     margin: 0 3px;
@@ -311,19 +311,19 @@ header {
     color: #fff;
     background: #676767;
 }
-.timeSlot-available-chosen{
+.timeSlot-available-chosen {
     color: #fff;
     background-color: #1975dc;
 }
 
-.timeSlot-available-1{
-    color: #FF5252;
-    border: 1px solid #FF5252;
+.timeSlot-available-1 {
+    color: #ff5252;
+    border: 1px solid #ff5252;
 }
 
-.timeSlot-available-2{
-    color: #FDD835;
-    border: 1px solid #FDD835;
+.timeSlot-available-2 {
+    color: #fdd835;
+    border: 1px solid #fdd835;
 }
 
 /* ============================================END-DOCTOR-Detail.vue========================================================= */
@@ -570,4 +570,25 @@ header {
 }
 
 /* ============================================END-DOCTOR-makeAppointment.vue========================================================= */
+/* ============================================Shared-UserSideBar.vue========================================================= */
+.profile_container {
+    width: 100%;
+    margin-top: 50px;
+    margin-left: 30px;
+    border-radius: 8px;
+    box-shadow: 1px 1px 20px #ddd;
+}
+.profile_head {
+    padding: 15px;
+}
+.profile_head_title {
+    font-size: 25px;
+    font-weight: 500;
+}
+.profile_footer {
+    padding: 10px;
+    background-color: #f9fafb;
+    text-align: center;
+}
+/* ============================================Shared-UserSideBar.vue========================================================= */
 

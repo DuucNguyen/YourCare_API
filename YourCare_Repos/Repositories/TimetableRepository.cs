@@ -203,15 +203,20 @@ namespace YourCare_Repos.Repositories
             return true;
         }
 
-        public async Task<bool> UpdateAvailableSlot(Timetable request)
+        public async Task<bool> UpdateAvailableSlot(int id)
         {
-            var find = await _timetableDAO.GetByID(request.Id);
+            var find = await _timetableDAO.GetByID(id);
             if (find == null)
             {
                 return false;
             }
 
             find.AvailableSlots -= 1;
+
+            if (find.AvailableSlots == 0)
+            {
+                find.IsAvailable = false;
+            }
             await _timetableDAO.Update(find);
             return true;
         }

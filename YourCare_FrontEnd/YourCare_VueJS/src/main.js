@@ -43,7 +43,10 @@ import {
     Row,
     Col,
     Divider,
-    Popconfirm
+    Popconfirm,
+    Menu,
+    MenuDivider,
+    MenuItem
 } from "ant-design-vue";
 
 //
@@ -89,6 +92,9 @@ app.use(Row);
 app.use(Col);
 app.use(Divider);
 app.use(Popconfirm);
+app.use(Menu);
+app.use(MenuDivider);
+app.use(MenuItem);
 
 app.mount("#app");
 
