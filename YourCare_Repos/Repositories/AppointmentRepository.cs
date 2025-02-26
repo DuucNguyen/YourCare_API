@@ -15,15 +15,32 @@ namespace YourCare_Repos.Repositories
     public class AppointmentRepository : IAppointmentReposiory
     {
         private readonly AppointmentDAO _appointmentDAO;
+        private readonly ITimetableRepository _timetableRepository;
 
-        public AppointmentRepository(AppointmentDAO appointmentDAO)
+        public AppointmentRepository(AppointmentDAO appointmentDAO, ITimetableRepository timetableRepository)
         {
             _appointmentDAO = appointmentDAO;
+            _timetableRepository = timetableRepository;
         }
 
         public async Task<bool> Add(Appointment request)
         {
-            await _appointmentDAO.Create(request);
+            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    await _appointmentDAO.Create(request);
+
+
+
+                    scope.Complete();
+                }
+                catch (Exception ex)
+                {
+                    scope.Dispose();
+                }
+            }
+
             return true;
         }
 

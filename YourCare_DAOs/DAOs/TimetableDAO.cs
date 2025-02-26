@@ -31,6 +31,7 @@ namespace YourCare_DAOs.DAOs
             _context.Timetables.Update(timetable);
             await _context.SaveChangesAsync();
         }
+
         public async Task Delete(Timetable timetable)
         {
             _context.Timetables.Remove(timetable);

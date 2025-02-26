@@ -2,6 +2,7 @@
     import ApiDoctorProfile from "@/api/ApiDoctorProfile";
     import ApiTimetable from "@/api/ApiTimetable";
     import ApiPatientProfile from "@/api/ApiPatientProfile";
+    import ApiAppointment from "@/api/ApiAppointment";
 
     //
     import { useRouteStore } from "@/stores/route-store";
@@ -12,7 +13,7 @@
     import dayjs from "dayjs";
 
     //
-    import { Modal, notification } from "ant-design-vue";
+    import { message, Modal, notification } from "ant-design-vue";
     import { createVNode } from "vue";
     import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
     import { icons } from "ant-design-vue/es/image/PreviewGroup";
@@ -88,6 +89,7 @@
 
     const timetable = ref({});
     const doctor = ref({});
+
     //doctor-timtable
     const doctor_timetables = ref([]); //doctor schedule for the next 10 days + today
     const doctor_timetables_day = ref([]); //unique days in the list
@@ -254,6 +256,34 @@
         });
     };
 
+    const onFinishAppointment = () => {
+        createAppointmentForm.value
+            .validate()
+            .then(async () => {
+                var formData = new FormData();
+                formData.append("doctorID", appointmentFormState.value.doctorID);
+                formData.append("patientProfileID", appointmentFormState.value.patientProfileID);
+                formData.append("timetableID", appointmentFormState.value.timetableID);
+                formData.append("timetableOrder", appointmentFormState.value.timetableOrder);
+                formData.append("patientNote", appointmentFormState.value.patientNote);
+
+                var result = await ApiAppointment.Create(formData);
+
+                var type = result.data.isSucceeded ? "success" : "error";
+                var description = result.data.message;
+
+                showNotification(type, "Trạng thái đặt khám", description);
+
+                // return new Promise((resolve) => {
+                //     setTimeout(() => resolve(true), 5000);
+                // });
+                //redirect to appointment detail
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
+
     const showNotification = (type, message, description) => {
         notification[type]({
             message: message,
@@ -278,7 +308,7 @@
 </script>
 
 <template>
-    <form method="POST" id="form-appointment">
+    <a-form id="form-appointment" ref="createAppointmentForm" :model="appointmentFormState">
         <div class="d-flex justify-content-between">
             <div class="col-md-8" style="max-height: 350px">
                 <div class="profile-patient">
@@ -533,13 +563,43 @@
                             <span id="appointmentPatientName">{{ chosenPatientProfile.name }}</span>
                         </div>
                     </div>
-                    <button type="submit" class="w-100 btn btn-primary fw-bold pt-2 pb-2">
-                        Xác nhận đặt khám
-                    </button>
+
+                    <a-popconfirm
+                        placement="bottom"
+                        ok-text="Xác nhận đặt khám"
+                        :okButtonProps="{
+                            type: 'primary',
+                            style: {
+                                height: '30px',
+                                width: '150px',
+                            },
+                        }"
+                        :cancelButtonProps="{
+                            style: {
+                                height: '30px',
+                                width: '80px',
+                            },
+                        }"
+                        cancel-text="Hủy"
+                        @confirm="onFinishAppointment">
+                        <template #title>
+                            <span class="fs-6 text-primary">Xác nhận đặt khám online</span>
+                            <br />
+                            <span class="text-danger"
+                                >Vui lòng kiểm tra lại thông tin đặt khám phía trên.</span
+                            >
+                        </template>
+                        <a-button
+                            type="primary"
+                            style="height: 40px; font-weight: 500"
+                            class="w-100 fs-6"
+                            >Đặt khám</a-button
+                        >
+                    </a-popconfirm>
                 </div>
             </div>
         </div>
-    </form>
+    </a-form>
 
     <a-modal
         width="800px"
@@ -633,3 +693,5 @@
         </template>
     </a-modal>
 </template>
+
+<style scoped></style>

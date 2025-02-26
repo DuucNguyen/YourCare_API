@@ -42,7 +42,8 @@ import {
     Tooltip,
     Row,
     Col,
-    Divider
+    Divider,
+    Popconfirm
 } from "ant-design-vue";
 
 //
@@ -87,6 +88,7 @@ app.use(Tooltip);
 app.use(Row);
 app.use(Col);
 app.use(Divider);
+app.use(Popconfirm);
 
 app.mount("#app");
 
