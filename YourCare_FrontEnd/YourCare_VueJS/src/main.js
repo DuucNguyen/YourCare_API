@@ -46,7 +46,8 @@ import {
     Popconfirm,
     Menu,
     MenuDivider,
-    MenuItem
+    MenuItem,
+    QRCode
 } from "ant-design-vue";
 
 //
@@ -95,6 +96,7 @@ app.use(Popconfirm);
 app.use(Menu);
 app.use(MenuDivider);
 app.use(MenuItem);
+app.use(QRCode);
 
 app.mount("#app");
 

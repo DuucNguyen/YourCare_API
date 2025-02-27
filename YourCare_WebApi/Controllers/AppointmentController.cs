@@ -79,10 +79,10 @@ namespace YourCare_WebApi.Controllers
                 var result = query.Select(x => new AppointmentResponseModel
                 {
                     Id = x.Id,
-                    PatientProfileName = x.PatientProfile.Name,
+                    PatientName = x.PatientProfile.Name,
                     TimetableDate = x.TimeTable.Date,
-                    TimeTableStartTime = x.TimeTable.StartTime,
-                    TimeTableEndTime = x.TimeTable.EndTime,
+                    TimetableStartTime = x.TimeTable.StartTime,
+                    TimetableEndTime = x.TimeTable.EndTime,
                     TimeTableOrder = x.TimetableOrder,
                     Status = x.Status,
 
@@ -112,6 +112,65 @@ namespace YourCare_WebApi.Controllers
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "GetAllByUserID failed",
+                    IsSucceeded = false,
+                });
+            }
+        }
+
+        [HttpGet("GetDetailByID")]
+        public async Task<IActionResult> GetDetailByID([FromQuery] int id)
+        {
+            try
+            {
+                var query = await _appointmentRepository.GetById(id);
+
+                var result = new AppointmentResponseModelDetail
+                {
+                    Id = query.Id,
+                    PatientName = query.PatientProfile.Name,
+                    TimetableDate = query.TimeTable.Date,
+                    TimetableStartTime = query.TimeTable.StartTime,
+                    TimetableEndTime = query.TimeTable.EndTime,
+                    TimeTableOrder = query.TimetableOrder,
+                    Status = query.Status,
+
+                    DoctorID = query.DoctorID,
+                    TimetableID = query.TimetableID,
+                    PatientProfileID = query.PatientProfileID,
+
+                    PatientDob = query.PatientProfile.Dob,
+                    PatientAddress = query.PatientProfile.Address ?? "",
+                    PatientGender = query.PatientProfile.Gender,
+                    PatientPhoneNumber = query.PatientProfile.PhoneNumber ?? "",
+
+                    PatientNote = query.PatientNote ?? "",
+                    DoctorNote = query.DoctorNote ?? "",
+                    DoctorDianosis = query.DoctorDianosis ?? "",
+                    AppointmentCode = query.AppointmentCode ?? "",
+                };
+
+                var doctor = await _doctorRepository.GetDoctorByID(result.DoctorID.ToString());
+                if (doctor == null) throw new Exception("GetAppointmentDetail failed.");
+
+                result.DoctorName = doctor.ApplicationUser.FullName;
+                result.DoctorImage = doctor.ApplicationUser.Image != null ? $"data:image/png;base64,{Convert.ToBase64String(doctor.ApplicationUser.Image)}" : "";
+
+                return new JsonResult(new ResponseModel<AppointmentResponseModelDetail>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "GetDetailByID successfully",
+                    IsSucceeded = true,
+                    Data = result
+                });
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " - " + ex.StackTrace);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "GetDetailByID failed",
                     IsSucceeded = false,
                 });
             }

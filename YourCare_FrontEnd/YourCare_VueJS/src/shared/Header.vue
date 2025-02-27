@@ -44,18 +44,7 @@
                 </div>
             </div>
             <div class="nav-user-container" v-if="user">
-                <!-- <div class="nav-user">
-                    <i class="bx bx-user-circle fs-4"></i>
-                    <span>
-                        {{ user.fullName }}
-                        <i class="text-secondary bx bxs-down-arrow" style="font-size: 10px"></i>
-                    </span>
-                </div> -->
                 <a-dropdown>
-                    <!-- <a class="ant-dropdown-link" @click.prevent>
-                        Hover me
-                        <DownOutlined />
-                    </a> -->
                     <div class="nav-user">
                         <i class="bx bx-user-circle fs-4"></i>
                         <span>

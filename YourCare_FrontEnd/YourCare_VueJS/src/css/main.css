@@ -573,7 +573,7 @@ header {
 /* ============================================Shared-UserSideBar.vue========================================================= */
 .profile_container {
     width: 100%;
-    margin-top: 50px;
+    margin-top: 10px;
     margin-left: 30px;
     border-radius: 8px;
     box-shadow: 1px 1px 20px #ddd;

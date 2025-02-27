@@ -87,9 +87,7 @@ namespace YourCare_Repos.Repositories
 
         public async Task<Appointment> GetById(int id)
         {
-            var find = await _appointmentDAO.GetByID(id);
-            return find;
-
+            return await _appointmentDAO.GetByID(id);
         }
 
         public async Task<bool> Update(Appointment request)

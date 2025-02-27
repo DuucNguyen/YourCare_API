@@ -3,10 +3,10 @@
     public class AppointmentResponseModel
     {
         public int Id { get; set; }
-        public string PatientProfileName { get; set; }
+        public string PatientName { get; set; }
         public DateTime TimetableDate { get; set; }
-        public TimeSpan TimeTableStartTime { get; set; }
-        public TimeSpan TimeTableEndTime { get; set; }
+        public TimeSpan TimetableStartTime { get; set; }
+        public TimeSpan TimetableEndTime { get; set; }
        
         public string DoctorName { get; set; }
         public int TimeTableOrder { get; set; }

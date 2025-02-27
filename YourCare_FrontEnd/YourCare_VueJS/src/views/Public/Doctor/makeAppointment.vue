@@ -226,9 +226,10 @@
             "YCA" +
             date.date().toString().padStart(2, "0") + //atmost 2 chars otherwise fill with "0"
             (date.month() + 1).toString().padStart(2, "0") + //dayjs return month from 0
-            date.year();
-        var randomNumber = Math.floor(1000 + Math.random() * 9000);
-        return code + randomNumber;
+            (date.year() % 100) +
+            dayjs().minute().toString().padStart(2, "0") +
+            dayjs().second().toString().padStart(2, "0");
+        return code;
     };
 
     const showModalConfirmation = (action) => {
