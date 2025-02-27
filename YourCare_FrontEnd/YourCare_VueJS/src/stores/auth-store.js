@@ -4,6 +4,7 @@ import API from "@/api/api";
 const baseURL = `${import.meta.env.VITE_API_URL_LOCAL}/Authentication`;
 import TokenService from "@/api/TokenService";
 import ApiUser from "@/api/ApiUser";
+import CookieService from "@/api/CookieService";
 
 // function
 export const useAuthStore = defineStore({
@@ -32,9 +33,15 @@ export const useAuthStore = defineStore({
                 this.router.push(this.returnURL || "/");
             }
         },
+        logOut() {
+            this.message = "";
+            CookieService.removeCookieValue("user");
+            localStorage.removeItem("user");
+            this.router.push("/");
+        },
         async getUserInfo() {
             var user = localStorage.getItem("user");
-            if (user === null) {
+            if (!user && this.tokenValidate) {
                 var user_result = await ApiUser.GetUser();
                 this.setUserInfo(user_result.data);
             }

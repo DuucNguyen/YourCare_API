@@ -1,9 +1,12 @@
 <script setup>
-    import { onMounted } from "vue";
     const { page } = defineProps(["page"]);
-    onMounted(() => {
-        console.log(page);
-    });
+
+    import { useAuthStore } from "@/stores/auth-store";
+    const authStore = useAuthStore();
+
+    const logOut = () => {
+        authStore.logOut();
+    };
 </script>
 
 <template>
@@ -24,7 +27,7 @@
                 :to="{ name: 'User_Profile_View' }"
                 >Tài khoản</RouterLink
             >
-            <div class="sidebar_link">Đăng xuất</div>
+            <div class="sidebar_link" @click="logOut" >Đăng xuất</div>
         </div>
     </div>
 </template>
@@ -53,7 +56,7 @@
 
     .sidebar_link:hover {
         background-color: #f9fafb;
-        border-left: 4px solid #1975dc;
+        /* border-left: 4px solid #1975dc; */
         color: #1975dc;
     }
 

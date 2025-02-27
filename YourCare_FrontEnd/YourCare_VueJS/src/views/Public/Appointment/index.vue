@@ -36,7 +36,6 @@
     onMounted(async () => {
         try {
             await InitAppointments();
-            console.log(appointments.value.length);
         } catch (error) {
             console.log(error);
         }
@@ -153,7 +152,9 @@
                                         ' / ' +
                                         appointmentDetail.patientName +
                                         ' / ' +
-                                        dayjs(appointmentDetail.timetableDate).format('DD/MM/YYYY') +
+                                        dayjs(appointmentDetail.timetableDate).format(
+                                            'DD/MM/YYYY',
+                                        ) +
                                         ' / STT: ' +
                                         appointmentDetail.timeTableOrder +
                                         ' / ' +
@@ -321,6 +322,7 @@
         max-height: 500px;
         overflow-y: scroll;
         background: #f3f4f6;
+        border-bottom: 1px solid #ddd;
     }
 
     .appointment_item {

@@ -1,13 +1,19 @@
 <script setup>
     import { reactive, ref, onMounted } from "vue";
     import ApiUser from "@/api/ApiUser";
+    import { useAuthStore } from "@/stores/auth-store";
 
+    const authStore = useAuthStore();
     const user = ref({});
 
     onMounted(async () => {
-        var result = await ApiUser.GetUser();
-        user.value = result.data;
+        var result = await authStore.getUserInfo();
+        user.value = result;
     });
+
+    const logOut = () => {
+        authStore.logOut();
+    };
 </script>
 
 <template>
@@ -70,10 +76,15 @@
                                 >
                             </a-menu-item>
                             <a-menu-divider />
-                            <a-menu-item key="3" class="profile-menu-item">Đăng xuất</a-menu-item>
+                            <a-menu-item key="3" class="profile-menu-item" @click="logOut"
+                                >Đăng xuất</a-menu-item
+                            >
                         </a-menu>
                     </template>
                 </a-dropdown>
+            </div>
+            <div v-else>
+                <RouterLink class="login-button" :to="{ name: 'login' }">Đăng nhập</RouterLink>
             </div>
         </nav>
     </header>
@@ -97,6 +108,19 @@
     body {
         margin-bottom: 60px;
         overflow-x: hidden;
+    }
+    .login-button {
+        padding: 8px 12px;
+        margin-right: 20px;
+        border: 1px solid #1975dc;
+        color: #1975dc;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: 500;
+    }
+    .login-button:hover {
+        background: #1975dc;
+        color: #fff;
     }
 
     .navbar {
