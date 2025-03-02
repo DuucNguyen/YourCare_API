@@ -704,9 +704,9 @@
         </a-form>
         <template #footer>
             <a-button key="cancel" @click="createModalInvisible = false">Hủy</a-button>
-            <a-button key="submit" type="primary" @click="onFinish(modalTitle)">{{
-                modalTitle
-            }}</a-button>
+            <a-button key="submit" type="primary" @click="onFinish(modalTitle)">
+                {{ modalTitle }}
+            </a-button>
         </template>
     </a-modal>
 </template>

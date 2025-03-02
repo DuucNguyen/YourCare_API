@@ -590,5 +590,128 @@ header {
     background-color: #f9fafb;
     text-align: center;
 }
-/* ============================================Shared-UserSideBar.vue========================================================= */
+/* ============================================END-Shared-UserSideBar.vue========================================================= */
+/* ============================================Auth-Login/Register========================================================= */
+.img_container {
+    position: relative;
+    width: 450px;
+    height: 450px;
+    object-fit: contain;
+    margin: 0 auto;
+    border-radius: 50%;
+    --radius: 250px;
+}
+
+.img_container::before {
+    content: "";
+    position: absolute;
+    top: -30px;
+    left: -30px;
+    width: calc(100% + 60px);
+    height: calc(100% + 60px);
+    border-radius: 50%;
+    background: radial-gradient(circle, #03fc5e 10%, transparent 80%);
+    z-index: 0; /* Moves it behind the image */
+}
+
+.img_container img {
+    width: 100%;
+    display: block;
+    position: relative;
+    z-index: 1; /* Ensures the image appears above the pseudo-element */
+}
+
+.text-circle {
+    position: absolute;
+    width: 160px;
+    text-align: center;
+    color: #1a76e3;
+    background-color: #fff;
+    font-size: 18px;
+    font-weight: 500;
+    padding: 5px;
+    border-radius: 50px;
+    z-index: 2;
+}
+
+/* Position each text at equal angles around the circle */
+.text1 {
+    top: calc(50% - var(--radius));
+    left: 50%;
+    transform: translate(-50%, 0);
+}
+
+.text2 {
+    top: calc(50% - (var(--radius) * 0.309)); /* cos(72°) */
+    left: calc(50% + (var(--radius) * 0.951)); /* sin(72°) */
+    transform: translate(-50%, -50%);
+}
+
+.text3 {
+    top: calc(50% + (var(--radius) * 0.809)); /* cos(36°) */
+    left: calc(50% + (var(--radius) * 0.588)); /* sin(36°) */
+    transform: translate(-50%, -50%);
+}
+
+.text4 {
+    top: calc(50% + (var(--radius) * 0.809)); /* cos(36°) */
+    left: calc(50% - (var(--radius) * 0.588)); /* sin(36°) */
+    transform: translate(-50%, -50%);
+}
+
+.text5 {
+    top: calc(50% - (var(--radius) * 0.309)); /* cos(72°) */
+    left: calc(50% - (var(--radius) * 0.951)); /* sin(72°) */
+    transform: translate(-50%, -50%);
+}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .img_container {
+        --radius: 100px; /* Smaller circle on mobile */
+    }
+
+    .text-circle {
+        width: 80px;
+        font-size: 14px;
+    }
+}
+
+.auth-container {
+    overflow: hidden !important;
+    width: 100vw;
+    height: 100vh;
+    background: #1a76e3;
+    display: flex;
+    align-items: center;
+}
+.auth-form {
+    overflow: hidden !important;
+    padding: 30px;
+    border-radius: 5px;
+    background-color: #fff;
+    max-height: 450px;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-around;
+}
+
+.nav-container a {
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: 500;
+    color: black;
+}
+
+.nav-container a:hover {
+    color: #3903fc;
+}
+
+.navigation-chosen {
+    border-bottom: 3px solid #03fc5e !important;
+    color: #3903fc !important;
+}
+
+/* ============================================END-Auth-Login/Register========================================================= */
 

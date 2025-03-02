@@ -38,7 +38,7 @@ namespace YourCare_WebApi
                 options.SignIn.RequireConfirmedAccount = true;
                 options.User.RequireUniqueEmail = true;
             })
-            .AddRoles<IdentityRole>()
+            .AddRoles<ApplicationRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>();
             #endregion
 
@@ -77,7 +77,7 @@ namespace YourCare_WebApi
             #endregion
 
             #region EmailService
-                        IConfiguration _configuration = builder.Configuration;
+            IConfiguration _configuration = builder.Configuration;
 
             builder.Services.Configure<MailKitEmailSenderOptions>(
                 _configuration.GetSection("MailKit:SMTP"));

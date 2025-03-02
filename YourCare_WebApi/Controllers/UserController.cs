@@ -21,17 +21,20 @@ namespace YourCare_WebApi.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserRepository _userRepository;
+        private readonly IRoleRepository _roleRepository;
         private readonly IUriService _uriService;
         private readonly UserManager<ApplicationUser> _userManager;
 
 
         public UserController(
             IUserRepository userRepository,
+            IRoleRepository roleRepository,
             IUriService uriService,
             UserManager<ApplicationUser> userManger
             )
         {
             _userRepository = userRepository;
+            _roleRepository = roleRepository;
             _uriService = uriService;
             _userManager = userManger;
         }
@@ -48,15 +51,17 @@ namespace YourCare_WebApi.Controllers
                 var roleName = await _userManager.GetRolesAsync(user);
 
                 var image = user.Image != null ? $"data:img/png;base64,{Convert.ToBase64String(user.Image)}" : "";
-                return Ok(new {
-                    user.Id, 
-                    user.Email, 
-                    user.FullName, 
-                    user.Gender, 
-                    user.PhoneNumber, 
+                return Ok(new
+                {
+                    user.Id,
+                    user.Email,
+                    user.FullName,
+                    user.Gender,
+                    user.PhoneNumber,
                     user.Dob,
                     image,
-                    roleName });
+                    roleName
+                });
             }
             catch (Exception ex)
             {
@@ -155,8 +160,14 @@ namespace YourCare_WebApi.Controllers
                     Gender = x.Gender,
                     Address = x.Address,
                     ImageString = x.Image != null ? $"data:image/png;base64,{Convert.ToBase64String(x.Image)}" : "",
-                    RoleName = x.RoleName,
                 }).ToList();
+
+                foreach (var user in query)
+                {
+                    var role = await _roleRepository.GetByUserID(user.Id);
+                    if (role == null) continue;
+                    user.RoleName = role.Name;
+                }
 
                 var route = Request.Path.Value;
                 var totalRecords = query.Count();
@@ -169,6 +180,7 @@ namespace YourCare_WebApi.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message + " - " + ex.StackTrace);
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,

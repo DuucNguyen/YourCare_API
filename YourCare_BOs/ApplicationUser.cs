@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace YourCare_BOs
 {
-    public class ApplicationUser : IdentityUser
+    public class ApplicationUser : IdentityUser<string>
     {
         public string FullName { get; set; }
         public DateTime Dob {  get; set; }
@@ -22,7 +22,6 @@ namespace YourCare_BOs
         public string? ImageString { get; set; }
 
         [NotMapped]
-        [JsonIgnore]
         public string? RoleName { get; set; }
 
 

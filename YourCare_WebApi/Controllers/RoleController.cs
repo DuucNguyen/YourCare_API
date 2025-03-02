@@ -1,31 +1,78 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using YourCare_BOs;
 using YourCare_Repos.Interfaces;
+using YourCare_WebApi.Models.ApiModel;
 using YourCare_WebApi.Models.Auth;
 
 namespace YourCare_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class RoleController : ControllerBase
     {
         private readonly IRoleRepository _roleRepository;
+        private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public RoleController(IRoleRepository roleRepository)
+        public RoleController(IRoleRepository roleRepository
+            , RoleManager<ApplicationRole> roleManager,
+            UserManager<ApplicationUser> userManager
+            )
         {
             _roleRepository = roleRepository;
+            _roleManager = roleManager;
+            _userManager = userManager;
         }
 
-        [HttpGet("danh-sach")]
-        public async Task<IActionResult> GetAllRole()
+        public class CreateRoleClaimModel
         {
-            return new JsonResult(await _roleRepository.GetAll());
+            public string RoleName { get; set; }
+            public List<string> RoleClaims { get; set; } = new List<string>();
         }
 
-        [HttpPost("tao-moi")]
+
+        [HttpGet("GetAll")]
+        public async Task<IActionResult> GetAll()
+        {
+            try
+            {
+                var query = await _roleRepository.GetAll();
+                var result = query.Select(x => new RoleResponseModel
+                {
+                    RoleId = x.Id,
+                    RoleName = x.Name,
+                    IsActive = x.IsActive,
+                }).ToList();
+                foreach (var item in result)
+                {
+                    item.UserCount = await _roleRepository.CountUserByRoleId(item.RoleId);
+                }
+
+                return new JsonResult(new ResponseModel<List<RoleResponseModel>>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "GetAll succcessfully",
+                    IsSucceeded = true,
+                    Data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "GetAll failed",
+                    IsSucceeded = false,
+                });
+            }
+        }
+
+        [HttpPost("Create")]
         public async Task<IActionResult> Create(string name)
         {
             try
@@ -51,7 +98,7 @@ namespace YourCare_WebApi.Controllers
             }
         }
 
-        [HttpPost("tao-moi-role-claim")]
+        [HttpPost("CreateRoleClaim")]
         public async Task<IActionResult> CreateRoleClaim(string roleName, string roleClaim, string claimValue)
         {
             try
@@ -74,5 +121,57 @@ namespace YourCare_WebApi.Controllers
                 });
             }
         }
+
+        [HttpPost("CreateListRoleClaim")]
+        public async Task<IActionResult> CreateListRoleClaim(CreateRoleClaimModel request)
+        {
+            try
+            {
+                var result = await _roleRepository.CreateListRoleClaim(request.RoleName, request.RoleClaims);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = result ? StatusCodes.Status200OK : StatusCodes.Status400BadRequest,
+                    Message = result ? "Tạo mới thành công" : "Tên mới đã tồn tại",
+                    IsSucceeded = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Created failed",
+                    IsSucceeded = false
+                });
+            }
+        }
+
+
+        [HttpPost("ChangeUserRole")]
+        public async Task<IActionResult> ChangeUserRole([FromBody] IdentityUserRole<string> request)
+        {
+            try
+            {
+                var result = await _roleRepository.ChangeUserRole(request);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = result ? StatusCodes.Status200OK : StatusCodes.Status400BadRequest,
+                    Message = result ? "Cập nhật thay đổi thành công" : "Lỗi, vui lòng thử lại",
+                    IsSucceeded = result
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " - " + ex.StackTrace);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Lỗi, vui lòng thử lại",
+                    IsSucceeded = false
+                });
+            }
+        }
+
+
     }
 }

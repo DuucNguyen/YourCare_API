@@ -29,6 +29,7 @@ import {
     TimePicker,
     TimeRangePicker,
     InputNumber,
+    InputPassword,
     Select,
     Switch,
     Dropdown,
@@ -47,7 +48,8 @@ import {
     Menu,
     MenuDivider,
     MenuItem,
-    QRCode
+    QRCode,
+    Tag,
 } from "ant-design-vue";
 
 //
@@ -74,6 +76,7 @@ app.use(notification);
 app.use(Form);
 app.use(Input);
 app.use(InputNumber);
+app.use(InputPassword);
 app.use(DatePicker);
 app.use(RangePicker);
 app.use(TimePicker);
@@ -97,6 +100,7 @@ app.use(Menu);
 app.use(MenuDivider);
 app.use(MenuItem);
 app.use(QRCode);
+app.use(Tag);
 
 app.mount("#app");
 

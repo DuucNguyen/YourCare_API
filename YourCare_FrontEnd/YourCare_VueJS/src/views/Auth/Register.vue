@@ -1,9 +1,19 @@
 <template>
     <div class="auth-container">
         <div class="container">
-            <div class="row d-flex justify-content-between">
-                <div class="col-md-6">
-                    <h1>YourCare</h1>
+            <div class="row d-flex justify-content-between login_form">
+                <div class="col-md-6 img_container position-relative">
+                    <img
+                        src="/src/assets/19e7d647915ec2db2cc54178b44bad4d.png"
+                        alt="img"
+                        class="img-fluid p-2" />
+
+                    <!-- Circular text placement -->
+                    <div class="text-circle text1">Nhanh chóng</div>
+                    <div class="text-circle text2">Dễ dàng</div>
+                    <div class="text-circle text3">Tiện lợi</div>
+                    <div class="text-circle text4">Chuyên nghiệp</div>
+                    <div class="text-circle text5">Uy tín</div>
                 </div>
                 <div class="col-md-6 auth-form">
                     <div class="nav-container">
@@ -27,26 +37,6 @@
                                     class="form-control"
                                     placeholder="Email" />
                             </div>
-                            <!-- <div class="form-group mt-3">
-                                <label for="password">Password</label>
-                                <input
-                                    type="password"
-                                    v-model="formState.password"
-                                    id="password"
-                                    class="form-control"
-                                    placeholder="Password" />
-                            </div>
-                            <div class="form-group mt-3">
-                                <label for="confirmPassword">Confirm Password</label>
-                                <input
-                                    type="password"
-                                    v-model="formState.confirmPassword"
-                                    id="confirmPassword"
-                                    class="form-control"
-                                    placeholder="Password" />
-                            </div>
-                             -->
-
                             <div class="form-group mt-5">
                                 <Button title="Send email" :isDisabled="isDisabled" />
                             </div>
@@ -94,39 +84,14 @@
         });
     };
 </script>
-
-<style scoped>
-    .auth-container {
-        overflow: hidden;
-        width: 100vw;
-        height: 100vh;
-        background: #1a76e3;
-    }
-    .auth-form {
-        margin: 200px 0 0 0;
-        padding: 30px;
-        border-radius: 5px;
-        background-color: #fff;
-    }
-
-    .nav-container {
-        display: flex;
-        justify-content: space-around;
-    }
-
-    .nav-container a {
-        text-decoration: none;
-        font-size: 20px;
-        font-weight: 500;
-        color: black;
-    }
-
-    .nav-container a:hover {
-        color: #3903fc;
-    }
-
-    .navigation-chosen {
-        border-bottom: 3px solid #03fc5e !important;
-        color: #3903fc !important;
+<style>
+    .img_container {
+        position: relative;
+        width: 450px;
+        height: 450px;
+        object-fit: contain;
+        margin: 0 auto;
+        border-radius: 50%;
+        --radius: 250px;
     }
 </style>

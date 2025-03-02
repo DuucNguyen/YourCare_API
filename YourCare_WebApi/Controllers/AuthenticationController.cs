@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
@@ -6,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualBasic;
 using RTools_NTS.Util;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -26,7 +28,7 @@ namespace YourCare_WebApi.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly Appsettings _appsetting;
@@ -39,7 +41,7 @@ namespace YourCare_WebApi.Controllers
             IEmailSender emailSender,
             IOptionsMonitor<Appsettings> appsettings,
             IRoleRepository roleRepository,
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<ApplicationRole> roleManager,
             IConfiguration configuration
 
             )
@@ -74,35 +76,12 @@ namespace YourCare_WebApi.Controllers
             public bool Gender { get; set; }
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetLoginProviders()
+
+        public class ChangePasswordModel
         {
-            List<AuthenticationScheme> externalLogins = new List<AuthenticationScheme>();
-
-            try
-            {
-                // Clear the existing external cookie to ensure a clean login process
-                await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-
-                externalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
-                return new JsonResult(new ResponseModel<List<AuthenticationScheme>>
-                {
-                    StatusCode = StatusCodes.Status200OK,
-                    Message = "Get external login successfully.",
-                    IsSucceeded = true,
-                    Data = externalLogins
-                });
-            }
-            catch (Exception ex)
-            {
-                return new JsonResult(new ResponseModel<string>
-                {
-                    StatusCode = StatusCodes.Status500InternalServerError,
-                    Message = "Get external login failed.",
-                    IsSucceeded = false,
-                });
-            }
+            public string userID { get; set; }
+            public string currentPassword { get; set; }
+            public string newPassword { get; set; }
         }
 
         [HttpPost]
@@ -347,6 +326,34 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel request)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(request.userID);
+                var result = await _userManager.ChangePasswordAsync(user, request.currentPassword, request.newPassword);
+
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = result.Succeeded ? StatusCodes.Status200OK : StatusCodes.Status400BadRequest,
+                    Message = result.Succeeded ? "Change password successful" : "Change password failed",
+                    IsSucceeded = result.Succeeded,
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " - " + ex.StackTrace);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Change password failed",
+                    IsSucceeded = false,
+                });
+            }
+        }
+
+
+        [HttpPost]
         public async Task<IActionResult> CreateProfile(string userId, [FromBody] CreateProfileModel request)
         {
             try
@@ -433,6 +440,64 @@ namespace YourCare_WebApi.Controllers
             });
         }
 
+        [HttpGet]
+        public IActionResult GoogleLogin()
+        {
+            var redirectUrl = Url.Action(nameof(GoogleLoginCallback), "Authentication", null, Request.Scheme);
+            var properties = new AuthenticationProperties
+            {
+                RedirectUri = redirectUrl
+            };
+            return Challenge(properties, GoogleDefaults.AuthenticationScheme);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GoogleLoginCallback()
+        {
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                return NotFound();
+            }
+            var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: true, bypassTwoFactor: true);
+
+            if (result.Succeeded)
+            {
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                var user = await _userManager.FindByEmailAsync(email);
+
+                if (user == null)
+                {
+                    return NotFound();
+                }
+                var authClaims = await GetClaims(user);
+                await GenerateToken(user, authClaims);
+
+                List<string> roleNames = (List<string>)await _userManager.GetRolesAsync(user);
+                var roleIDs = _roleRepository.GetRoleIDsByName(roleNames);
+                var jsonData = JsonSerializer.Serialize(new
+                {
+                    Username = user.FullName,
+                    Claims = _roleRepository.GetRoleClaimsByRoles(roleIDs)
+                });
+
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = $"{info.LoginProvider} Login Successfully.",
+                    IsSucceeded = true,
+                    Data = jsonData
+                });
+            }
+
+            return new JsonResult(new ResponseModel<string>
+            {
+                StatusCode = StatusCodes.Status400BadRequest,
+                Message = "Login failed.",
+                IsSucceeded = false,
+            });
+        }
+
         [HttpPost]
         public async Task<IActionResult> RenewTokens()
         {
@@ -490,6 +555,33 @@ namespace YourCare_WebApi.Controllers
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "Something went wrong: " + ex.Message + " - " + ex.StackTrace,
+                    IsSucceeded = false,
+                });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetLoginProviders()
+        {
+            try
+            {
+                var externalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+                var result = externalLogins.Select(x => new
+                {
+                    x.Name,
+                    x.DisplayName,
+                });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + "-" + ex.StackTrace);
+                return new JsonResult(new ResponseModel<List<string>>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Get external login failed",
                     IsSucceeded = false,
                 });
             }
@@ -636,5 +728,6 @@ namespace YourCare_WebApi.Controllers
             }
             return dateTimeInterval;
         }
+
     }
 }

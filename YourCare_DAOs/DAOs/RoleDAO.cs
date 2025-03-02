@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using YourCare_BOs;
 
 namespace YourCare_DAOs.DAOs
 {
@@ -21,21 +22,26 @@ namespace YourCare_DAOs.DAOs
             _context = context;
         }
 
-        public async Task<IdentityRole> FindRoleByName(string name)
+        public async Task<ApplicationRole> FindRoleByName(string name)
         {
             return await _context.Roles.FirstOrDefaultAsync(x => x.Name == name);
         }
 
-        public IdentityRole? FindRolesByUserID(string id)
+        public ApplicationRole? FindRolesByUserID(string id)
         {
-            var userRoles =  _context.UserRoles
+            var userRoles = _context.UserRoles
                 .FirstOrDefault(x => x.UserId == id);
-            return _context.Roles.FirstOrDefault(x=>x.Id == userRoles.RoleId);
+            return _context.Roles.FirstOrDefault(x => x.Id == userRoles.RoleId);
         }
 
         public async Task AddRoleClaim(IdentityRoleClaim<string> claim)
         {
             await _context.RoleClaims.AddAsync(claim);
+            await _context.SaveChangesAsync();
+        }
+        public async Task AddListRoleClaim(List<IdentityRoleClaim<string>> claims)
+        {
+            await _context.RoleClaims.AddRangeAsync(claims);
             await _context.SaveChangesAsync();
         }
 
@@ -50,7 +56,6 @@ namespace YourCare_DAOs.DAOs
         {
             return _context.RoleClaims.Where(x => x.RoleId == roleID).ToList();
         }
-
 
         public async Task<List<Claim>> GetRoleClaimByUserID(string userID)
         {
@@ -67,6 +72,48 @@ namespace YourCare_DAOs.DAOs
             return _context.Roles.Where(x => names.Contains(x.Name))
                 .Select(x => x.Id)
                 .ToList();
+        }
+
+        public async Task<List<ApplicationRole>> GetAll()
+        {
+            return await _context.Roles.ToListAsync();
+        }
+
+        public async Task<List<ApplicationUser>> GetAllUserByRoleID(string roleID)
+        {
+            var userIds = await _context.UserRoles.Where(x => x.RoleId == roleID).Select(x => x.UserId).ToListAsync();
+            return await _context.ApplicationUser.Where(x => userIds.Contains(x.Id)).ToListAsync();
+        }
+
+        public async Task<ApplicationRole> GetByUserID(string userId)
+        {
+            var find = from ur in _context.UserRoles
+                          join r in _context.Roles on ur.RoleId equals r.Id
+                          where ur.UserId == userId
+                          select new ApplicationRole
+                          {
+                              Id = r.Id,
+                              Name = r.Name,
+                              IsActive = r.IsActive,
+                          };
+
+            return await find.FirstOrDefaultAsync();
+        }
+
+        public async Task<IdentityUserRole<string>> GetUserRoleByUserID(string userId)
+        {
+            return await _context.UserRoles.FirstOrDefaultAsync(x=>x.UserId == userId);
+        }
+
+        public async Task CreateUserRole(IdentityUserRole<string> request)
+        {
+            await _context.UserRoles.AddAsync(request);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task ChangeUserRole(IdentityUserRole<string> request)
+        {
+           
         }
     }
 }

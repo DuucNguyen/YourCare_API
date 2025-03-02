@@ -1,9 +1,85 @@
+<script setup>
+    import TokenService from "@/api/TokenService";
+    import { computed, onMounted, reactive, ref } from "vue";
+    import { useAuthStore } from "@/stores/auth-store";
+    import { useRouter } from "vue-router";
+
+    // //
+    import Button from "@/components/Button.vue";
+    import Message from "@/components/Message.vue";
+
+    const authStore = useAuthStore();
+
+    const externalLogins = ref([]);
+
+    // Directly bind to store properties
+    const message = computed(() => authStore.message);
+    const isSucceeded = computed(() => authStore.isSucceeded);
+
+    const formState = reactive({
+        username: "",
+        password: "",
+    });
+
+    const buttonTitle = ref("Login");
+    const isDisabled = computed(() => {
+        return !(formState.username && formState.password);
+    });
+
+    const InitExternalLogin = async () => {
+        const result = await authStore.getExternalLogin();
+        externalLogins.value = result.data;
+    };
+
+    onMounted(async () => {
+        await InitExternalLogin();
+        console.log(externalLogins.value);
+    });
+
+    const onFinish = async () => {
+        buttonTitle.value = "Waiting...";
+        isDisabled.value = true;
+
+        await authStore
+            .login(formState.username, formState.password)
+            .catch((error) => {
+                console.log("ERROR: LOGIN ==> " + error);
+                if (error.response.status == 200) {
+                    console.log("Login successfully !");
+                }
+                if (error.response.status === 401 || error.response.status === 500) {
+                    console.log("Username or password is incorrect.");
+                } else {
+                    console.log("ERROR: " + error.response);
+                }
+            })
+            .finally(() => {
+                buttonTitle.value = "Login";
+                isDisabled.value = false;
+            });
+    };
+
+    const externalLogin = async () => {
+        await authStore.externalLogin();
+    };
+</script>
+
 <template>
     <div class="auth-container">
         <div class="container">
-            <div class="row d-flex justify-content-between">
-                <div class="col-md-6">
-                    <h1>YourCare</h1>
+            <div class="row d-flex justify-content-between login_form">
+                <div class="col-md-6 img_container position-relative">
+                    <img
+                        src="/src/assets/19e7d647915ec2db2cc54178b44bad4d.png"
+                        alt="img"
+                        class="img-fluid p-2" />
+
+                    <!-- Circular text placement -->
+                    <div class="text-circle text1">Nhanh chóng</div>
+                    <div class="text-circle text2">Dễ dàng</div>
+                    <div class="text-circle text3">Tiện lợi</div>
+                    <div class="text-circle text4">Chuyên nghiệp</div>
+                    <div class="text-circle text5">Uy tín</div>
                 </div>
                 <div class="col-md-6 auth-form">
                     <div class="nav-container">
@@ -45,7 +121,21 @@
                             <div class="mt-3 mb-3">
                                 <Message :context="message" :isError="isSucceeded" />
                             </div>
-                            <div class="form-group mt-5 d-flex justify-content-between text-center">
+
+                            <!-- <div v-if="externalLogins" class="external_login_container">
+                                <div
+                                    v-for="item in externalLogins"
+                                    class="external_login_item"
+                                    @click="externalLogin(item.name)">
+                                    <i class="bx bxl-google" v-if="item.name === 'Google'"></i>
+                                    <i
+                                        class="bx bxl-facebook-circle"
+                                        v-if="item.name === 'Facebook'"></i>
+                                    <span> Đăng nhập với {{ item.displayName }}</span>
+                                </div>
+                            </div> -->
+
+                            <div class="form-group mt-3 d-flex justify-content-between text-center">
                                 <RouterLink class="w-100" :to="{ name: 'forgot-password' }"
                                     >Forgot password ?</RouterLink
                                 >
@@ -58,89 +148,36 @@
     </div>
 </template>
 
-<script setup>
-    import TokenService from "@/api/TokenService";
-    import { computed, reactive, ref } from "vue";
-    import { useAuthStore } from "@/stores/auth-store";
-    import { useRouter } from "vue-router";
-
-    // //
-    import Button from "@/components/Button.vue";
-    import Message from "@/components/Message.vue";
-
-    const authStore = useAuthStore();
-    const router = useRouter();
-
-    // Directly bind to store properties
-    const message = computed(() => authStore.message);
-    const isSucceeded = computed(() => authStore.isSucceeded);
-
-    const formState = reactive({
-        username: "",
-        password: "",
-    });
-
-    const buttonTitle = ref("Login");
-    const isDisabled = computed(() => {
-        return !(formState.username && formState.password);
-    });
-
-    const onFinish = async () => {
-        buttonTitle.value = "Waiting...";
-        isDisabled.value = true;
-
-        await authStore
-            .login(formState.username, formState.password)
-            .catch((error) => {
-                console.log("ERROR: LOGIN ==> " + error);
-                if (error.response.status == 200) {
-                    console.log("Login successfully !");
-                }
-                if (error.response.status === 401 || error.response.status === 500) {
-                    console.log("Username or password is incorrect.");
-                } else {
-                    console.log("ERROR: " + error.response);
-                }
-            })
-            .finally(() => {
-                buttonTitle.value = "Login";
-                isDisabled.value = false;
-            });
-    };
-</script>
-
 <style scoped>
-    .auth-container {
-        overflow: hidden;
-        width: 100vw;
-        height: 100vh;
-        background: #1a76e3;
+    .img_container {
+        position: relative;
+        width: 450px;
+        height: 450px;
+        object-fit: contain;
+        margin: 0 auto;
+        border-radius: 50%;
+        --radius: 250px;
     }
-    .auth-form {
-        margin: 200px 0 0 0;
-        padding: 30px;
-        border-radius: 5px;
-        background-color: #fff;
+    .external_login_container {
+        width: 100%;
     }
 
-    .nav-container {
+    .external_login_item {
         display: flex;
-        justify-content: space-around;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid #ea4335;
+        padding: 8px 0px;
+        border-radius: 5px;
+        color: #ea4335;
+        cursor: pointer;
     }
-
-    .nav-container a {
-        text-decoration: none;
-        font-size: 20px;
-        font-weight: 500;
-        color: black;
+    .external_login_item:hover {
+        color: #fff;
+        background: #ea4335;
     }
-
-    .nav-container a:hover {
-        color: #3903fc;
-    }
-
-    .navigation-chosen {
-        border-bottom: 3px solid #03fc5e !important;
-        color: #3903fc !important;
+    .external_login_item i {
+        font-size: 25px;
+        margin-right: 10px;
     }
 </style>

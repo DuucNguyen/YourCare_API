@@ -1,10 +1,31 @@
 <script setup>
     import ApiUser from "@/api/ApiUser";
+    import ApiRole from "@/api/ApiRole";
     import { reactive, ref, onMounted, onUpdated } from "vue";
     import { RouterLink, useRoute, useRouter } from "vue-router";
+    import { message } from "ant-design-vue";
 
+    //
     const route = useRoute();
     const router = useRouter();
+
+    const roles = ref([]);
+    const showModalChangeRole = ref(false);
+    const selectedUser = ref({});
+
+    const formChangeRole = ref();
+    const formStateChangeRole = reactive({
+        roleId: "",
+    });
+
+    const rulesChangeRole = {
+        roleId: [
+            {
+                required: "true",
+                message: "Chọn 1 trước khi tiếp tục",
+            },
+        ],
+    };
 
     const pageParams = reactive({
         pageNumber: route.params.pageNumber || 1,
@@ -15,6 +36,13 @@
     });
 
     const data = ref([]);
+
+    const InitRole = async () => {
+        var result = await ApiRole.GetAll();
+        if (result.data.isSucceeded) {
+            roles.value = result.data.data;
+        }
+    };
 
     const getData = async () => {
         try {
@@ -68,8 +96,39 @@
         getData();
     };
 
-    onMounted(() => {
-        getData();
+    const openModalChangeRole = (user) => {
+        selectedUser.value = user;
+        showModalChangeRole.value = true;
+    };
+
+    const onFinishChangeRole = () => {
+        formChangeRole.value
+            .validate()
+            .then(async () => {
+                var formData = new FormData();
+                formData.append("UserId", selectedUser.value.id);
+                formData.append("RoleId", formStateChangeRole.roleId);
+
+                var result = await ApiRole.ChangeUserRole(formData);
+
+                if (result.data.isSucceeded) {
+                    message.success(result.data.message);
+                    showModalChangeRole.value = false;
+
+                    await getData();
+                } else {
+                    message.error(result.data.message);
+                    showModalChangeRole.value = false;
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
+
+    onMounted(async () => {
+        await getData();
+        await InitRole();
     });
 
     onUpdated(() => {
@@ -91,89 +150,114 @@
         >
     </div>
     <div class="crud-layout-table">
-        <table class="table table-responsive table-bordered">
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Information</th>
-                    <th>Appointments</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="user in data">
-                    <td>
-                        <div style="width: 90px; height: 120px">
-                            <img
-                                style="width: 100%; height: 100%; object-fit: cover"
-                                :src="user.imageString"
-                                alt="avatar" />
-                        </div>
-                    </td>
-                    <td>
-                        <div class="d-flex flex-column information-container">
-                            <div><span>FullName:</span>{{ user.fullName }}</div>
-                            <div><span>Email:</span>{{ user.email }}</div>
-                        </div>
-                    </td>
-                    <td></td>
-                    <td>
-                        <a-tooltip placement="top">
-                            <template #title>
-                                <span>Details</span>
-                            </template>
-                            <RouterLink
-                                class="fs-3 text-primary"
-                                :to="{
-                                    name: 'Admin_User_Detail',
-                                    params: { id: user.id },
-                                }"
-                                ><i class="bx bxs-user-detail"></i
-                            ></RouterLink>
-                        </a-tooltip>
-                        <a-tooltip placement="top">
-                            <template #title>
-                                <span>Create doctor profile</span>
-                            </template>
-                            <RouterLink
-                                class="fs-3 text-success"
-                                :to="{
-                                    name: 'Admin_DoctorProfile_Create',
-                                    params: { id: user.id },
-                                }"
-                                ><i class="bx bxs-user-badge"></i
-                            ></RouterLink>
-                        </a-tooltip>
-                        <a-tooltip placement="top">
-                            <template #title>
-                                <span>Update</span>
-                            </template>
-                            <RouterLink
-                                class="fs-3 text-success"
-                                :to="{
-                                    name: 'Admin_User_Update',
-                                    params: { id: user.id },
-                                }"
-                                ><i class="bx bxs-edit"></i
-                            ></RouterLink>
-                        </a-tooltip>
-                        <a-tooltip placement="top">
-                            <template #title>
-                                <span>Deactivate</span>
-                            </template>
-                            <RouterLink
-                                class="fs-3 text-danger"
-                                :to="{
-                                    name: 'Admin_User_Update',
-                                    params: { id: user.id },
-                                }"
-                                ><i class="bx bxs-trash"></i
-                            ></RouterLink>
-                        </a-tooltip>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div>
+            <div v-for="user in data" class="user_item">
+                <div class="col-md-2 user_item_image">
+                    <img :src="user.imageString" />
+                </div>
+                <div class="col-md-10 user_item_info">
+                    <a-row>
+                        <a-col :span="4">Họ và tên</a-col>
+                        <a-col :span="12">
+                            <span>{{ user.fullName }}</span>
+                        </a-col>
+                    </a-row>
+                    <a-divider class="m-1"></a-divider>
+                    <div class="mt-3">
+                        <a-row>
+                            <a-col :span="4">Email</a-col>
+                            <a-col :span="12">
+                                <span>{{ user.email }}</span>
+                            </a-col>
+                        </a-row>
+                        <a-row>
+                            <a-col :span="4">SĐT</a-col>
+                            <a-col :span="12">
+                                <span>{{ user.phoneNumber }}</span>
+                            </a-col>
+                        </a-row>
+                        <a-divider class="m-1"></a-divider>
+                        <a-row class="user_btn_container">
+                            <a-col :span="4">
+                                <a-tooltip placement="top">
+                                    <template #title>
+                                        <span>Change role</span>
+                                    </template>
+                                    <a class="user_btn" @click="openModalChangeRole(user)">
+                                        <i style="color: coral" class="bx bx-git-compare"></i>Change
+                                        role
+                                    </a>
+                                </a-tooltip>
+                            </a-col>
+                            <a-col :span="4"
+                                ><a-tooltip placement="top">
+                                    <template #title>
+                                        <span>Details</span>
+                                    </template>
+                                    <RouterLink
+                                        class="user_btn"
+                                        :to="{
+                                            name: 'Admin_User_Detail',
+                                            params: { id: user.id },
+                                        }">
+                                        <i style="color: blueviolet" class="bx bxs-user-detail"></i>
+                                        Detail
+                                    </RouterLink>
+                                </a-tooltip>
+                            </a-col>
+                            <a-col :span="4">
+                                <a-tooltip placement="top">
+                                    <template #title>
+                                        <span>Create doctor profile</span>
+                                    </template>
+                                    <RouterLink
+                                        class="user_btn"
+                                        :to="{
+                                            name: 'Admin_DoctorProfile_Create',
+                                            params: { id: user.id },
+                                        }"
+                                        ><i style="color: forestgreen" class="bx bxs-user-badge"></i
+                                        >Create doctor</RouterLink
+                                    >
+                                </a-tooltip>
+                            </a-col>
+                            <a-col :span="4"
+                                ><a-tooltip placement="top">
+                                    <template #title>
+                                        <span>Update</span>
+                                    </template>
+                                    <RouterLink
+                                        class="user_btn"
+                                        :to="{
+                                            name: 'Admin_User_Update',
+                                            params: { id: user.id },
+                                        }"
+                                        ><i style="color: royalblue" class="bx bxs-edit"></i
+                                        >Update</RouterLink
+                                    >
+                                </a-tooltip>
+                            </a-col>
+                            <a-col :span="4">
+                                <a-tooltip placement="top">
+                                    <template #title>
+                                        <span>Deactivate</span>
+                                    </template>
+                                    <RouterLink
+                                        class="user_btn"
+                                        :to="{
+                                            name: 'Admin_User_Update',
+                                            params: { id: user.id },
+                                        }"
+                                        ><i style="color: brown" class="bx bxs-trash"></i
+                                        >Update</RouterLink
+                                    >
+                                </a-tooltip>
+                            </a-col>
+                        </a-row>
+                    </div>
+                </div>
+            </div>
+        </div>
         <a-pagination
             @change="onChange"
             v-model:current="pageParams.pageNumber"
@@ -184,4 +268,138 @@
             show-quick-jumper
             class="crud-layout-pagination"></a-pagination>
     </div>
+
+    <a-modal
+        width="750px"
+        title="Thay đổi vai trò trong hệ thống"
+        v-model:open="showModalChangeRole"
+        centered>
+        <a-row>
+            <a-col :span="24">
+                <a-alert
+                    message="Thay đổi này có tác động đến quyền truy cập của người dùng này trong hệ thống."
+                    banner />
+            </a-col>
+        </a-row>
+
+        <a-row>
+            <a-col :span="12">
+                <a-divider orientation="left" orientation-margin="0px">Hiện tại</a-divider>
+                <div class="mt-3 d-flex">
+                    <div style="width: 80px; height: 80px" class="user_item_image">
+                        <img :src="selectedUser.imageString" />
+                    </div>
+                    <div class="mt-1 ms-3 user_item_info">
+                        <a-row>
+                            <a-col :span="24">
+                                <span class="fs-6">{{ selectedUser.fullName }}</span>
+                            </a-col>
+                            <a-tag
+                                :color="selectedUser.roleName === 'Admin' ? '#cd201f' : '#3b5999'">
+                                {{
+                                    selectedUser.roleName ? selectedUser.roleName : "chưa cấu hình"
+                                }}
+                            </a-tag>
+                        </a-row>
+                    </div>
+                </div>
+            </a-col>
+            <a-col :span="11">
+                <a-divider orientation="left" orientation-margin="0px">Thay đổi</a-divider>
+                <div class="mt-3 d-flex">
+                    <div style="width: 80px; height: 80px" class="user_item_image">
+                        <img :src="selectedUser.imageString" />
+                    </div>
+                    <div class="mt-1 ms-3 user_item_info">
+                        <a-row>
+                            <a-col :span="24">
+                                <span class="fs-6">{{ selectedUser.fullName }}</span>
+                            </a-col>
+                        </a-row>
+                        <a-row style="min-width: 150px">
+                            <a-col :span="24">
+                                <a-form
+                                    ref="formChangeRole"
+                                    :model="formStateChangeRole"
+                                    :rules="rulesChangeRole">
+                                    <a-form-item name="roleId">
+                                        <a-select
+                                            v-model:value="formStateChangeRole.roleId"
+                                            placeholder="Chọn vai trò">
+                                            <a-select-option
+                                                v-for="role in roles"
+                                                :value="role.roleId">
+                                                {{ role.roleName }}
+                                            </a-select-option>
+                                        </a-select>
+                                    </a-form-item>
+                                </a-form>
+                            </a-col>
+                        </a-row>
+                    </div>
+                </div>
+            </a-col>
+        </a-row>
+        <template #footer>
+            <a-button key="Hủy" @click="showModalChangeRole = false">Hủy</a-button>
+            <a-button key="Xác nhận" type="primary" @click="onFinishChangeRole">
+                Xác nhận
+            </a-button>
+        </template>
+    </a-modal>
 </template>
+
+<style scoped>
+    .user_item {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin: 10px 0px;
+        padding: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .user_item_image {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 5px solid #1975dc;
+        overflow: hidden;
+    }
+    .user_item_image img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .user_item_info span {
+        font-weight: 500;
+        font-size: 16px;
+    }
+    .user_btn_container {
+        display: flex;
+        align-items: end;
+        justify-content: end;
+        width: 100%;
+        cursor: pointer;
+    }
+    .user_btn {
+        font-size: 16px;
+        padding: 5px 10px;
+        display: flex;
+        align-items: center;
+        text-decoration: none;
+        color: #000;
+        border: 1px solid #1975dc;
+        border-radius: 3px;
+        margin: 0 10px;
+    }
+    .user_btn i {
+        font-size: 26px;
+        margin-right: 10px;
+    }
+    .user_btn:hover {
+        background-color: #f1f5f9 !important;
+    }
+</style>

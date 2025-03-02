@@ -33,10 +33,10 @@
 </template>
 <style scoped>
     .sidebar {
-        margin-top: 50px;
+        margin-top: 10px;
         position: sticky;
         top: 50px;
-        width: 300px;
+        min-width: 300px;
         background: #fff;
         padding: 20px 0px;
         border-radius: 8px;

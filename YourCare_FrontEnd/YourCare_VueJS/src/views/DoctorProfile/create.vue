@@ -77,8 +77,11 @@
     function generateYearRegex() {
         //get current year regex
         const currentYear = new Date().getFullYear();
-        return new RegExp(`^(198[0-9]|199[0-9]|20[0-
-                            ${Math.floor(currentYear / 100) % 10}][0-${currentYear % 10}])$`);
+        return new RegExp(
+            `^(198[0-9]|199[0-9]|20[0-${Math.floor(currentYear / 100) % 10}][0-${
+                currentYear % 10
+            }])$`,
+        );
     }
 
     const specialties = ref([]);

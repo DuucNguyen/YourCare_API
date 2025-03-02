@@ -37,7 +37,7 @@ export const useAuthStore = defineStore({
             this.message = "";
             CookieService.removeCookieValue("user");
             localStorage.removeItem("user");
-            this.router.push("/");
+            this.router.push("/login");
         },
         async getUserInfo() {
             var user = localStorage.getItem("user");
@@ -95,6 +95,27 @@ export const useAuthStore = defineStore({
 
         async createProfile(userId, formState) {
             return await API.post(`${baseURL}/createProfile?userId=${userId}`, formState);
+        },
+
+        async changePassword(formData) {
+            return await API.post(`${baseURL}/changePassword`, formData);
+        },
+
+        async getExternalLogin() {
+            return await API.get(`${baseURL}/GetLoginProviders`);
+        },
+
+        async externalLogin() {
+            try {
+                var url = "https://localhost:7077/api/Authentication/GoogleLogin";
+                const popup = window.open(
+                    url,
+                    "GoogleLogin",
+                    "width=800,height=400,left=500,top=200",
+                );
+            } catch (error) {
+                console.error("Login failed:", error);
+            }
         },
     },
 });

@@ -77,7 +77,6 @@ namespace YourCare_Repos.Repositories
             throw new NotImplementedException();
         }
 
-
         public async Task<List<ApplicationUser>> GetAll()
         {
             try

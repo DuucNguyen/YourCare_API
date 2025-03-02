@@ -1,12 +1,14 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 using YourCare_BOs;
 using YourCare_DAOs.DAOs;
 using YourCare_Repos.Interfaces;
@@ -16,12 +18,12 @@ namespace YourCare_Repos.Repositories
     public class RoleRepository : IRoleRepository
 
     {
-        private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleDAO _roleDAO;
 
         public RoleRepository(
-            RoleManager<IdentityRole> roleManager,
+            RoleManager<ApplicationRole> roleManager,
             UserManager<ApplicationUser> userManager,
             RoleDAO roleDAO
             )
@@ -41,9 +43,10 @@ namespace YourCare_Repos.Repositories
                     throw new Exception("Role is already exist.");
                 }
 
-                IdentityRole newRole = new IdentityRole
+                var newRole = new ApplicationRole
                 {
                     Name = name,
+                    IsActive = true,
                 };
 
                 var result = await _roleManager.CreateAsync(newRole);
@@ -63,7 +66,7 @@ namespace YourCare_Repos.Repositories
                 throw new Exception("Role name does not exist.");
             }
 
-            var roleClaims =  _roleDAO.GetRoleClaimByRoleID(role.Id);
+            var roleClaims = _roleDAO.GetRoleClaimByRoleID(role.Id);
             if (roleClaims.FirstOrDefault(x => x.ClaimType == claim) != null)
             {
                 throw new Exception("Claim already exist.");
@@ -89,9 +92,9 @@ namespace YourCare_Repos.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<List<IdentityRole>> GetAll()
+        public async Task<List<ApplicationRole>> GetAll()
         {
-            throw new NotImplementedException();
+            return await _roleDAO.GetAll();
         }
 
         public Task<bool> Update(string name)
@@ -107,6 +110,68 @@ namespace YourCare_Repos.Repositories
         public List<string> GetRoleIDsByName(List<string> names)
         {
             return _roleDAO.GetRoleIDsByName(names);
+        }
+
+        public async Task<int> CountUserByRoleId(string roleID)
+        {
+            var result = await _roleDAO.GetAllUserByRoleID(roleID);
+            return result.Count;
+        }
+
+        public async Task<ApplicationRole> GetByUserID(string userID)
+        {
+            return await _roleDAO.GetByUserID(userID);
+        }
+
+        public async Task<bool> ChangeUserRole(IdentityUserRole<string> request)
+        {
+            var find = await _roleDAO.GetUserRoleByUserID(request.UserId);
+            if (find == null)
+            {
+                await _roleDAO.CreateUserRole(request);
+                return true;
+            }
+            find.RoleId = request.RoleId;
+            await _roleDAO.ChangeUserRole(find);
+            return true;
+        }
+
+        public async Task<bool> CreateListRoleClaim(string roleName, List<string> request)
+        {
+            var role = await _roleManager.FindByNameAsync(roleName);
+            if (role != null) return false;
+
+            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    var newRole = new ApplicationRole
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Name = roleName,
+                        NormalizedName = roleName.ToUpper(),
+                        IsActive = true,
+                    };
+                    await _roleManager.CreateAsync(newRole);
+
+                    var roleClaims = request.Select(x => new IdentityRoleClaim<string>
+                    {
+                        RoleId = newRole.Id,
+                        ClaimType = x,
+                        ClaimValue = "1"
+                    }).ToList();
+
+                    await _roleDAO.AddListRoleClaim(roleClaims);
+                    scope.Complete();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message + " - " + ex.StackTrace);
+                    scope.Dispose();
+                    return false;
+                }
+            }
         }
     }
 }

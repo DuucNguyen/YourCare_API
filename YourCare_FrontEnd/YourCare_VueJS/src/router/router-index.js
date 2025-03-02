@@ -3,7 +3,6 @@ import adminRoutes from "@/router/route-admin";
 import authRoutes from "@/router/router-auth";
 import { useAuthStore } from "@/stores/auth-store";
 import userRoutes from "@/router/route-user";
-import TokenService from "@/api/TokenService";
 
 const indexRoutes = [
     {
@@ -68,7 +67,8 @@ router.beforeEach(async (to, from, next) => {
         Admin_User_Create: "Admin_User_Create",
         Admin_User_Update: "Admin_User_Update",
         Admin_User_Detail: "Admin_User_Detail",
-        Admin_TimeSlot_View : "Admin_TimeSlot_View"
+        Admin_TimeSlot_View : "Admin_TimeSlot_View",
+        Admin_Role_View : "Admin_Role_View"
     };
 
     if (claimRoutes[to.name]) {

@@ -37,7 +37,7 @@
                     <ul>
                         <li>
                             <RouterLink class="sidebar_body_item" :to="{ name: 'home' }">
-                                <i class="bx bxs-home-heart "></i>
+                                <i class="bx bxs-home-heart"></i>
                                 <div class="sidebar_body_item_title">
                                     <span>Home</span>
                                     <i class="bx bx-link-external"></i>
@@ -48,7 +48,7 @@
                             <RouterLink
                                 class="sidebar_body_item"
                                 :to="{ name: 'Admin_DoctorProfile_View' }">
-                                <i class="bx bxs-user-rectangle "></i>
+                                <i class="bx bxs-user-rectangle"></i>
                                 <div class="sidebar_body_item_title">
                                     <span>DoctorProfile</span>
                                     <i class="bx bx-link-external"></i>
@@ -59,7 +59,7 @@
                             <RouterLink
                                 class="sidebar_body_item"
                                 :to="{ name: 'Admin_Specialty_View' }">
-                                <i class="bx bxs-category "></i>
+                                <i class="bx bxs-category"></i>
                                 <div class="sidebar_body_item_title">
                                     <span>Specialty</span>
                                     <i class="bx bx-link-external"></i>
@@ -68,7 +68,7 @@
                         </li>
                         <li>
                             <RouterLink class="sidebar_body_item" :to="{ name: 'Admin_User_View' }">
-                                <i class="bx bxs-user-circle "></i>
+                                <i class="bx bxs-user-circle"></i>
                                 <div class="sidebar_body_item_title">
                                     <span>User</span>
                                     <i class="bx bx-link-external"></i>
@@ -79,9 +79,18 @@
                             <RouterLink
                                 class="sidebar_body_item"
                                 :to="{ name: 'Admin_TimeSlot_View' }">
-                                <i class="bx bxs-time-five "></i>
+                                <i class="bx bxs-time-five"></i>
                                 <div class="sidebar_body_item_title">
                                     <span>TimeSlot</span>
+                                    <i class="bx bx-link-external"></i>
+                                </div>
+                            </RouterLink>
+                        </li>
+                        <li>
+                            <RouterLink class="sidebar_body_item" :to="{ name: 'Admin_Role_View' }">
+                                <i class='bx bx-sitemap'></i>
+                                <div class="sidebar_body_item_title">
+                                    <span>Role</span>
                                     <i class="bx bx-link-external"></i>
                                 </div>
                             </RouterLink>
@@ -195,13 +204,13 @@
         text-decoration: none;
         font-size: 18px;
         font-weight: 300;
-        color: #0D61C1;
+        color: #0d61c1;
         border-bottom: 2px solid transparent;
     }
 
-    .sidebar_body_item i:first-child{
+    .sidebar_body_item i:first-child {
         padding: 4px;
-        border: 2px solid #0D61C1;
+        border: 2px solid #0d61c1;
         font-size: 30px;
         border-radius: 50%;
         margin-right: 10px;

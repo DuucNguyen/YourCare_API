@@ -91,7 +91,7 @@ const adminRoutes = [
             {
                 path: "user-detail/:id",
                 name: "Admin_User_Detail",
-                meta: { title: "User-Detai" },
+                meta: { title: "User-Detail" },
                 component: () => import("@/views/User/detail.vue"),
             },
             /**
@@ -103,6 +103,27 @@ const adminRoutes = [
                 name: "Admin_TimeSlot_View",
                 meta: { title: "TimeSlot" },
                 component: () => import("@/views/TimeSlot/index.vue"),
+            },
+            /**
+             * Role
+             * **/
+            {
+                path: "role",
+                name: "Admin_Role_View",
+                meta: { title: "Role" },
+                component: () => import("@/views/Role/index.vue"),
+            },
+            {
+                path: "role-create",
+                name: "Admin_Role_Create",
+                meta: { title: "Role-Create" },
+                component: () => import("@/views/Role/create.vue"),
+            },
+            {
+                path: "role-update/:id",
+                name: "Admin_Role_Update",
+                meta: { title: "Role-Update" },
+                component: () => import("@/views/Role/update.vue"),
             },
         ],
     },
