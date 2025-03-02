@@ -35,6 +35,12 @@ namespace YourCare_WebApi.Controllers
             public List<string> RoleClaims { get; set; } = new List<string>();
         }
 
+        public class UpdateRoleClaimModel
+        {
+            public string RoleID { get; set; }
+            public List<string> RoleClaims { get; set; } = new List<string>();
+        }
+
 
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAll()
@@ -67,6 +73,31 @@ namespace YourCare_WebApi.Controllers
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
                     Message = "GetAll failed",
+                    IsSucceeded = false,
+                });
+            }
+        }
+
+        [HttpGet("GetAllClaimByRoleID")]
+        public async Task<IActionResult> GetAllClaimByRoleID(string roleID)
+        {
+            try
+            {
+                var result = await _roleRepository.GetRoleClaimByRoleID(roleID);
+                return new JsonResult(new ResponseModel<List<IdentityRoleClaim<string>>>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "GetAllClaimByRoleID successful",
+                    IsSucceeded = true,
+                    Data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "GetAllClaimByRoleID failed",
                     IsSucceeded = false,
                 });
             }
@@ -172,6 +203,29 @@ namespace YourCare_WebApi.Controllers
             }
         }
 
-
+        [HttpPost("UpdateRoleClaim")]
+        public async Task<IActionResult> UpdateRoleClaim([FromBody] UpdateRoleClaimModel request)
+        {
+            try
+            {
+                var result = await _roleRepository.Update(request.RoleID, request.RoleClaims);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = result ? StatusCodes.Status200OK : StatusCodes.Status400BadRequest,
+                    Message = result ? "Cập nhật thay đổi thành công" : "Lỗi, vui lòng thử lại",
+                    IsSucceeded = result
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " - " + ex.StackTrace);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Lỗi, vui lòng thử lại",
+                    IsSucceeded = false
+                });
+            }
+        }
     }
 }

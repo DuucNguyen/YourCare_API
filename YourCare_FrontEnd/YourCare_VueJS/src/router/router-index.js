@@ -67,19 +67,20 @@ router.beforeEach(async (to, from, next) => {
         Admin_User_Create: "Admin_User_Create",
         Admin_User_Update: "Admin_User_Update",
         Admin_User_Detail: "Admin_User_Detail",
-        Admin_TimeSlot_View : "Admin_TimeSlot_View",
-        Admin_Role_View : "Admin_Role_View"
+        Admin_TimeSlot_View: "Admin_TimeSlot_View",
+        Admin_Role_View: "Admin_Role_View",
+        Admin_Role_Create: "Admin_Role_Create",
+        Admin_Role_Update: "Admin_Role_Update",
     };
 
     if (claimRoutes[to.name]) {
         const claimKey = claimRoutes[to.name];
-        if (useAuthStore().user_claims.Claims[claimKey] !== "1") {
-            next({ name: "404" });
+        if (useAuthStore().user_claims.Claims[claimKey] === "1") {
+            next();
         }
-        next();
+        next({ name: "404" });
         return;
     }
-
     next();
 });
 

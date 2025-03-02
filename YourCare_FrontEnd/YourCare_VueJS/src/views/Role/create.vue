@@ -3,8 +3,6 @@
     import { ref, reactive, onMounted, watch } from "vue";
 
     import { message, notification } from "ant-design-vue";
-    import { Modal } from "ant-design-vue";
-    import { error } from "jquery";
 
     const formRef = ref();
     const formState = reactive({
@@ -141,7 +139,6 @@
                 } else {
                     message.error(result.data.message);
                 }
-                
             })
             .catch((error) => {
                 console.log(error);
@@ -152,9 +149,9 @@
 <template>
     <div class="main">
         <div class="crud-layout-header">
-            <h2 class="crud-layout-header-title">Manage Role</h2>
-            <RouterLink class="crud-layout-header-button" :to="{ name: 'Admin_Role_Create' }">
-                Create
+            <h2 class="crud-layout-header-title">Create Role</h2>
+            <RouterLink class="crud-layout-header-button" :to="{ name: 'Admin_Role_View' }">
+                Index
             </RouterLink>
         </div>
         <div class="main_body">

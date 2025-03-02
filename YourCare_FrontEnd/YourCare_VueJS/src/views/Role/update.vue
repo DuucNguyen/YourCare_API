@@ -1,1 +1,337 @@
-<template></template>
+<script setup>
+    import ApiRole from "@/api/ApiRole";
+    import { ref, reactive, onMounted, watch } from "vue";
+
+    import { message, notification } from "ant-design-vue";
+    import { useRoute } from "vue-router";
+
+    const route = useRoute();
+
+    const roleId = ref(route.params.id);
+    const roleClaims = ref([]);
+
+    const formRef = ref();
+    const formState = reactive({
+        roleName: "",
+        roleClaims: [],
+    });
+
+    const rules = {
+        roleName: [
+            {
+                required: true,
+                message: "Vui lòng điền tên vai trò",
+                trigger: "change",
+            },
+        ],
+        roleClaims: [
+            {
+                type: "array",
+                required: true,
+                message: "Chọn ít nhất một quyền.",
+            },
+        ],
+    };
+
+    const checkBox_state = reactive({
+        indeterminate: false,
+        isCheckedAll: false,
+        checkList_DoctorProfile: [],
+        checkList_PatientProfile: [],
+        checkList_User: [],
+        checkList_Role: [],
+        checkList_Specialty: [],
+        checkList_TimeSlot: [],
+        checkList_Timetable: [],
+        checkList_All: [],
+    });
+
+    const data = [
+        {
+            name: "DoctorProfile",
+            actions: ["Create", "View", "Update", "Delete"],
+        },
+        {
+            name: "PatientProfile",
+            actions: ["Create", "View", "Update", "Delete"],
+        },
+        {
+            name: "User",
+            actions: ["Create", "View", "Update", "Delete"],
+        },
+        {
+            name: "Role",
+            actions: ["Create", "View", "Update", "Delete"],
+        },
+        {
+            name: "Specialty",
+            actions: ["Create", "View", "Update", "Delete"],
+        },
+        {
+            name: "TimeSlot",
+            actions: ["Create", "View", "Update", "Delete"],
+        },
+        {
+            name: "Timetable",
+            actions: ["Create", "View", "Update", "Delete"],
+        },
+    ];
+
+    const InitRoleClaim = async () => {
+        var result = await ApiRole.GetRoleClaimByRoleID(roleId.value);
+        if (result.data.isSucceeded) {
+            const claims = result.data.data;
+
+            formState.roleClaims = claims.map((x) => x.claimType);
+            if (formState.roleClaims) {
+                formState.roleName = formState.roleClaims[0].split("_")[0];
+            }
+
+            checkBox_state.checkList_DoctorProfile = claims
+                .filter(
+                    (x) => x.claimType.split("_")[1] === "DoctorProfile" && x.claimValue === "1",
+                )
+                .map((x) => x.claimType.split("_")[2]);
+
+            checkBox_state.checkList_PatientProfile = claims
+                .filter(
+                    (x) => x.claimType.split("_")[1] === "PatientProfile" && x.claimValue === "1",
+                )
+                .map((x) => x.claimType.split("_")[2]);
+
+            checkBox_state.checkList_User = claims
+                .filter(
+                    (x) => x.claimType.split("_")[1] === "DoctorProfile" && x.claimValue === "1",
+                )
+                .map((x) => x.claimType.split("_")[2]);
+
+            checkBox_state.checkList_DoctorProfile = claims
+                .filter((x) => x.claimType.split("_")[1] === "User" && x.claimValue === "1")
+                .map((x) => x.claimType.split("_")[2]);
+
+            checkBox_state.checkList_Role = claims
+                .filter((x) => x.claimType.split("_")[1] === "Role" && x.claimValue === "1")
+                .map((x) => x.claimType.split("_")[2]);
+
+            checkBox_state.checkList_TimeSlot = claims
+                .filter((x) => x.claimType.split("_")[1] === "TimeSlot" && x.claimValue === "1")
+                .map((x) => x.claimType.split("_")[2]);
+
+            checkBox_state.checkList_Timetable = claims
+                .filter((x) => x.claimType.split("_")[1] === "Timetable" && x.claimValue === "1")
+                .map((x) => x.claimType.split("_")[2]);
+
+            checkBox_state.checkList_Specialty = claims
+                .filter((x) => x.claimType.split("_")[1] === "Specialty" && x.claimValue === "1")
+                .map((x) => x.claimType.split("_")[2]);
+
+            console.log(checkBox_state);
+        }
+    };
+
+    const onCheckAll = (e) => {
+        Object.assign(checkBox_state, {
+            checkList_All: e.target.checked ? data : [],
+            checkList_DoctorProfile: e.target.checked
+                ? data.find((x) => x.name === "DoctorProfile").actions
+                : [],
+            checkList_PatientProfile: e.target.checked
+                ? data.find((x) => x.name === "PatientProfile").actions
+                : [],
+            checkList_User: e.target.checked ? data.find((x) => x.name === "User").actions : [],
+            checkList_Role: e.target.checked ? data.find((x) => x.name === "Role").actions : [],
+            checkList_Specialty: e.target.checked
+                ? data.find((x) => x.name === "Specialty").actions
+                : [],
+            checkList_TimeSlot: e.target.checked
+                ? data.find((x) => x.name === "TimeSlot").actions
+                : [],
+            checkList_Timetable: e.target.checked
+                ? data.find((x) => x.name === "Timetable").actions
+                : [],
+        });
+    };
+
+    watch(
+        () => [
+            ...checkBox_state.checkList_DoctorProfile,
+            ...checkBox_state.checkList_PatientProfile,
+            ...checkBox_state.checkList_Role,
+            ...checkBox_state.checkList_User,
+            ...checkBox_state.checkList_Specialty,
+            ...checkBox_state.checkList_TimeSlot,
+            ...checkBox_state.checkList_Timetable,
+        ],
+        (chosenClaims) => {
+            var total_actions = data.reduce((sum, x) => sum + x.actions.length, 0);
+            var count_actions = chosenClaims.length;
+
+            checkBox_state.isCheckedAll = count_actions === total_actions;
+            checkBox_state.indeterminate = count_actions && count_actions < total_actions;
+
+            formState.roleClaims = data.flatMap((item) =>
+                checkBox_state[`checkList_${item.name}`].map(
+                    (action) => `${formState.roleName}_${item.name}_${action}`,
+                ),
+            );
+        },
+    );
+
+    const claimBinding = (name) => `checkList_${name}`;
+
+    const onFinish = () => {
+        formRef.value
+            .validate()
+            .then(async () => {
+                var formData = new FormData();
+
+                formData.append("RoleID", roleId.value);
+
+                formState.roleClaims.forEach((claim, index) => {
+                    formData.append(`RoleClaims[${index}]`, claim);
+                });
+
+                var result = await ApiRole.UpdateRoleClaim(formData);
+                if (result.data.isSucceeded) {
+                    message.success(result.data.message);
+                } else {
+                    message.error(result.data.message);
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
+
+    onMounted(async () => {
+        await InitRoleClaim();
+    });
+</script>
+
+<template>
+    <div class="main">
+        <div class="crud-layout-header">
+            <h2 class="crud-layout-header-title">Update Role</h2>
+            <RouterLink class="crud-layout-header-button" :to="{ name: 'Admin_Role_View' }">
+                Index
+            </RouterLink>
+        </div>
+        <div class="main_body">
+            <a-form layout="vertical" ref="formRef" :model="formState" :rules="rules">
+                <a-form-item name="roleName" label="Tên vai trò mới">
+                    <a-input
+                        readonly
+                        v-model:value="formState.roleName"
+                        placeholder="Tên vai trò"></a-input>
+                </a-form-item>
+                <a-checkbox
+                    class="checkbox_all"
+                    v-model:checked="checkBox_state.isCheckedAll"
+                    :indeterminate="checkBox_state.indeterminate"
+                    @change="onCheckAll"
+                    >Check all</a-checkbox
+                >
+                <a-form-item name="roleClaims" label="Quyền truy cập">
+                    <div class="claim_container">
+                        <div class="claim_item" v-for="claim in data">
+                            <div class="claim_header">
+                                <span>{{ claim.name }}</span>
+                            </div>
+                            <div class="claim_body">
+                                <a-checkbox-group
+                                    class="claim_group"
+                                    v-model:value="checkBox_state[claimBinding(claim.name)]">
+                                    <a-checkbox v-for="action in claim.actions" :value="action">
+                                        {{ action }}
+                                    </a-checkbox>
+                                </a-checkbox-group>
+                            </div>
+                        </div>
+                    </div>
+                </a-form-item>
+                <a-form-item class="w-100 d-flex justify-content-end">
+                    <a-popconfirm
+                        placement="bottom"
+                        ok-text="Xác nhận"
+                        :okButtonProps="{
+                            type: 'primary',
+                            style: {
+                                height: '30px',
+                                width: '150px',
+                            },
+                        }"
+                        :cancelButtonProps="{
+                            style: {
+                                height: '30px',
+                                width: '80px',
+                            },
+                        }"
+                        cancel-text="Hủy"
+                        @confirm="onFinish">
+                        <template #title>
+                            <span class="fs-6 text-primary">Xác nhận</span>
+                            <br />
+                            <span class="text-danger"
+                                >Vui lòng kiểm tra lại thông tin phía trên.</span
+                            >
+                        </template>
+                        <a-button
+                            type="primary"
+                            style="height: 40px; font-weight: 500"
+                            class="w-100 fs-6">
+                            Lưu thay đổi
+                        </a-button>
+                    </a-popconfirm>
+                </a-form-item>
+            </a-form>
+        </div>
+    </div>
+</template>
+<style scoped>
+    .main {
+        margin: auto;
+        width: 60%;
+        background-color: #fff;
+        box-shadow: 0px 10px 20px #ddd;
+    }
+    .main_body {
+        padding: 20px;
+    }
+
+    .claim_item {
+        border: 1px solid #1975dc;
+        border-radius: 5px;
+        padding: 20px 10px;
+        margin: 30px 0px;
+        position: relative;
+        width: fit-content;
+    }
+    .claim_header {
+        text-align: center;
+        width: fit-content;
+        padding: 0px 15px;
+        position: absolute;
+        top: -17px;
+        background: #1975dc;
+        color: #fff;
+        border-radius: 50px;
+        font-size: 18px;
+        font-weight: 500;
+    }
+    .claim_body {
+        display: flex;
+    }
+    .claim_container {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+    .checkbox_all {
+        border: 1px solid #1975dc;
+        color: #1975dc;
+        padding: 2px 15px;
+        border-radius: 50px;
+        font-size: 18px;
+        font-weight: 500;
+    }
+</style>

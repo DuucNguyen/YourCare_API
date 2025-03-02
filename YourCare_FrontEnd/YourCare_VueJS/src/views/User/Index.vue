@@ -247,9 +247,9 @@
                                         :to="{
                                             name: 'Admin_User_Update',
                                             params: { id: user.id },
-                                        }"
-                                        ><i style="color: brown" class="bx bxs-trash"></i
-                                        >Update</RouterLink
+                                        }">
+                                        <i style="color: brown" class="bx bxs-trash"></i>
+                                        Update</RouterLink
                                     >
                                 </a-tooltip>
                             </a-col>
@@ -383,23 +383,5 @@
         justify-content: end;
         width: 100%;
         cursor: pointer;
-    }
-    .user_btn {
-        font-size: 16px;
-        padding: 5px 10px;
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        color: #000;
-        border: 1px solid #1975dc;
-        border-radius: 3px;
-        margin: 0 10px;
-    }
-    .user_btn i {
-        font-size: 26px;
-        margin-right: 10px;
-    }
-    .user_btn:hover {
-        background-color: #f1f5f9 !important;
     }
 </style>

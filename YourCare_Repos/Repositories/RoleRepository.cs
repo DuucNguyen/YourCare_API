@@ -66,7 +66,7 @@ namespace YourCare_Repos.Repositories
                 throw new Exception("Role name does not exist.");
             }
 
-            var roleClaims = _roleDAO.GetRoleClaimByRoleID(role.Id);
+            var roleClaims = await _roleDAO.GetRoleClaimByRoleID(role.Id);
             if (roleClaims.FirstOrDefault(x => x.ClaimType == claim) != null)
             {
                 throw new Exception("Claim already exist.");
@@ -97,9 +97,68 @@ namespace YourCare_Repos.Repositories
             return await _roleDAO.GetAll();
         }
 
-        public Task<bool> Update(string name)
+        public async Task<bool> Update(string roleID, List<string> claims)
         {
-            throw new NotImplementedException();
+            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                try
+                {
+                    var role = await _roleManager.FindByIdAsync(roleID);
+                    if (role == null)
+                    {
+                        scope.Dispose();
+                        throw new Exception("Role not found");
+                    }
+
+                    var roleClaims = await _roleDAO.GetRoleClaimByRoleID(role.Id);
+                    var newRoleClaims = claims.Except(roleClaims.Select(x => x.ClaimType).ToList()).ToList(); //To insert new
+
+                    var oldRoleClaimType = roleClaims.Select(x => x.ClaimType).Except(newRoleClaims).ToList();
+
+                    var oldClaimType_active = oldRoleClaimType.Where(x => claims.Contains(x)).ToList();//To update ClaimValue = "1"
+                    var oldClaimType_inactive = oldRoleClaimType.Where(x => roleClaims.Select(x => x.ClaimType).Except(oldClaimType_active).Contains(x)).ToList(); //To update ClaimValue = "0"
+
+                    if (newRoleClaims.Any())
+                    {
+                        var newListRoleClaims = newRoleClaims.Select(x => new IdentityRoleClaim<string>
+                        {
+                            RoleId = role.Id,
+                            ClaimType = x,
+                            ClaimValue = "1"
+                        }).ToList();
+
+                        await _roleDAO.AddListRoleClaim(newListRoleClaims);
+                    }
+
+                    if (oldClaimType_active.Any())
+                    {
+                        var oldRoleClaims = roleClaims.Where(x => oldClaimType_active.Contains(x.ClaimType));
+                        foreach (var claim in oldRoleClaims)
+                        {
+                            claim.ClaimValue = "1";
+                            await _roleDAO.UpdateClaimValue(claim);
+                        }
+                    }
+
+                    if (oldClaimType_inactive.Any())
+                    {
+                        var oldRoleClaims = roleClaims.Where(x => oldClaimType_inactive.Contains(x.ClaimType));
+                        foreach (var claim in oldRoleClaims)
+                        {
+                            claim.ClaimValue = "0";
+                            await _roleDAO.UpdateClaimValue(claim);
+                        }
+                    }
+
+                    scope.Complete();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    scope.Dispose();
+                    return false;
+                }
+            }
         }
 
         public async Task<List<Claim>> GetRoleClaimByUserID(string userID)
@@ -173,5 +232,11 @@ namespace YourCare_Repos.Repositories
                 }
             }
         }
+
+        public async Task<List<IdentityRoleClaim<string>>> GetRoleClaimByRoleID(string roleID)
+        {
+            return await _roleDAO.GetRoleClaimByRoleID(roleID);
+        }
+
     }
 }

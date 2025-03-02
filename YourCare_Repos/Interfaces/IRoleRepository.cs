@@ -13,11 +13,12 @@ namespace YourCare_Repos.Interfaces
     {
         public Task<bool> Create(string name);
         public Task<bool> Delete(string name);
-        public Task<bool> Update(string name);
+        public Task<bool> Update(string roleID, List<string> claims);
         public Task<List<ApplicationRole>> GetAll();
         public Task<List<Claim>> GetRoleClaimByUserID(string userID);
         public Dictionary<string, string> GetRoleClaimsByRoles(List<string> roles);
         public List<string> GetRoleIDsByName(List<string> names);
+        public Task<List<IdentityRoleClaim<string>>> GetRoleClaimByRoleID(string roleID);
         public Task<bool> CreateRoleClaim(string roleName, string name, string value);
         public Task<bool> CreateListRoleClaim(string roleName, List<string> roleClaims);
         public Task<int> CountUserByRoleId(string roleID);

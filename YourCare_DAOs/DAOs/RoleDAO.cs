@@ -52,9 +52,9 @@ namespace YourCare_DAOs.DAOs
                 .ToDictionary(x => x.ClaimType, x => x.ClaimValue);
         }
 
-        public List<IdentityRoleClaim<string>> GetRoleClaimByRoleID(string roleID)
+        public async Task<List<IdentityRoleClaim<string>>> GetRoleClaimByRoleID(string roleID)
         {
-            return _context.RoleClaims.Where(x => x.RoleId == roleID).ToList();
+            return await _context.RoleClaims.Where(x => x.RoleId == roleID).ToListAsync();
         }
 
         public async Task<List<Claim>> GetRoleClaimByUserID(string userID)
@@ -88,21 +88,21 @@ namespace YourCare_DAOs.DAOs
         public async Task<ApplicationRole> GetByUserID(string userId)
         {
             var find = from ur in _context.UserRoles
-                          join r in _context.Roles on ur.RoleId equals r.Id
-                          where ur.UserId == userId
-                          select new ApplicationRole
-                          {
-                              Id = r.Id,
-                              Name = r.Name,
-                              IsActive = r.IsActive,
-                          };
+                       join r in _context.Roles on ur.RoleId equals r.Id
+                       where ur.UserId == userId
+                       select new ApplicationRole
+                       {
+                           Id = r.Id,
+                           Name = r.Name,
+                           IsActive = r.IsActive,
+                       };
 
             return await find.FirstOrDefaultAsync();
         }
 
         public async Task<IdentityUserRole<string>> GetUserRoleByUserID(string userId)
         {
-            return await _context.UserRoles.FirstOrDefaultAsync(x=>x.UserId == userId);
+            return await _context.UserRoles.FirstOrDefaultAsync(x => x.UserId == userId);
         }
 
         public async Task CreateUserRole(IdentityUserRole<string> request)
@@ -113,7 +113,14 @@ namespace YourCare_DAOs.DAOs
 
         public async Task ChangeUserRole(IdentityUserRole<string> request)
         {
-           
+            _context.UserRoles.Update(request);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateClaimValue(IdentityRoleClaim<string> request)
+        {
+            _context.RoleClaims.Update(request);
+            await _context.SaveChangesAsync();
         }
     }
 }

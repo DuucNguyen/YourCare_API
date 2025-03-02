@@ -128,7 +128,6 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpGet("GetByID")]
-        [Authorize]
 
         public async Task<IActionResult> GetDoctorProfileByID(string id)
         {

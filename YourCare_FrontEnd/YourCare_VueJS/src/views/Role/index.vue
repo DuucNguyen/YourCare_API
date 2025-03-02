@@ -46,7 +46,23 @@
                                 {{ role.userCount }}
                             </a-tag>
                         </td>
-                        <td></td>
+                        <td>
+                            <div v-if="role.roleName !== 'Admin'" class="d-flex">
+                                <RouterLink
+                                    class="user_btn"
+                                    :to="{
+                                        name: 'Admin_Role_Update',
+                                        params: { id: role.roleId },
+                                    }">
+                                    <i style="color: royalblue" class="bx bxs-edit"></i>
+                                    Update
+                                </RouterLink>
+                                <div class="user_btn">
+                                    <i style="color: brown" class="bx bxs-trash"></i>
+                                    Deactivate
+                                </div>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -54,6 +70,9 @@
     </div>
 </template>
 <style scoped>
+    .main {
+        box-shadow: 1px 1px 20px #ddd;
+    }
     .main_body {
         padding: 10px;
     }
