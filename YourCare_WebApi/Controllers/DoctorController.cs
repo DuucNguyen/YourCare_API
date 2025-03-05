@@ -100,18 +100,18 @@ namespace YourCare_WebApi.Controllers
         [HttpGet("GetByUserID")]
         [Authorize]
 
-        public async Task<IActionResult> GetDoctorProfileByUserID(string userID)
+        public async Task<IActionResult> GetDoctorIDByUserID(string userID)
         {
             try
             {
                 var result = await _doctorProfileRepository.GetDoctorByUserID(userID);
 
-                return new JsonResult(new ResponseModel<DoctorProfile>
+                return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = result != null ? StatusCodes.Status200OK : StatusCodes.Status404NotFound,
                     Message = result != null ? "GetDoctorProfileByUserID successfully." : "GetDoctorProfileByUserID failed.",
                     IsSucceeded = result != null,
-                    Data = result
+                    Data = result.DoctorID.ToString() ?? ""
                 });
 
             }

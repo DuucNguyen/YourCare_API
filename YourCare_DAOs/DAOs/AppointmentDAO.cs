@@ -42,6 +42,7 @@ namespace YourCare_DAOs.DAOs
                 .Include(x => x.PatientProfile)
                 .Include(x => x.Doctor)
                 .Include(x => x.TimeTable)
+                .Include(x=>x.Files)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -73,6 +74,16 @@ namespace YourCare_DAOs.DAOs
                 .Include(x => x.PatientProfile)
                 .Include(x => x.CreatedByUser)
                 .Where(x => x.DoctorID == doctorID).ToListAsync();
+        }
+
+        public async Task<List<Appointment>> GetDoctorAppointmentByDate(Guid doctorID, DateTime date)
+        {
+            return await _context.Appointments
+                .Include(x => x.Doctor)
+                .Include(x => x.TimeTable)
+                .Include(x => x.PatientProfile)
+                .Include(x => x.CreatedByUser)
+                .Where(x => x.DoctorID == doctorID && x.TimeTable.Date.Date == date.Date).ToListAsync();
         }
 
         public async Task<Appointment> GetAllByID(int id)

@@ -25,7 +25,7 @@
         //do it here
     };
 
-    const getAppointmentDetail = async (item) => {
+    const GetAppointmentDetail = async (item) => {
         chosenAppointment.value = item;
         var result = await ApiAppointment.GetDetailById(chosenAppointment.value.id);
         if (result.data.isSucceeded) {
@@ -70,7 +70,7 @@
                                         ? 'appointment_item_chosen'
                                         : '')
                                 "
-                                @click="getAppointmentDetail(item)">
+                                @click="GetAppointmentDetail(item)">
                                 <a-row>
                                     <a-col :span="24">
                                         <span style="font-weight: 500; font-size: 17px">{{
@@ -323,53 +323,5 @@
         overflow-y: scroll;
         background: #f3f4f6;
         border-bottom: 1px solid #ddd;
-    }
-
-    .appointment_item {
-        background-color: #fff;
-        padding: 5px 8px;
-        margin: 5px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        cursor: pointer;
-    }
-    .appointment_item:hover {
-        border: 1px solid #1975dc;
-        background: #f9fafb;
-    }
-    .appointment_item_chosen {
-        border: 1px solid #1975dc;
-        background: #f9fafb;
-    }
-
-    .appointment_search {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
-
-    .appointment_detail_container {
-        padding: 15px;
-    }
-    .appointment_detail_title {
-        color: #1975dc;
-        margin-top: 20px;
-        background-color: #f1f5f9;
-        padding: 5px;
-        border-radius: 3px;
-    }
-    .appointment_detail_title span {
-        font-size: 16px;
-        font-weight: 500;
-    }
-    .appointment_detail_item {
-        margin-top: 10px;
-    }
-    .appointment_detail_item span {
-        font-size: 16px;
-    }
-    .appointment_detail_item :nth-child(2) {
-        display: flex;
-        justify-content: end;
     }
 </style>

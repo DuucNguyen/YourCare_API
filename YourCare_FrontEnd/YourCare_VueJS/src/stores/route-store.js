@@ -9,5 +9,5 @@ export const useRouteStore = defineStore({
             this.data = data;
         },
     },
-    persist: true  // 🔥 Enable persistence 
+    persist: true, // 🔥 Enable persistence
 });

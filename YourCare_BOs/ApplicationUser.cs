@@ -28,6 +28,8 @@ namespace YourCare_BOs
         public virtual ICollection<Appointment> CreatedAppointments { get; set; }
         public virtual ICollection<PatientProfile> PatientProfiles { get; set; }
 
+        [JsonIgnore]
+        [NotMapped]
         public virtual DoctorProfile DoctorProfile { get; set; }
     }
 }

@@ -29,17 +29,16 @@ namespace YourCare_BOs
         public DateTime UpdatedOn { get; set; }
 
         [MaxLength(100)]
-        public virtual string Status { get; set; }
+        public  string Status { get; set; }
 
         public string? PatientNote { get; set; }
 
-        public string? DoctorDianosis { get; set; }
+        public string? DoctorDiagnosis { get; set; }
 
         public string? DoctorNote { get; set; }
 
         public decimal? TotalPrice { get; set; }
 
-        [ForeignKey("CreatedBy")]
         public string CreatedBy { get; set; }
 
         public int? PatientRating { get; set; }
@@ -56,7 +55,9 @@ namespace YourCare_BOs
         [ForeignKey("DoctorID")]
         public virtual DoctorProfile Doctor { get; set; }
 
+        [ForeignKey("CreatedBy")]
         public virtual ApplicationUser CreatedByUser { get; set; }
 
+        public virtual List<AppointmentFilesUpload>? Files { get; set; } 
     }
 }

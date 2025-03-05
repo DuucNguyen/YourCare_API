@@ -738,3 +738,118 @@ header {
 
 /* ============================================END-User-Index========================================================= */
 
+/* ============================================Doctor_Dashboard========================================================= */
+.doctor_layout_container {
+    background: #f6f6f6;
+}
+.doctor_dashboard {
+    display: flex;
+}
+.doctor_dashboard_section {
+    margin-top: 20px;
+    margin-left: 50px;
+    width: 100%;
+}
+.doctor_dashboard_body {
+    display: flex;
+}
+
+.doctor_dashboard_statistic {
+    width: 100%;
+}
+
+.statistic_item {
+    background: #fff;
+    margin: 0 10px;
+    border-radius: 10px;
+    z-index: 1;
+    padding: 20px 20px;
+    display: flex;
+}
+.statistic_item_icon {
+    font-size: 30px;
+    padding: 10px 12px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+.statistic_item_data {
+    display: flex;
+    flex-direction: column;
+    margin-left: 10px;
+}
+.statistic_item_data span:first-child {
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.doctor_dashboard_appointment {
+    height: 500px;
+    background: #fff;
+    margin: 20px 20px 0 0;
+    border-radius: 5px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* ============================================END_Doctor_Dashboard========================================================= */
+/* ============================================Doctor-Appointment-Index========================================================= */
+
+.appointment_item {
+    background-color: #fff;
+    padding: 5px 8px;
+    margin: 5px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.appointment_item:hover {
+    border: 1px solid #1975dc;
+    background: #f9fafb;
+}
+.appointment_item_chosen {
+    border: 1px solid #1975dc;
+    background: #f9fafb;
+}
+
+.appointment_search {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.appointment_detail_container {
+    padding: 15px;
+    background: #fff;
+}
+.appointment_detail_title {
+    color: #1975dc;
+    margin-top: 20px;
+    background-color: #f1f5f9;
+    padding: 5px;
+    border-radius: 3px;
+}
+.appointment_detail_title span {
+    font-size: 16px;
+    font-weight: 500;
+}
+.appointment_detail_item {
+    margin-top: 10px;
+}
+.appointment_detail_item span {
+    font-size: 16px;
+}
+.appointment_detail_item :nth-child(2) {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    justify-content: end;
+}
+.appointment_detail_item textarea {
+    height: 100px;
+}
+
+
+/* ============================================END-Doctor-Appointment-Index========================================================= */
+

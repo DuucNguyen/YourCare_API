@@ -8,16 +8,22 @@
                 <div class="dashboards_body_item_container">
                     <RouterLink
                         class="dashboards_body_item"
-                        :to="{ name: 'Admin_DoctorProfile_View' }"
-                        ><i class="bx bxs-user-rectangle fs-1"></i> DoctorProfile</RouterLink
-                    >
-
+                        :to="{ name: 'Admin_DoctorProfile_View' }">
+                        <i class="bx bxs-user-rectangle fs-1"></i>
+                        DoctorProfile
+                    </RouterLink>
                     <RouterLink class="dashboards_body_item" :to="{ name: 'Admin_Specialty_View' }">
-                        <i class="bx bxs-category fs-1"></i> Specialty</RouterLink
-                    >
-                    <RouterLink class="dashboards_body_item" :to="{ name: 'Admin_User_View' }"
-                        ><i class="bx bxs-user-circle fs-1"></i> User</RouterLink
-                    >
+                        <i class="bx bxs-category fs-1"></i>
+                        Specialty
+                    </RouterLink>
+                    <RouterLink class="dashboards_body_item" :to="{ name: 'Admin_User_View' }">
+                        <i class="bx bxs-user-circle fs-1"></i>
+                        User
+                    </RouterLink>
+                    <RouterLink class="dashboards_body_item" :to="{ name: 'Doctor_Appointment_View' }">
+                        <i class="bx bxs-user-circle fs-1"></i>
+                        Doctor
+                    </RouterLink>
                 </div>
             </div>
             <div class="dashboards_body_right col-md-5"></div>

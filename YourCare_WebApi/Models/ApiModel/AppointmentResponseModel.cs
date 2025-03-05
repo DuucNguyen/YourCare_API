@@ -7,7 +7,6 @@
         public DateTime TimetableDate { get; set; }
         public TimeSpan TimetableStartTime { get; set; }
         public TimeSpan TimetableEndTime { get; set; }
-       
         public string DoctorName { get; set; }
         public int TimeTableOrder { get; set; }
         public string Status { get; set; }

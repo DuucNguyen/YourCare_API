@@ -3,6 +3,7 @@ import adminRoutes from "@/router/route-admin";
 import authRoutes from "@/router/router-auth";
 import { useAuthStore } from "@/stores/auth-store";
 import userRoutes from "@/router/route-user";
+import doctorRoutes from "./route-doctor";
 
 const indexRoutes = [
     {
@@ -17,7 +18,7 @@ const indexRoutes = [
     },
 ];
 
-const routes = [...authRoutes, ...adminRoutes, ...userRoutes, ...indexRoutes];
+const routes = [...authRoutes, ...adminRoutes, ...userRoutes, ...doctorRoutes, ...indexRoutes];
 const publicRoutes = [
     "home",
     "login",
@@ -40,6 +41,7 @@ router.beforeEach(async (to, from, next) => {
     //check authentication  + return URL
     if (!useAuthStore().checkUser() && !publicRoutes.includes(to.name)) {
         useAuthStore().returnURL = to.fullPath;
+        useAuthStore().logOut();
         next({ name: "login" });
         return;
     }

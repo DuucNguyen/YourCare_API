@@ -1,0 +1,581 @@
+<script setup>
+    import ApiAppointment from "@/api/ApiAppointment";
+    import ApiDoctorProfile from "@/api/ApiDoctorProfile";
+    import DoctorSideBar from "@/shared/DoctorSideBar.vue";
+    import { ref, onMounted, reactive } from "vue";
+    import dayjs from "dayjs";
+    import AppointmentStatus from "@/constants/AppointmentStatus";
+
+    import { useAuthStore } from "@/stores/auth-store";
+    import { useRouteStore } from "@/stores/route-store";
+
+    //
+    import { createVNode } from "vue";
+    import { InboxOutlined, ExclamationCircleOutlined } from "@ant-design/icons-vue";
+    import { message, Modal } from "ant-design-vue";
+
+    const authStore = useAuthStore();
+    const routeStore = useRouteStore();
+    const appointment = ref(routeStore.data); //get from route
+
+    const user = ref({});
+    const doctorProfileId = ref({});
+    const appointments = ref([]); //list
+    const appointmentDetail = ref(); //detail get from appointment.value
+    const date = ref(dayjs());
+
+    const formRef = ref();
+    const formState = reactive({
+        id: appointment.value.id ?? "",
+        doctorDiagnosis: "",
+        doctorNote: "",
+        files: [],
+    });
+
+    const rules = {
+        doctorDiagnosis: [
+            {
+                required: true,
+                message: "Không được bỏ trống mục này",
+                trigger: "change",
+            },
+        ],
+        doctorNote: [
+            {
+                required: true,
+                message: "Không được bỏ trống mục này",
+                trigger: "change",
+            },
+        ],
+        files: [
+            {
+                type: "array",
+                max: 5,
+                message: "Tối đa 5 tệp tin",
+            },
+        ],
+    };
+
+    const InitDoctor = async () => {
+        user.value = await authStore.getUserInfo();
+        if (user.value) {
+            var result_doctor = await ApiDoctorProfile.GetByUserID(user.value.id);
+            doctorProfileId.value = result_doctor.data.data;
+        }
+    };
+
+    const InitAppointment = async () => {
+        var result_appointment = await ApiAppointment.GetDoctorAppointmentByDate(
+            doctorProfileId.value,
+            dayjs(date.value).format("MM/DD/YYYY"),
+        );
+        if (result_appointment.data.isSucceeded) {
+            appointments.value = result_appointment.data.data;
+        }
+    };
+
+    const GetAppointmentDetail = async (item) => {
+        appointment.value = item;
+        formState.id = appointment.value.id;
+        formState.files = [];
+        var result = await ApiAppointment.GetDetailById(appointment.value.id);
+        if (result.data.isSucceeded) {
+            appointmentDetail.value = result.data.data;
+            formState.doctorDiagnosis = appointmentDetail.value.doctorDiagnosis;
+            formState.doctorNote = appointmentDetail.value.doctorNote;
+        }
+    };
+
+    const handleChange = (event) => {
+        var status = event.file.status;
+        if (status === "done") {
+            message.success(`${event.file.name} file uploaded successfully.`);
+        } else if (status === "error") {
+            message.error(`${event.file.name} file upload failed.`);
+        }
+    };
+
+    const toggleSlide = (event) => {
+        var currentClasses = event.currentTarget.classList;
+        event.currentTarget.classList.toggle("up");
+
+        if (currentClasses.contains("up")) {
+            event.currentTarget.innerHTML = "Thu gọn <i class='bx bx-chevron-up fs-4'></i>";
+        } else {
+            event.currentTarget.innerHTML = "Chi tiết <i class='bx bx-chevron-down fs-4'></i>";
+        }
+
+        $("#shrinkable_appointment_detail").slideToggle();
+    };
+
+    onMounted(async () => {
+        await InitDoctor();
+        await InitAppointment();
+        if (appointment.value.id) {
+            await GetAppointmentDetail(appointment.value);
+        }
+    });
+
+    const onFinish = () => {
+        formRef.value
+            .validate()
+            .then(() => {
+                showModalConfirmation();
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    };
+
+    const showModalConfirmation = () => {
+        Modal.confirm({
+            title: "Hoàn thành lịch khám ?",
+            icon: createVNode(ExclamationCircleOutlined),
+            content:
+                "Xác nhận hoàn thành lịch khám cho bệnh nhân: " +
+                appointmentDetail.value.patientName,
+            okText: "Xác nhận",
+            cancelText: "Hủy",
+            async onOk() {
+                try {
+                    var formData = new FormData();
+                    formData.append("id", formState.id);
+                    formData.append("doctorDiagnosis", formState.doctorDiagnosis);
+                    formData.append("doctorNote", formState.doctorNote);
+
+                    if (formState.files.length > 0) {
+                        formState.files.forEach((fileObj) => {
+                            formData.append("files", fileObj.originFileObj || fileObj);
+                        });
+                    }
+
+                    var result = await ApiAppointment.CompleteAppointment(formData);
+
+                    if (result.data.isSucceeded) {
+                        message.success("Hoàn thành lịch khám");
+                        GetAppointmentDetail(appointment.value);
+                    } else {
+                        message.error("Lỗi, vui lòng thử lại");
+                    }
+                } catch (error) {
+                    console.log(error);
+                }
+            },
+        });
+    };
+</script>
+
+<template>
+    <div class="doctor_dashboard_body">
+        <DoctorSideBar active-item="appointment" />
+        <div class="doctor_dashboard_section">
+            <div class="doctor_dashboard_body">
+                <div class="col-md-4 doctor_appointment_list">
+                    <div class="appointment_container">
+                        <template v-for="item in appointments">
+                            <div
+                                :class="
+                                    'appointment_item ' +
+                                    (appointment.id == item.id ? 'appointment_item_chosen' : '')
+                                "
+                                @click="GetAppointmentDetail(item)">
+                                <a-row>
+                                    <a-col :span="24">
+                                        <span style="font-weight: 500; font-size: 17px">{{
+                                            item.doctorName
+                                        }}</span>
+                                    </a-col>
+                                </a-row>
+                                <a-row>
+                                    <a-col :span="20">
+                                        <span>
+                                            {{
+                                                dayjs(item.timetableStartTime, "HH:mm:ss").format(
+                                                    "HH:mm",
+                                                )
+                                            }}
+                                            -
+                                        </span>
+                                        <span style="color: #1975dc; font-weight: 500">
+                                            {{ dayjs(item.timetableDate).format("DD-MM-YYYY") }}
+                                        </span>
+                                        <br />
+                                        <span>
+                                            {{ item.patientName }}
+                                        </span>
+                                        <br />
+                                        <span
+                                            :class="
+                                                (item.status === AppointmentStatus.COMPLETED
+                                                    ? 'text-primary'
+                                                    : 'text-secondary') + ' ms-3'
+                                            "
+                                            style="font-size: 13px">
+                                            {{ item.status }}
+                                        </span>
+                                    </a-col>
+                                    <a-col :span="4" class="text-center">
+                                        <span style="font-size: 12px">STT</span>
+                                        <br />
+                                        <span
+                                            style="
+                                                font-weight: 500;
+                                                font-size: 20px;
+                                                color: #22c55e;
+                                            "
+                                            >{{ item.timeTableOrder }}</span
+                                        >
+                                    </a-col>
+                                </a-row>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <a-col :span="23" class="appointment_detail_container">
+                        <div v-if="appointmentDetail">
+                            <a-row
+                                v-if="appointmentDetail.status !== AppointmentStatus.COMPLETED"
+                                class="appointment_detail_buttons">
+                                <a-button @click="onFinish" type="primary">
+                                    Xác nhận đã khám xong
+                                </a-button>
+                                <a-button @click="onFinish" type="primary"> Đợi kết quả </a-button>
+                                <a-button type="primary" danger>Hủy</a-button>
+                            </a-row>
+                            <div id="shrinkable_appointment_detail">
+                                <a-row>
+                                    <a-col
+                                        :span="12"
+                                        class="text-start"
+                                        style="color: #22c55e; font-weight: 500; font-size: 20px">
+                                        STT: {{ appointment.timeTableOrder }}
+                                    </a-col>
+                                    <a-col
+                                        :span="12"
+                                        class="text-secondary d-flex justify-content-end">
+                                        <span class="fs-5 d-flex align-items-center">
+                                            <i class="bx bx-error-alt fs-4 me-1"></i>
+                                            {{ appointment.status }}
+                                        </span>
+                                    </a-col>
+                                </a-row>
+                                <a-row class="mt-3">
+                                    <a-col :span="12">
+                                        <img
+                                            style="width: 75px; height: 100%; object-fit: contain"
+                                            :src="appointmentDetail.doctorImage" />
+                                        <span
+                                            class="ms-2"
+                                            style="font-weight: 500; font-size: 18px">
+                                            {{ appointmentDetail.doctorName }}
+                                        </span>
+                                    </a-col>
+                                    <a-col :span="12" class="d-flex justify-content-end">
+                                        <a-qrcode
+                                            :size="100"
+                                            :value="
+                                                appointmentDetail.appointmentCode +
+                                                ' / ' +
+                                                appointmentDetail.doctorName +
+                                                ' / ' +
+                                                appointmentDetail.patientName +
+                                                ' / ' +
+                                                dayjs(appointmentDetail.timetableDate).format(
+                                                    'DD/MM/YYYY',
+                                                ) +
+                                                ' / STT: ' +
+                                                appointmentDetail.timeTableOrder +
+                                                ' / ' +
+                                                appointmentDetail.timetableStartTime +
+                                                '-' +
+                                                appointmentDetail.timetableEndTime
+                                            "></a-qrcode>
+                                    </a-col>
+                                </a-row>
+                                <a-row>
+                                    <a-col :span="24" class="appointment_detail_title">
+                                        <span> Thông tin lịch khám </span>
+                                    </a-col>
+                                </a-row>
+                                <div>
+                                    <a-row class="appointment_detail_item">
+                                        <a-col :span="12">
+                                            <span>Mã phiếu khám</span>
+                                        </a-col>
+                                        <a-col :span="12">
+                                            <span style="color: #1975dc; font-weight: 500">
+                                                {{ appointmentDetail.appointmentCode }}
+                                            </span>
+                                        </a-col>
+                                    </a-row>
+                                    <a-row class="appointment_detail_item">
+                                        <a-col :span="12">
+                                            <span> Ngày khám </span>
+                                        </a-col>
+                                        <a-col :span="12">
+                                            <span>
+                                                {{
+                                                    dayjs(appointmentDetail.timetableDate).format(
+                                                        "DD/MM/YYYY",
+                                                    )
+                                                }}
+                                            </span>
+                                        </a-col>
+                                    </a-row>
+                                    <a-row class="appointment_detail_item">
+                                        <a-col :span="12">
+                                            <span>Ca khám</span>
+                                        </a-col>
+                                        <a-col :span="12">
+                                            <span>
+                                                {{
+                                                    dayjs(
+                                                        appointmentDetail.timetableStartTime,
+                                                        "HH:mm:ss",
+                                                    ).format("HH:mm")
+                                                }}
+                                                -
+                                                {{
+                                                    dayjs(
+                                                        appointmentDetail.timetableEndTime,
+                                                        "HH:mm:ss",
+                                                    ).format("HH:mm")
+                                                }}
+                                            </span>
+                                        </a-col>
+                                    </a-row>
+                                </div>
+                                <a-row>
+                                    <a-col :span="24" class="appointment_detail_title">
+                                        <span> Thông tin bệnh nhân </span>
+                                    </a-col>
+                                </a-row>
+                                <div>
+                                    <a-row class="appointment_detail_item">
+                                        <a-col :span="12">
+                                            <span> Số thứ tự trong ca </span>
+                                        </a-col>
+                                        <a-col :span="12">
+                                            <span>
+                                                {{ appointmentDetail.timeTableOrder }}
+                                            </span>
+                                        </a-col>
+                                    </a-row>
+                                    <a-row class="appointment_detail_item">
+                                        <a-col :span="12">
+                                            <span> Họ và tên </span>
+                                        </a-col>
+                                        <a-col :span="12">
+                                            <span>
+                                                {{ appointmentDetail.patientName }}
+                                            </span>
+                                        </a-col>
+                                    </a-row>
+                                    <a-row class="appointment_detail_item">
+                                        <a-col :span="12">
+                                            <span> Ngày sinh </span>
+                                        </a-col>
+                                        <a-col :span="12">
+                                            <span>
+                                                {{
+                                                    appointmentDetail.patientDob != null
+                                                        ? dayjs(
+                                                              appointmentDetail.patientDob,
+                                                          ).format("DD/MM/YYYY")
+                                                        : "Chưa cập nhật"
+                                                }}
+                                            </span>
+                                        </a-col>
+                                    </a-row>
+                                    <a-row class="appointment_detail_item">
+                                        <a-col :span="12">
+                                            <span> Số điện thoại </span>
+                                        </a-col>
+                                        <a-col :span="12">
+                                            <span>
+                                                {{
+                                                    appointmentDetail.patientPhoneNumber != null
+                                                        ? appointmentDetail.patientPhoneNumber
+                                                        : "Chưa cập nhật"
+                                                }}
+                                            </span>
+                                        </a-col>
+                                    </a-row>
+                                    <a-row class="appointment_detail_item">
+                                        <a-col :span="12">
+                                            <span> Giới tính </span>
+                                        </a-col>
+                                        <a-col :span="12">
+                                            <span>
+                                                {{
+                                                    appointmentDetail.patientGender == true
+                                                        ? "Nam"
+                                                        : "Nữ"
+                                                }}
+                                            </span>
+                                        </a-col>
+                                    </a-row>
+                                    <a-row class="appointment_detail_item">
+                                        <a-col :span="12">
+                                            <span> Địa chỉ </span>
+                                        </a-col>
+                                        <a-col :span="12">
+                                            <span>
+                                                {{
+                                                    appointmentDetail.patientAddress != null &&
+                                                    appointmentDetail.patientAddress != ""
+                                                        ? appointmentDetail.patientAddress
+                                                        : "Chưa cập nhật"
+                                                }}
+                                            </span>
+                                        </a-col>
+                                    </a-row>
+                                    <a-row class="appointment_detail_item">
+                                        <a-col :span="12">
+                                            <span>Lời nhắn</span>
+                                        </a-col>
+                                        <a-col :span="12">
+                                            <a-textarea
+                                                :value="appointmentDetail.patientNote"
+                                                placeholder="Không có lời nhắn"
+                                                readonly>
+                                                {{ appointmentDetail.patientNote }}
+                                            </a-textarea>
+                                        </a-col>
+                                    </a-row>
+                                </div>
+                            </div>
+                            <div
+                                style="cursor: pointer"
+                                class="text-primary fs-6 d-flex align-items-center justify-content-center m-2 mt-4 up"
+                                @click="toggleSlide">
+                                Thu gọn <i class="bx bx-chevron-up fs-4"></i>
+                            </div>
+                            <a-row>
+                                <a-col :span="24" class="appointment_detail_title">
+                                    <span> Kết quả </span>
+                                </a-col>
+                            </a-row>
+                            <div>
+                                <a-form ref="formRef" :model="formState" :rules="rules">
+                                    <a-form-item name="doctorDiagnosis">
+                                        <a-row class="appointment_detail_item">
+                                            <a-col :span="24">
+                                                <span>Chuẩn đoán</span>
+                                            </a-col>
+                                            <a-col :span="24">
+                                                <a-textarea
+                                                    :readonly="
+                                                        appointmentDetail.status ===
+                                                        AppointmentStatus.COMPLETED
+                                                    "
+                                                    v-model:value="formState.doctorDiagnosis"
+                                                    placeholder="Chuẩn đoán, kết luận của bác sĩ,..."></a-textarea>
+                                            </a-col>
+                                        </a-row>
+                                    </a-form-item>
+                                    <a-form-item name="doctorNote">
+                                        <a-row class="appointment_detail_item">
+                                            <a-col :span="24">
+                                                <span>Ghi chú của Bác sĩ</span>
+                                            </a-col>
+                                            <a-col :span="24">
+                                                <a-textarea
+                                                    :readonly="
+                                                        appointmentDetail.status ===
+                                                        AppointmentStatus.COMPLETED
+                                                    "
+                                                    v-model:value="formState.doctorNote"
+                                                    placeholder="VD: Lịch tái khám, thuốc, lời khuyên, ..."></a-textarea>
+                                            </a-col>
+                                        </a-row>
+                                    </a-form-item>
+                                    <a-form-item name="files">
+                                        <a-row class="appointment_detail_item">
+                                            <a-col :span="24">
+                                                <span>Tệp đính kèm</span>
+                                            </a-col>
+                                            <a-col
+                                                :span="24"
+                                                v-if="
+                                                    !appointmentDetail.files ||
+                                                    appointmentDetail.status !==
+                                                        AppointmentStatus.COMPLETED
+                                                ">
+                                                <a-upload-dragger
+                                                    class="p-1 w-100"
+                                                    style="max-height: 200px"
+                                                    list-type="picture"
+                                                    v-model:fileList="formState.files"
+                                                    :multiple="true"
+                                                    action="https://run.mocky.io/v3/5496d046-c459-4dec-8b1c-09edcdd8f880"
+                                                    @change="handleChange">
+                                                    <p
+                                                        class="ant-upload-drag-icon d-flex justify-content-center">
+                                                        <inbox-outlined></inbox-outlined>
+                                                    </p>
+                                                    <p class="ant-upload-text">
+                                                        Tải lên kết quả khám bệnh, bệnh án, ...
+                                                    </p>
+                                                    <p class="ant-upload-hint">
+                                                        Hỗ trợ tải lên nhiều file. Nghiêm cấm tải
+                                                        lên các tài liệu không liên quan đến quá
+                                                        trình khám bệnh hoặc tài liệu phòng khám
+                                                    </p>
+                                                </a-upload-dragger>
+                                            </a-col>
+                                            <a-col v-else :span="24">
+                                                <span v-for="path in appointmentDetail.files">
+                                                    {{ path }}
+                                                </span>
+                                            </a-col>
+                                        </a-row>
+                                    </a-form-item>
+                                </a-form>
+                            </div>
+                        </div>
+                    </a-col>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+<style scoped>
+    .appointment_container {
+        margin: 10px;
+        padding: 5px;
+        height: 650px;
+        max-height: 650px;
+        overflow-y: scroll;
+        background: #f3f4f6;
+        border-bottom: 1px solid #ddd;
+    }
+    .doctor_appointment_list {
+        background: #fff;
+        margin-right: 20px;
+        border-radius: 8px;
+    }
+    .appointment_detail_container {
+        padding: 10px;
+        width: 100%;
+        border-radius: 8px;
+        height: 670px;
+        max-height: 670px;
+        overflow-y: scroll;
+    }
+
+    .appointment_detail_buttons {
+        display: flex;
+        justify-content: end;
+        padding: 3px 0px;
+        background-color: #f3f4f6;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+    }
+
+    .appointment_detail_buttons button {
+        margin: 0 10px;
+    }
+</style>

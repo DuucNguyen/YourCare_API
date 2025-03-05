@@ -5,8 +5,11 @@ import App from "./App.vue";
 import router from "./router/router-index";
 import { createPinia } from "pinia";
 import { createPersistedState } from "pinia-plugin-persistedstate";
-import $ from "jquery";
 
+import Highcharts from "highcharts";
+import HighchartsVue from "highcharts-vue";
+
+import $ from "jquery";
 window.$ = window.jQuery = $; //register jqueyr as global
 
 import axios from "axios";
@@ -50,6 +53,9 @@ import {
     MenuItem,
     QRCode,
     Tag,
+    Calendar,
+    Empty,
+    UploadDragger,
 } from "ant-design-vue";
 
 //
@@ -101,6 +107,14 @@ app.use(MenuDivider);
 app.use(MenuItem);
 app.use(QRCode);
 app.use(Tag);
+app.use(Calendar);
+app.use(Empty);
+app.use(UploadDragger);
+
+/**
+ * highcharts
+ * **/
+app.use(HighchartsVue);
 
 app.mount("#app");
 

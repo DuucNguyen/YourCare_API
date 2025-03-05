@@ -21,6 +21,7 @@ namespace YourCare_DAOs
 
         public DbSet<ApplicationUser> ApplicationUser { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<AppointmentFilesUpload> AppointmentFilesUploads { get; set; }
         public DbSet<DoctorProfile> Doctors { get; set; }
         public DbSet<Specialty> Specialties { get; set; }
         public DbSet<PatientProfile> PatientProfiles { get; set; }
@@ -111,7 +112,8 @@ namespace YourCare_DAOs
                 .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK_Appointment_Doctor");
 
-                e.HasOne(x => x.PatientProfile).WithMany(x => x.Appointments)
+                e.HasOne(x => x.PatientProfile)
+                .WithMany(x => x.Appointments)
                 .HasForeignKey(x => x.PatientProfileID)
                 .OnDelete(DeleteBehavior.NoAction)
                 .HasConstraintName("FK_Appointment_Patient");
@@ -127,6 +129,11 @@ namespace YourCare_DAOs
                 .HasForeignKey(x => x.TimetableID)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK_Appointment_Timetable");
+
+                e.HasMany(x => x.Files)
+                .WithOne(x => x.Appointment)
+                .HasForeignKey(x => x.AppointmentID)
+                .HasConstraintName("FK_Appointment_AppointmentFilesUpload");
 
                 e.Property(x => x.UpdatedOn)
                 .HasColumnType("date");
@@ -162,6 +169,15 @@ namespace YourCare_DAOs
                 .HasColumnType("time");
             });
 
+            builder.Entity<AppointmentFilesUpload>(e =>
+            {
+                e.ToTable("AppointmentFilesUpload");
+
+                e.HasKey(x => x.Id);
+
+                e.HasOne(x => x.Appointment)
+                .WithMany(x => x.Files);
+            });
             base.OnModelCreating(builder);
         }
     }

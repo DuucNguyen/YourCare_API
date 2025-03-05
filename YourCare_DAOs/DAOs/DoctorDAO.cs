@@ -53,10 +53,7 @@ namespace YourCare_DAOs.DAOs
         public async Task<DoctorProfile> GetDoctorByUserID(string id)
         {
             return await _context.Doctors
-                .Include(x=>x.DoctorSpecialties)
-                .Include(x => x.ApplicationUser).FirstOrDefaultAsync(x => x.ApplicationUserID == id);
+                .Include(x=>x.DoctorSpecialties).FirstOrDefaultAsync(x => x.ApplicationUserID == id);
         }
-
-
     }
 }

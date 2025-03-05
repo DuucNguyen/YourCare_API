@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
@@ -12,6 +14,7 @@ using YourCare_Repos.Interfaces;
 using YourCare_Repos.Repositories;
 using YourCare_WebApi.Models.Auth;
 using YourCare_WebApi.Services.EmailSender;
+using YourCare_WebApi.Services.FileService;
 using YourCare_WebApi.Services.UriService;
 
 namespace YourCare_WebApi
@@ -24,6 +27,8 @@ namespace YourCare_WebApi
 
             // Add services to the container.
             builder.Services.AddControllers();
+
+
 
             #region dbContext + identity
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -43,6 +48,7 @@ namespace YourCare_WebApi
             #endregion
 
             #region scope
+
             builder.Services.AddScoped<ApplicationDbContext>();
             builder.Services.AddTransient<ApplicationDbContext>();
 
@@ -74,6 +80,8 @@ namespace YourCare_WebApi
             builder.Services.AddScoped<AppointmentDAO>();
             builder.Services.AddScoped<IAppointmentReposiory, AppointmentRepository>();
 
+            builder.Services.AddScoped<AppointmentFilesUploadDAO>();
+            builder.Services.AddScoped<IAppointmentFilesUploadRepository, AppointmentFilesUploadRepository>();
             #endregion
 
             #region EmailService
@@ -161,7 +169,6 @@ namespace YourCare_WebApi
 
             #endregion
 
-
             #region UriService
 
             builder.Services.AddHttpContextAccessor();
@@ -174,6 +181,19 @@ namespace YourCare_WebApi
             });
 
             #endregion
+
+            #region FileServive
+            builder.Services.Configure<FormOptions>(options =>
+            {
+                options.MultipartBodyLengthLimit = 104857600; // 100MB
+            });
+
+            builder.Services.AddDirectoryBrowser();
+            builder.Services.AddScoped<IFileService, FileService>();
+
+            #endregion
+
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -193,6 +213,31 @@ namespace YourCare_WebApi
 
 
             var app = builder.Build();
+
+
+            #region FileService
+
+            var requestPath = "/Upload";
+
+            var uploadPath = Path.Combine(builder.Environment.ContentRootPath, "Upload");
+            if (!Directory.Exists(uploadPath))
+            {
+                Directory.CreateDirectory(uploadPath);
+            }
+
+            var fileProvider = new PhysicalFileProvider(uploadPath);
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = fileProvider,
+                RequestPath  = requestPath
+            });
+            app.UseDirectoryBrowser(new DirectoryBrowserOptions
+            {
+                FileProvider = fileProvider,
+                RequestPath = requestPath
+            });
+
+            #endregion
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

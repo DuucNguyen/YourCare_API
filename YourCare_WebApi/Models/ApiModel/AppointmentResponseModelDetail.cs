@@ -9,7 +9,9 @@
         public bool PatientGender { get; set; }
         public string PatientNote { get; set; }
         public string DoctorNote { get; set; }
-        public string DoctorDianosis { get; set; }
+        public string DoctorDiagnosis { get; set; }
         public string AppointmentCode { get; set; }
+
+        public List<string>? Files { get; set; } = new List<string>();
     }
 }

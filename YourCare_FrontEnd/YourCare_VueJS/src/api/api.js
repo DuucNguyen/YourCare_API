@@ -1,5 +1,6 @@
 import axios from "axios";
 import TokenService from "./TokenService";
+import { useAuthStore } from "@/stores/auth-store";
 const baseURL = import.meta.env.VITE_API_URL_LOCAL;
 
 const instance = axios.create({
@@ -39,10 +40,11 @@ instance.interceptors.response.use(
                 originalConfig._retry = true;
                 try {
                     console.log("sau login & refresh token");
-                    await instance.post("/Authentication/RenewTokens");
+                    var rs = await instance.post("/Authentication/RenewTokens");
 
-                    // var rsData = rs.data.data;
-                    // TokenService.setCookieToken(rsData.accessToken, rsData.refreshToken);
+                    if (!rs.data.isSucceeded) {
+                        useAuthStore().logOut();
+                    }
 
                     return instance(originalConfig);
                 } catch (_error) {

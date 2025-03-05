@@ -534,6 +534,7 @@
                     <div class="mt-3 appointment-info-item">
                         <label for="patientNote">Ghi chú của bệnh nhân: </label>
                         <textarea
+                            v-model="appointmentFormState.patientNote"
                             placeholder="Thông tin bổ sung - VD: triệu chứng, bệnh lý, thuốc đang xử dung,..."></textarea>
                     </div>
                     <div>
