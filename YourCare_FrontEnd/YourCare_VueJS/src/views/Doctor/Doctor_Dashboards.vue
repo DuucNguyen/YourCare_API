@@ -3,13 +3,14 @@
     import ApiAppointment from "@/api/ApiAppointment";
     import DoctorSideBar from "@/shared/DoctorSideBar.vue";
     import dayjs from "dayjs";
-    import { ref, onMounted, nextTick } from "vue";
+    import { ref, onMounted, nextTick, watch } from "vue";
     import { useRouter } from "vue-router";
 
     import { useAuthStore } from "@/stores/auth-store";
     import { useRouteStore } from "@/stores/route-store";
 
     import Highcharts from "highcharts";
+    import AppointmentStatus from "@/constants/AppointmentStatus";
 
     const authStore = useAuthStore();
     const routeStore = useRouteStore();
@@ -47,10 +48,33 @@
         router.push({ name: "Doctor_Appointment_View" });
     };
 
-    onMounted(async () => {
-        await InitDoctor();
-        await InitAppointment();
-        await nextTick();
+    const GetChartDataFromAppointments = () => {
+        var listStatus = AppointmentStatus.values();
+
+        var result = listStatus.map((x) => {
+            return {
+                name: x,
+                y: GetPercentageByStatus(x),
+            };
+        });
+
+        console.log(result);
+        return result;
+    };
+
+    const GetPercentageByStatus = (status) => {
+        var total = appointments.value.length;
+        var count = appointments.value.filter((x) => x.status === status).length;
+
+        return (count * 100) / total;
+    };
+
+    let chartInstance = null;
+
+    const GenerateChart = () => {
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
 
         Highcharts.chart("chart_container", {
             chart: {
@@ -64,7 +88,12 @@
 
                         if (!customLabel) {
                             customLabel = chart.options.chart.custom.label = chart.renderer
-                                .label("Total<br/>" + "<strong>2 877 820</strong>")
+                                .label(
+                                    "Total<br/>" +
+                                        "<strong>" +
+                                        appointments.value.length +
+                                        "</strong>",
+                                )
                                 .css({
                                     color: "#000",
                                     textAnchor: "middle",
@@ -131,31 +160,31 @@
             },
             series: [
                 {
-                    name: "Registrations",
+                    name: "Phần trăm",
                     colorByPoint: true,
                     innerSize: "70%",
-                    data: [
-                        {
-                            name: "EV",
-                            y: 23.9,
-                        },
-                        {
-                            name: "Hybrids",
-                            y: 12.6,
-                        },
-                        {
-                            name: "Diesel",
-                            y: 37.0,
-                        },
-                        {
-                            name: "Petrol",
-                            y: 26.4,
-                        },
-                    ],
+                    data: GetChartDataFromAppointments(),
                 },
             ],
         });
+    };
+
+    onMounted(async () => {
+        await InitDoctor();
+        await InitAppointment();
+        await nextTick();
+        GenerateChart();
     });
+
+    watch(
+        () => appointments.value,
+        () => {
+            if (appointments.value.length > 0) {
+                GenerateChart();
+            }
+        },
+        { deep: true },
+    );
 </script>
 
 <template>
@@ -294,7 +323,14 @@
                             :fullscreen="false"
                             @change="onDateChange" />
                     </div>
-                    <div id="chart_container"></div>
+                    <div v-show="appointments.length > 0" id="chart_container"></div>
+                    <div v-show="appointments.length <= 0" class="mt-5">
+                        <a-empty>
+                            <template #description>
+                                <span>Không có dữ liệu cho biểu đồ</span>
+                            </template>
+                        </a-empty>
+                    </div>
                 </div>
             </div>
         </div>

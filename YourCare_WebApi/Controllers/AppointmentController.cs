@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using System.Transactions;
@@ -290,6 +291,46 @@ namespace YourCare_WebApi.Controllers
                         IsSucceeded = false,
                     });
                 }
+            }
+        }
+
+        [HttpPatch("UpdateAppointmentStatus/{id}")]
+        public async Task<IActionResult> UpdateAppointmentStatus(int id, [FromBody] JsonPatchDocument patchDoc)
+        {
+            try
+            {
+                var appointment = await _appointmentRepository.GetById(id);
+                if (appointment == null)
+                {
+                    return new JsonResult(new ResponseModel<string>
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "Appointment not found",
+                        IsSucceeded = false,
+                    });
+                }
+
+                patchDoc.ApplyTo(appointment, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Update AppointmentStatus Successful",
+                    IsSucceeded = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Update AppointmentStatus failed",
+                    IsSucceeded = false,
+                });
             }
         }
     }
