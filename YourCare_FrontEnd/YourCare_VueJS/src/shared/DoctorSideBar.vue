@@ -4,7 +4,7 @@
 
     const { activeItem } = defineProps(["activeItem"]);
 
-    const isShrinkView = ref(false);
+    const isShrinkView = ref(true);
 
     const toggleSidebar = () => {
         isShrinkView.value = !isShrinkView.value;
@@ -36,22 +36,21 @@
                 <li :class="['sidebar-listItem', { active: activeItem === 'dashboard' }]">
                     <RouterLink :to="{ name: 'Doctor_Dashboard_View' }">
                         <i class="bx bxs-dashboard"></i>
-                        <span class="sidebar-listItemText">Dashboard</span>
+                        <span class="sidebar-listItemText">Thống kê</span>
                     </RouterLink>
                 </li>
                 <li :class="['sidebar-listItem', { active: activeItem === 'appointment' }]">
                     <RouterLink :to="{ name: 'Doctor_Appointment_View' }"
                         ><i class="bx bxs-calendar"></i>
-                        <span class="sidebar-listItemText">Appointment</span>
+                        <span class="sidebar-listItemText">Lịch khám hôm nay</span>
                     </RouterLink>
                 </li>
-                <li :class="['sidebar-listItem', { active: activeItem === 'inbox' }]">
-                    <a>
+                <li :class="['sidebar-listItem', { active: activeItem === 'calendar' }]">
+                    <RouterLink :to="{ name: 'Doctor_Calendar_View' }">
                         <i class="bx bxs-inbox"></i>
-                        <span class="sidebar-listItemText">Inbox</span>
-                    </a>
+                        <span class="sidebar-listItemText">Lịch làm việc</span>
+                    </RouterLink>
                 </li>
-
                 <li :class="['sidebar-listItem', { active: activeItem === 'activity' }]">
                     <a>
                         <i class="bx bxs-bar-chart-alt-2"></i>

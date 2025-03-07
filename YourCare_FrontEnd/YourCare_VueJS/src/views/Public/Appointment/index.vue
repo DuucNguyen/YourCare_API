@@ -1,11 +1,14 @@
 <script setup>
     import ApiAppointment from "@/api/ApiAppointment";
     import { useAuthStore } from "@/stores/auth-store";
-    import { ref, reactive, onMounted } from "vue";
+    import { ref, reactive, onMounted, createVNode } from "vue";
     import dayjs from "dayjs";
     //
     import UserSideBar from "@/shared/UserSideBar.vue";
     import { valHooks } from "jquery";
+    import AppointmentStatus from "@/constants/AppointmentStatus";
+    import { message, Modal } from "ant-design-vue";
+    import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
 
     const authStore = useAuthStore();
 
@@ -31,6 +34,37 @@
         if (result.data.isSucceeded) {
             appointmentDetail.value = result.data.data;
         }
+    };
+
+    const onCancelAppointment = () => {
+        Modal.confirm({
+            title: "Xác nhận hủy lịch khám.",
+            icon: createVNode(ExclamationCircleOutlined),
+            content:
+                "Hành động này không thể hoàn tác, Vui lòng chắc chắn trước khi hủy lịch khám.",
+            okText: "Xác nhận",
+            cancelText: "Hủy",
+            async onOk() {
+                var patchDoc = [
+                    {
+                        op: "replace",
+                        path: "/status",
+                        value: AppointmentStatus.CANCELLED,
+                    },
+                ];
+                var result = await ApiAppointment.UpdateAppointmentStatus(
+                    appointmentDetail.value.id,
+                    patchDoc,
+                );
+                if (result.data.isSucceeded) {
+                    message.success("Hủy lịch khám thành công");
+                    await GetAppointmentDetail(appointmentDetail.value);
+                } else {
+                    message.error("Lỗi, vui lòng thử lại");
+                }
+            },
+            onCancel() {},
+        });
     };
 
     onMounted(async () => {
@@ -121,12 +155,29 @@
                     <div v-if="chosenAppointment.id">
                         <a-row>
                             <a-col
-                                :span="12"
-                                class="text-start"
+                                v-if="appointmentDetail.status === AppointmentStatus.WAITING"
+                                :span="5"
+                                class="text-secondary d-flex justify-content-start">
+                                <a-button
+                                    type="primary"
+                                    danger
+                                    @click="onCancelAppointment(appointmentDetail)"
+                                    >Hủy lịch khám</a-button
+                                >
+                            </a-col>
+                            <a-col
+                                :span="
+                                    appointmentDetail.status === AppointmentStatus.WAITING ? 9 : 12
+                                "
+                                class="ms-2 text-start"
                                 style="color: #22c55e; font-weight: 500; font-size: 20px">
                                 STT: {{ chosenAppointment.timeTableOrder }}
                             </a-col>
-                            <a-col :span="12" class="text-secondary d-flex justify-content-end">
+                            <a-col
+                                :span="
+                                    appointmentDetail.status === AppointmentStatus.WAITING ? 9 : 11
+                                "
+                                class="text-secondary d-flex justify-content-end">
                                 <span class="fs-5 d-flex align-items-center">
                                     <i class="bx bx-error-alt fs-4 me-1"></i>
                                     {{ chosenAppointment.status }}

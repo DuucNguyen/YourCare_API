@@ -4,7 +4,10 @@
     import DoctorSideBar from "@/shared/DoctorSideBar.vue";
     import { ref, onMounted, reactive } from "vue";
     import dayjs from "dayjs";
+    import { useRouter } from "vue-router";
+
     import AppointmentStatus from "@/constants/AppointmentStatus";
+
 
     import { useAuthStore } from "@/stores/auth-store";
     import { useRouteStore } from "@/stores/route-store";
@@ -14,6 +17,7 @@
     import { InboxOutlined, ExclamationCircleOutlined } from "@ant-design/icons-vue";
     import { message, Modal } from "ant-design-vue";
 
+    const router = useRouter();
     const authStore = useAuthStore();
     const routeStore = useRouteStore();
     const appointment = ref(routeStore.data); //get from route
@@ -163,6 +167,23 @@
             },
         });
     };
+
+    const RedirectToFollowUp = () => {
+        Modal.confirm({
+            title: "Xác nhận đặt lịch tái khám",
+            icon: createVNode(ExclamationCircleOutlined),
+            content:
+                "Xác nhận đi tới trang đặt lịch tái khám cho bệnh nhân: " +
+                appointment.value.patientName,
+            okText: "Xác nhận",
+            cancelText: "Hủy",
+            onOk() {
+                routeStore.setData(appointment.value);
+                router.push({name: 'Doctor_Appointment_Create'});
+            },
+            onCancel() {},
+        });
+    };
 </script>
 
 <template>
@@ -171,64 +192,79 @@
         <div class="doctor_dashboard_section">
             <div class="doctor_dashboard_body">
                 <div class="col-md-4 doctor_appointment_list">
-                    <div class="appointment_container">
-                        <template v-for="item in appointments">
-                            <div
-                                :class="
-                                    'appointment_item ' +
-                                    (appointment.id == item.id ? 'appointment_item_chosen' : '')
-                                "
-                                @click="GetAppointmentDetail(item)">
-                                <a-row>
-                                    <a-col :span="24">
-                                        <span style="font-weight: 500; font-size: 17px">{{
-                                            item.doctorName
-                                        }}</span>
-                                    </a-col>
-                                </a-row>
-                                <a-row>
-                                    <a-col :span="20">
-                                        <span>
-                                            {{
-                                                dayjs(item.timetableStartTime, "HH:mm:ss").format(
-                                                    "HH:mm",
-                                                )
-                                            }}
-                                            -
-                                        </span>
-                                        <span style="color: #1975dc; font-weight: 500">
-                                            {{ dayjs(item.timetableDate).format("DD-MM-YYYY") }}
-                                        </span>
-                                        <br />
-                                        <span>
-                                            {{ item.patientName }}
-                                        </span>
-                                        <br />
-                                        <span
-                                            :class="
-                                                (item.status === AppointmentStatus.COMPLETED
-                                                    ? 'text-primary'
-                                                    : 'text-secondary') + ' ms-3'
-                                            "
-                                            style="font-size: 13px">
-                                            {{ item.status }}
-                                        </span>
-                                    </a-col>
-                                    <a-col :span="4" class="text-center">
-                                        <span style="font-size: 12px">STT</span>
-                                        <br />
-                                        <span
-                                            style="
-                                                font-weight: 500;
-                                                font-size: 20px;
-                                                color: #22c55e;
-                                            "
-                                            >{{ item.timeTableOrder }}</span
-                                        >
-                                    </a-col>
-                                </a-row>
-                            </div>
-                        </template>
+                    <div class="doctor_dashboard_title">
+                        <h3 class="mb-0 ms-3 mt-1">Lịch khám hôm nay</h3>
+                    </div>
+                    <div v-show="appointments.length > 0" class="appointment_container">
+                        <div>
+                            <template v-for="item in appointments">
+                                <div
+                                    :class="
+                                        'appointment_item ' +
+                                        (appointment.id == item.id ? 'appointment_item_chosen' : '')
+                                    "
+                                    @click="GetAppointmentDetail(item)">
+                                    <a-row>
+                                        <a-col :span="24">
+                                            <span style="font-weight: 500; font-size: 17px">{{
+                                                item.doctorName
+                                            }}</span>
+                                        </a-col>
+                                    </a-row>
+                                    <a-row>
+                                        <a-col :span="20">
+                                            <span>
+                                                {{
+                                                    dayjs(
+                                                        item.timetableStartTime,
+                                                        "HH:mm:ss",
+                                                    ).format("HH:mm")
+                                                }}
+                                                -
+                                            </span>
+                                            <span style="color: #1975dc; font-weight: 500">
+                                                {{ dayjs(item.timetableDate).format("DD-MM-YYYY") }}
+                                            </span>
+                                            <br />
+                                            <span>
+                                                {{ item.patientName }}
+                                            </span>
+                                            <br />
+                                            <span
+                                                :class="
+                                                    (item.status === AppointmentStatus.COMPLETED
+                                                        ? 'text-primary'
+                                                        : 'text-secondary') + ' ms-3'
+                                                "
+                                                style="font-size: 13px">
+                                                {{ item.status }}
+                                            </span>
+                                        </a-col>
+                                        <a-col :span="4" class="text-center">
+                                            <span style="font-size: 12px">STT</span>
+                                            <br />
+                                            <span
+                                                style="
+                                                    font-weight: 500;
+                                                    font-size: 20px;
+                                                    color: #22c55e;
+                                                "
+                                                >{{ item.timeTableOrder }}</span
+                                            >
+                                        </a-col>
+                                    </a-row>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    <div
+                        v-show="appointments.length <= 0"
+                        class="h-75 mt-5 d-flex align-items-center justify-content-center">
+                        <a-empty class="">
+                            <template #description>
+                                <span>Không có lịch khám trong hôm nay</span>
+                            </template>
+                        </a-empty>
                     </div>
                 </div>
                 <div class="col-md-8">
@@ -260,7 +296,17 @@
                                         </span>
                                     </a-col>
                                 </a-row>
-                                <a-row class="mt-3">
+                                <a-row class="mt-1">
+                                    <a-col :span="24" class="d-flex justify-content-end">
+                                        <a-button
+                                            type="primary"
+                                            class="d-flex align-items-center"
+                                            @click="RedirectToFollowUp">
+                                            Hẹn tái khám <i class="bx bx-right-arrow-alt fs-5"></i>
+                                        </a-button>
+                                    </a-col>
+                                </a-row>
+                                <a-row class="mt-1">
                                     <a-col :span="12">
                                         <img
                                             style="width: 75px; height: 100%; object-fit: contain"
@@ -535,6 +581,13 @@
                                 </a-form>
                             </div>
                         </div>
+                        <div v-else class="h-100 d-flex align-items-center justify-content-center">
+                            <a-empty>
+                                <template #description>
+                                    <span>Không có thông tin</span>
+                                </template>
+                            </a-empty>
+                        </div>
                     </a-col>
                 </div>
             </div>
@@ -545,8 +598,8 @@
     .appointment_container {
         margin: 10px;
         padding: 5px;
-        height: 650px;
-        max-height: 650px;
+        height: 630px;
+        max-height: 630px;
         overflow-y: scroll;
         background: #f3f4f6;
         border-bottom: 1px solid #ddd;

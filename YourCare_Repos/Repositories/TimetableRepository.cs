@@ -198,27 +198,17 @@ namespace YourCare_Repos.Repositories
                 return false;
             }
 
-            find = request;
+            find.Date = request.Date;
+            find.StartTime = request.StartTime;
+            find.EndTime = request.EndTime;
+            find.AvailableSlots = request.AvailableSlots;
+            find.IsAvailable = request.IsAvailable;
+
+            if (find.AvailableSlots > 0) find.IsAvailable = true;
+
             await _timetableDAO.Update(find);
             return true;
         }
 
-        public async Task<bool> UpdateAvailableSlot(int id)
-        {
-            var find = await _timetableDAO.GetByID(id);
-            if (find == null)
-            {
-                return false;
-            }
-
-            find.AvailableSlots -= 1;
-
-            if (find.AvailableSlots == 0)
-            {
-                find.IsAvailable = false;
-            }
-            await _timetableDAO.Update(find);
-            return true;
-        }
     }
 }

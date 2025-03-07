@@ -42,7 +42,7 @@ namespace YourCare_DAOs.DAOs
                 .Include(x => x.PatientProfile)
                 .Include(x => x.Doctor)
                 .Include(x => x.TimeTable)
-                .Include(x=>x.Files)
+                .Include(x => x.Files)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
@@ -96,6 +96,13 @@ namespace YourCare_DAOs.DAOs
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 
+        public async Task<int> CountAppointmentByDate(Guid doctorID, DateTime date)
+        {
+            var result = await _context.Appointments
+                .Include(x => x.TimeTable)
+                .Where(x => x.DoctorID == doctorID && x.TimeTable.Date.Date == date.Date).ToListAsync();
 
+            return result.Count;
+        }
     }
 }

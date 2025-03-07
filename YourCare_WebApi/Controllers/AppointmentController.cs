@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
@@ -21,18 +22,21 @@ namespace YourCare_WebApi.Controllers
         private readonly IAppointmentReposiory _appointmentRepository;
         private readonly IAppointmentFilesUploadRepository _appointmentFilesUploadRepository;
         private readonly IDoctorProfileRepository _doctorRepository;
+        private readonly ITimetableRepository _timetableRepository;
         private readonly IFileService _fileService;
 
         public AppointmentController(IAppointmentReposiory appointmentRepository,
             IDoctorProfileRepository doctorRepository,
             IAppointmentFilesUploadRepository appointmentFilesUploadRepository,
-            IFileService fileService
+            IFileService fileService,
+            ITimetableRepository timetableRepository
             )
         {
             _appointmentRepository = appointmentRepository;
             _doctorRepository = doctorRepository;
             _appointmentFilesUploadRepository = appointmentFilesUploadRepository;
             _fileService = fileService;
+            _timetableRepository = timetableRepository;
         }
 
         [HttpPost("create")]
@@ -295,43 +299,94 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpPatch("UpdateAppointmentStatus/{id}")]
-        public async Task<IActionResult> UpdateAppointmentStatus(int id, [FromBody] JsonPatchDocument patchDoc)
+        public async Task<IActionResult> UpdateAppointmentStatus(int id, [FromBody] JsonPatchDocument<Appointment> patchDoc)
         {
-            try
+            using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
-                var appointment = await _appointmentRepository.GetById(id);
-                if (appointment == null)
+                try
                 {
+                    var appointment = await _appointmentRepository.GetById(id);
+                    if (appointment == null)
+                    {
+                        return new JsonResult(new ResponseModel<string>
+                        {
+                            StatusCode = StatusCodes.Status400BadRequest,
+                            Message = "Appointment not found",
+                            IsSucceeded = false,
+                        });
+                    }
+
+                    patchDoc.ApplyTo(appointment, (error) => ModelState.AddModelError(error.AffectedObject.ToString(), error.ErrorMessage));
+
+
+                    if (!ModelState.IsValid)
+                    {
+                        return BadRequest(ModelState);
+                    }
+
+                    await _appointmentRepository.Update(appointment);
+
+                    appointment.TimeTable.AvailableSlots += 1;
+
+                    await _timetableRepository.Update(appointment.TimeTable);
+
+                    scope.Complete();
                     return new JsonResult(new ResponseModel<string>
                     {
-                        StatusCode = StatusCodes.Status400BadRequest,
-                        Message = "Appointment not found",
+                        StatusCode = StatusCodes.Status200OK,
+                        Message = "Update AppointmentStatus Successfull",
+                        IsSucceeded = true,
+                    });
+                }
+                catch (Exception ex)
+                {
+                    scope.Dispose();
+                    return new JsonResult(new ResponseModel<string>
+                    {
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                        Message = "Update AppointmentStatus failed",
                         IsSucceeded = false,
                     });
                 }
+            }
+        }
 
-                patchDoc.ApplyTo(appointment, (Microsoft.AspNetCore.JsonPatch.Adapters.IObjectAdapter)ModelState);
-                if (!ModelState.IsValid)
+        [HttpGet("GetNumberOfAppointmentInMonthByDate")]
+        public async Task<IActionResult> GetNumberOfAppointmentInMonthByDate(Guid doctorID, DateTime date)
+        {
+            try
+            {
+                var result = new List<CountAppointmentModel>();
+                var daysInMonth = DateTime.DaysInMonth(date.Year, date.Month);
+                for (int i = 1; i <= daysInMonth; i++)
                 {
-                    return BadRequest(ModelState);
+                    var currentDate = new DateTime(date.Year, date.Month, i);
+                    result.Add(new CountAppointmentModel
+                    {
+                        Date = currentDate,
+                        AppointmentCount = await _appointmentRepository.CountAppointmentByDate(doctorID, currentDate)
+                    });
                 }
 
-                return new JsonResult(new ResponseModel<string>
+                return new JsonResult(new ResponseModel<List<CountAppointmentModel>>
                 {
                     StatusCode = StatusCodes.Status200OK,
-                    Message = "Update AppointmentStatus Successful",
+                    Message = "GetNumberOfAppointmentInMonthByDate successfully.",
                     IsSucceeded = true,
+                    Data = result
                 });
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message + " - " + ex.StackTrace);
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
-                    Message = "Update AppointmentStatus failed",
+                    Message = "GetNumberOfAppointmentInMonthByDate failed.",
                     IsSucceeded = false,
                 });
             }
         }
+
     }
 }

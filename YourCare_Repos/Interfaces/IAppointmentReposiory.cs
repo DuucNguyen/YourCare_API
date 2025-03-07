@@ -20,5 +20,7 @@ namespace YourCare_Repos.Interfaces
         public Task<List<Appointment>> GetAll();
         public Task<List<Appointment>> GetAllByUserId(string userId);
         public Task<bool> CompleteAppointment(int id, string dianosis, string note);
+        public Task<int> CountAppointmentByDate(Guid doctorID, DateTime date);
+
     }
 }

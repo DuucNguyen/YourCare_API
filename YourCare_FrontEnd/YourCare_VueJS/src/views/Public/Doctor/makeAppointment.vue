@@ -16,8 +16,6 @@
     import { message, Modal, notification } from "ant-design-vue";
     import { createVNode } from "vue";
     import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
-    import { icons } from "ant-design-vue/es/image/PreviewGroup";
-    import { Item } from "ant-design-vue/es/menu";
 
     const actions = {
         create: "Tạo mới",
@@ -94,7 +92,7 @@
     const doctor_timetables = ref([]); //doctor schedule for the next 10 days + today
     const doctor_timetables_day = ref([]); //unique days in the list
     const day_timeTable = ref([]); //time slots of a day - dynamic
-    const chosenDate = ref();
+    const chosenDate = ref(); //chosen date item in doctor_timetables 
 
     //appointment form
     //
@@ -118,10 +116,7 @@
         }
     };
 
-    const getNumberOfTimeSlots = (date) => {
-        // return [...new Map(doctor_timetables.value.map((item) => [item.startTime, item])).values()]
-        //     .length;
-
+    const getNumberOfTimeSlots = () => {
         return [...new Set(doctor_timetables.value.map((item) => item.startTime))].length;
     };
 

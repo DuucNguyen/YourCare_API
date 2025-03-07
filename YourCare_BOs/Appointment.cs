@@ -29,7 +29,7 @@ namespace YourCare_BOs
         public DateTime UpdatedOn { get; set; }
 
         [MaxLength(100)]
-        public  string Status { get; set; }
+        public string Status { get; set; }
 
         public string? PatientNote { get; set; }
 
@@ -42,6 +42,10 @@ namespace YourCare_BOs
         public string CreatedBy { get; set; }
 
         public int? PatientRating { get; set; }
+
+        public bool? IsFollowUp { get; set; }
+
+        public int? PreviousAppointmentID { get; set; }
 
         [MaxLength(500)]
         public string? PatientFeedBack { get; set; }
@@ -58,6 +62,6 @@ namespace YourCare_BOs
         [ForeignKey("CreatedBy")]
         public virtual ApplicationUser CreatedByUser { get; set; }
 
-        public virtual List<AppointmentFilesUpload>? Files { get; set; } 
+        public virtual List<AppointmentFilesUpload>? Files { get; set; }
     }
 }

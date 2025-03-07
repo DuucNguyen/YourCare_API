@@ -15,6 +15,18 @@ const doctorRoutes = [
                 meta: { title: "Appointment" },
                 component: () => import("@/views/Doctor/Appointment/index.vue"),
             },
+            {
+                path: "create-appointment",
+                name: "Doctor_Appointment_Create",
+                meta: { title: "Calendar" },
+                component: () => import("@/views/Doctor/Appointment/create.vue"),
+            },
+            {
+                path: "my-calendar",
+                name: "Doctor_Calendar_View",
+                meta: { title: "Calendar" },
+                component: () => import("@/views/Doctor/Appointment/calendar.vue"),
+            },
         ],
     },
 ];

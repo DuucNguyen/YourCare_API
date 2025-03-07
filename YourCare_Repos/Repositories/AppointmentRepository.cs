@@ -40,7 +40,8 @@ namespace YourCare_Repos.Repositories
                     else if (timetable.IsAvailable)
                     {
                         await _appointmentDAO.Create(request);
-                        await _timetableRepository.UpdateAvailableSlot(request.TimetableID);
+                        timetable.AvailableSlots -= 1;
+                        await _timetableRepository.Update(timetable);
                     }
                     scope.Complete();
                 }
@@ -100,14 +101,36 @@ namespace YourCare_Repos.Repositories
 
         public async Task<bool> Update(Appointment request)
         {
-            var find = await _appointmentDAO.GetByID(request.Id);
-            if (find == null)
+            try
             {
+                var find = await _appointmentDAO.GetByID(request.Id);
+                if (find == null)
+                {
+                    return false;
+                }
+
+                find.DoctorID = request.DoctorID;
+                find.TimetableID = request.TimetableID;
+                find.PatientProfileID = request.PatientProfileID;
+                find.PatientFeedBack = request.PatientFeedBack;
+                find.PatientNote = request.PatientNote;
+                find.DoctorNote = request.DoctorNote;
+                find.DoctorDiagnosis = request.DoctorDiagnosis;
+                find.Status = request.Status;
+                find.TotalPrice = request.TotalPrice;
+                find.UpdatedOn = DateTime.Now;
+                find.AppointmentCode = request.AppointmentCode;
+                find.TimetableOrder = request.TimetableOrder;
+                find.PatientRating = request.PatientRating;
+
+                await _appointmentDAO.Update(find);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " - " + ex.StackTrace);
                 return false;
             }
-            find = request;
-            await _appointmentDAO.Update(find);
-            return true;
         }
 
         public async Task<bool> CompleteAppointment(int id, string dianosis, string note)
@@ -133,6 +156,13 @@ namespace YourCare_Repos.Repositories
                 Console.WriteLine(ex.Message + " - " + ex.StackTrace);
                 return false;
             }
+        }
+
+
+
+        public async Task<int> CountAppointmentByDate(Guid doctorID, DateTime date)
+        {
+            return await _appointmentDAO.CountAppointmentByDate(doctorID, date);
         }
     }
 }

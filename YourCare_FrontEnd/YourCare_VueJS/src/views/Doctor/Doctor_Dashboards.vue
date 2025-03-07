@@ -3,7 +3,7 @@
     import ApiAppointment from "@/api/ApiAppointment";
     import DoctorSideBar from "@/shared/DoctorSideBar.vue";
     import dayjs from "dayjs";
-    import { ref, onMounted, nextTick, watch } from "vue";
+    import { ref, onMounted, nextTick, watch, computed } from "vue";
     import { useRouter } from "vue-router";
 
     import { useAuthStore } from "@/stores/auth-store";
@@ -48,6 +48,13 @@
         router.push({ name: "Doctor_Appointment_View" });
     };
 
+    const CountStatusAppointment = (status) => {
+        return appointments.value
+            .filter((x) => x.status === status)
+            .length.toString()
+            .padStart(2, "0");
+    };
+
     const GetChartDataFromAppointments = () => {
         var listStatus = AppointmentStatus.values();
 
@@ -57,8 +64,6 @@
                 y: GetPercentageByStatus(x),
             };
         });
-
-        console.log(result);
         return result;
     };
 
@@ -127,7 +132,7 @@
                 enabled: false,
             },
             title: {
-                text: "Lịch khám hôm nay",
+                text: "Tiến độ " + dayjs(date.value).format("DD/MM/YYYY"),
             },
             tooltip: {
                 pointFormat: "{series.name}: <b>{point.percentage:.0f}%</b>",
@@ -192,7 +197,7 @@
         <DoctorSideBar active-item="dashboard" />
         <div class="doctor_dashboard_section">
             <div class="doctor_dashboard_title">
-                <h3>Dashboard</h3>
+                <h3>Thống kê</h3>
             </div>
             <div class="doctor_dashboard_body">
                 <div class="col-md-8">
@@ -207,7 +212,7 @@
                                 <span style="color: #3a57e8">
                                     {{ dayjs(date).format("DD/MM/YYYY") }}
                                 </span>
-                                <span>Today</span>
+                                <span>Ngày</span>
                             </div>
                         </div>
                         <div class="col statistic_item">
@@ -220,7 +225,7 @@
                                 <span style="color: #00cccc">
                                     {{ appointments.length.toString().padStart(2, "0") }}
                                 </span>
-                                <span>Total</span>
+                                <span>Tổng</span>
                             </div>
                         </div>
                         <div class="col statistic_item">
@@ -231,9 +236,9 @@
                             </div>
                             <div class="statistic_item_data">
                                 <span style="color: #eb991b">
-                                    {{ appointments.length.toString().padStart(2, "0") }}
+                                    {{ CountStatusAppointment(AppointmentStatus.WAITING) }}
                                 </span>
-                                <span>Appointment</span>
+                                <span>Đang đợi</span>
                             </div>
                         </div>
                         <div class="col statistic_item">
@@ -243,8 +248,10 @@
                                 <i class="bx bx-calendar-check"></i>
                             </div>
                             <div class="statistic_item_data">
-                                <span style="color: #1aa053">04</span>
-                                <span>Processed</span>
+                                <span style="color: #1aa053">{{
+                                    CountStatusAppointment(AppointmentStatus.COMPLETED)
+                                }}</span>
+                                <span>Đã tiếp nhận</span>
                             </div>
                         </div>
                     </div>
