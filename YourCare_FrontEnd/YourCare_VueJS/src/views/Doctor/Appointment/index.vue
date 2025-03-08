@@ -13,7 +13,11 @@
 
     //
     import { createVNode } from "vue";
-    import { InboxOutlined, ExclamationCircleOutlined } from "@ant-design/icons-vue";
+    import {
+        InboxOutlined,
+        ExclamationCircleOutlined,
+        VerticalAlignBottomOutlined,
+    } from "@ant-design/icons-vue";
     import { message, Modal } from "ant-design-vue";
 
     const router = useRouter();
@@ -185,6 +189,46 @@
             },
             onCancel() {},
         });
+    };
+
+    const DownloadFile = async (path) => {
+        try {
+            const response = await ApiAppointment.DownloadFile(path.split("\\")[1]);
+
+            if (!response || !response.data) {
+                throw new Error("Invalid response");
+            }
+
+            // Create a Blob from the response data
+            const fileBlob = new Blob([response.data], { type: response.headers["content-type"] });
+
+            // Extract filename from response headers or fallback to the path
+            let fileName = path.split("/").pop();
+            const contentDisposition = response.headers["content-disposition"];
+
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename="?(.+?)"?$/);
+                if (match) {
+                    fileName = match[1];
+                }
+            }
+
+            // Force download the file
+            const url = window.URL.createObjectURL(fileBlob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", fileName); // Set download filename
+            document.body.appendChild(link);
+            link.click();
+
+            // Clean up
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Download file error:", error);
+            message.error("Download file error.");
+            message.error("Lỗi, tải file thất bại");
+        }
     };
 </script>
 
@@ -577,9 +621,23 @@
                                                 </a-upload-dragger>
                                             </a-col>
                                             <a-col v-else :span="24">
-                                                <span v-for="path in appointmentDetail.files">
-                                                    {{ path }}
-                                                </span>
+                                                <div
+                                                    v-for="(path, index) in appointmentDetail.files"
+                                                    class="d-flex align-items-center">
+                                                    <span>
+                                                        {{
+                                                            (index + 1).toString().padStart(2, "0")
+                                                        }}
+                                                        -
+                                                        {{ path.split("\\")[1] }}
+                                                    </span>
+                                                    <a-button
+                                                        @click="DownloadFile(path)"
+                                                        type="primary"
+                                                        class="d-flex align-items-center">
+                                                        <VerticalAlignBottomOutlined />
+                                                    </a-button>
+                                                </div>
                                             </a-col>
                                         </a-row>
                                     </a-form-item>

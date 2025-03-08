@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.StaticFiles;
 using System.Security.Claims;
 using System.Transactions;
 using YourCare_BOs;
@@ -108,7 +109,7 @@ namespace YourCare_WebApi.Controllers
                     TimetableID = x.TimetableID,
                     PatientProfileID = x.PatientProfileID,
 
-                    
+
                 }).ToList();
 
                 foreach (var item in result)
@@ -394,6 +395,36 @@ namespace YourCare_WebApi.Controllers
                     IsSucceeded = false,
                 });
             }
+        }
+
+
+        [HttpGet("DownloadFile")]
+        public IActionResult DownloadFile([FromQuery] string path)
+        {
+            var fileDirectory = Path.Combine("Upload", path);
+            var filePath = Path.Combine(Directory.GetCurrentDirectory(), fileDirectory);
+
+            if (string.IsNullOrEmpty(path) || !System.IO.File.Exists(filePath))
+            {
+                return NotFound("File not found.");
+            }
+
+            var fileBytes = System.IO.File.ReadAllBytes(filePath);
+            var contentType = GetContentType(filePath); // Detect MIME type
+            var fileName = Path.GetFileName(filePath);
+
+            return File(fileBytes, contentType, fileName);
+        }
+
+        // Helper function to detect MIME type
+        private string GetContentType(string path)
+        {
+            var provider = new FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(path, out var contentType))
+            {
+                contentType = "application/octet-stream"; // Default type for unknown files
+            }
+            return contentType;
         }
 
     }

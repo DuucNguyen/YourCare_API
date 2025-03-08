@@ -11,6 +11,7 @@ const END_POINTS = {
     COMPLETE_APPOINTMENT: "Appointment/CompleteAppointment",
     COUNT_APPOINTMENT_IN_MONTH_BY_DATE: "Appointment/GetNumberOfAppointmentInMonthByDate",
     UPDATE_APPOINTMENT_STATUS: "Appointment/UpdateAppointmentStatus",
+    DOWNLOAD_FILE: "Appointment/DownloadFile",
 };
 class ApiAppointment {
     Create = async (formData) => {
@@ -62,6 +63,15 @@ class ApiAppointment {
             headers: {
                 "Content-Type": "application/json-patch+json",
             },
+        });
+    };
+
+    DownloadFile = async (path) => {
+        return await API.get(`${END_POINTS.DOWNLOAD_FILE}`, {
+            params: {
+                path: path,
+            },
+            responseType: "blob",
         });
     };
 }
