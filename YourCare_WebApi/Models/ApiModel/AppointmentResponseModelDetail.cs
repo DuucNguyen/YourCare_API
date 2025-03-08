@@ -12,6 +12,9 @@
         public string DoctorDiagnosis { get; set; }
         public string AppointmentCode { get; set; }
 
+        public bool? IsFollowUp { get; set; }
+        public int? PreviousAppointmentID { get; set; }
+
         public List<string>? Files { get; set; } = new List<string>();
     }
 }

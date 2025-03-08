@@ -57,6 +57,9 @@ namespace YourCare_WebApi.Controllers
                     CreatedBy = userId,
                     UpdatedOn = DateTime.Now,
                     Status = AppointmentStatus.Waiting,
+
+                    IsFollowUp = request.IsFollowUp ?? false,
+                    PreviousAppointmentID = request.PreviousAppointmentID ?? null,
                 };
 
                 var result = await _appointmentRepository.Add(appointment);
@@ -104,6 +107,8 @@ namespace YourCare_WebApi.Controllers
                     DoctorID = x.DoctorID,
                     TimetableID = x.TimetableID,
                     PatientProfileID = x.PatientProfileID,
+
+                    
                 }).ToList();
 
                 foreach (var item in result)
@@ -162,6 +167,9 @@ namespace YourCare_WebApi.Controllers
                     DoctorNote = query.DoctorNote ?? "",
                     DoctorDiagnosis = query.DoctorDiagnosis ?? "",
                     AppointmentCode = query.AppointmentCode ?? "",
+
+                    IsFollowUp = query.IsFollowUp,
+                    PreviousAppointmentID = query.PreviousAppointmentID,
                 };
 
                 var doctor = await _doctorRepository.GetDoctorByID(result.DoctorID.ToString());

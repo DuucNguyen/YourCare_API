@@ -42,6 +42,32 @@ namespace YourCare_WebApi.Controllers
             }
         }
 
+        [HttpGet("GetByID")]
+        public async Task<IActionResult> GetByID([FromQuery] Guid id)
+        {
+            try
+            {
+                var result = await _patientRepository.GetById(id);
+                return new JsonResult(new ResponseModel<PatientProfile>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "GetByID successful",
+                    IsSucceeded = true,
+                    Data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " - " + ex.StackTrace);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "GetByID failed",
+                    IsSucceeded = false,
+                });
+            }
+        }
+
 
         [HttpPost("Create")]
         public async Task<IActionResult> Create([FromForm] PatientProfile request)

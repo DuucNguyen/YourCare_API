@@ -8,7 +8,6 @@
 
     import AppointmentStatus from "@/constants/AppointmentStatus";
 
-
     import { useAuthStore } from "@/stores/auth-store";
     import { useRouteStore } from "@/stores/route-store";
 
@@ -178,8 +177,11 @@
             okText: "Xác nhận",
             cancelText: "Hủy",
             onOk() {
-                routeStore.setData(appointment.value);
-                router.push({name: 'Doctor_Appointment_Create'});
+                // routeStore.setData(appointment.value);
+                router.push({
+                    name: "Doctor_Appointment_Create",
+                    params: { id: appointment.value.id },
+                });
             },
             onCancel() {},
         });
@@ -271,7 +273,10 @@
                     <a-col :span="23" class="appointment_detail_container">
                         <div v-if="appointmentDetail">
                             <a-row
-                                v-if="appointmentDetail.status !== AppointmentStatus.COMPLETED"
+                                v-if="
+                                    appointmentDetail.status === AppointmentStatus.WAITING ||
+                                    appointmentDetail.status === AppointmentStatus.PROCESSING
+                                "
                                 class="appointment_detail_buttons">
                                 <a-button @click="onFinish" type="primary">
                                     Xác nhận đã khám xong

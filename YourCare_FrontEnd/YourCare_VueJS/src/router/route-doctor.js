@@ -16,7 +16,7 @@ const doctorRoutes = [
                 component: () => import("@/views/Doctor/Appointment/index.vue"),
             },
             {
-                path: "create-appointment",
+                path: "create-appointment/:id",
                 name: "Doctor_Appointment_Create",
                 meta: { title: "Calendar" },
                 component: () => import("@/views/Doctor/Appointment/create.vue"),

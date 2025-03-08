@@ -13,5 +13,9 @@
         public string? PatientNote { get; set; }
 
         public string AppointmentCode { get; set; }
+
+        public bool? IsFollowUp { get; set; }
+
+        public int? PreviousAppointmentID { get; set; }
     }
 }

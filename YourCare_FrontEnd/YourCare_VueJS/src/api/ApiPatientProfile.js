@@ -3,6 +3,7 @@ const END_POINTS = {
     CREATE: "/PatientProfile/Create",
     UPDATE: "/PatientProfile/Update",
     GET_ALL_BY_USER_ID: "/PatientProfile/GetAllByUserID",
+    GET_BY_ID: "/PatientProfile/GetByID",
 };
 
 class ApiPatientProfile {
@@ -25,6 +26,14 @@ class ApiPatientProfile {
     GetAllByUserID = async (userID) => {
         return await API.get(`${END_POINTS.GET_ALL_BY_USER_ID}`, {
             params: { userID: userID },
+        });
+    };
+
+    GetByID = async (id) => {
+        return await API.get(`${END_POINTS.GET_BY_ID}`, {
+            params: {
+                id: id,
+            },
         });
     };
 }

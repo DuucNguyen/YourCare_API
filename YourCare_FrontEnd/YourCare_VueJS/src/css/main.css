@@ -368,6 +368,7 @@ header {
     align-items: center;
     border-radius: 5px;
     box-shadow: 1px 1px 10px #ddd;
+    background-color: #fff;
 }
 
 .profile-doctor-info {
@@ -850,7 +851,6 @@ header {
 .appointment_detail_item textarea {
     height: 100px;
 }
-
 
 /* ============================================END-Doctor-Appointment-Index========================================================= */
 
