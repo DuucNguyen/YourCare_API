@@ -57,6 +57,7 @@ import {
     Empty,
     UploadDragger,
     Badge,
+    Steps,
 } from "ant-design-vue";
 
 //
@@ -112,6 +113,7 @@ app.use(Calendar);
 app.use(Empty);
 app.use(UploadDragger);
 app.use(Badge);
+app.use(Steps);
 
 /**
  * highcharts

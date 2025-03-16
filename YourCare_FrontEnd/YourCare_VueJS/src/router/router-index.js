@@ -24,6 +24,7 @@ const publicRoutes = [
     "login",
     "register",
     "forgot-password",
+    "reset-password",
     "create-password",
     "create-profile",
     "404",

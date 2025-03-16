@@ -16,7 +16,7 @@ const authRoutes = [
                 component: () => import("@/views/Auth/register.vue"),
             },
             {
-                path: "/createPassword/:userId/:code",
+                path: "/create-password/:userId/:code",
                 name: "create-password",
                 meta: { title: "Create Password" },
                 component: () => import("@/views/Auth/createPassword.vue"),
@@ -32,6 +32,12 @@ const authRoutes = [
                 name: "forgot-password",
                 meta: { title: "ForgotPassword" },
                 component: () => import("@/views/Auth/forgotPassword.vue"),
+            },
+            {
+                path: "/reset-password/:userId/:code",
+                name: "reset-password",
+                meta: { title: "ResetPassword" },
+                component: () => import("@/views/Auth/resetPassword.vue"),
             },
             {
                 path: "/404",

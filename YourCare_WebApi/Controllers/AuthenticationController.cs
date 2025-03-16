@@ -55,10 +55,11 @@ namespace YourCare_WebApi.Controllers
             _configuration = configuration;
         }
 
-        public class ConfirmEmailModel
+        public class EmailRequestModel
         {
-            public string userId { get; set; }
-            public string code { get; set; }
+            public string UserId { get; set; }
+            public string Code { get; set; }
+            public string? Password { get; set; }
         }
 
         public class CreatePasswordModel
@@ -91,7 +92,7 @@ namespace YourCare_WebApi.Controllers
             {
                 var isExist = await _userManager.FindByEmailAsync(email);
 
-                if (isExist != null && isExist.EmailConfirmed)
+                if (isExist != null)
                 {
                     return new JsonResult(new ResponseModel<string>
                     {
@@ -130,18 +131,8 @@ namespace YourCare_WebApi.Controllers
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(newUser);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-                //var confirmationLink = Url.Action(
-                //    "ConfirmEmail",
-                //    "Authentication",
-                //    new
-                //    {
-                //        userId = newUser.Id,
-                //        code = code
-                //    },
-                //    Request.Scheme);
-
-                var confirmationLink = $"{_configuration.GetValue<string>("Request:Scheme")}" +
-                    $"://{_configuration.GetValue<string>("Request:Host")}/createPassword" +
+                var confirmationLink = $"{_configuration.GetValue<string>("Client:Scheme")}" +
+                    $"://{_configuration.GetValue<string>("Client:Host")}/create-password" +
                     $"/{newUser.Id}/{code}";
 
                 #region email body 
@@ -262,11 +253,195 @@ namespace YourCare_WebApi.Controllers
             }
         }
 
+
         [HttpPost]
-        public async Task<IActionResult> ConfirmEmail([FromBody] ConfirmEmailModel request)
+        public async Task<IActionResult> SendEmailForgotPassword([FromBody] string email)
         {
-            var userId = request.userId;
-            var code = request.code;
+            try
+            {
+                var user = await _userManager.FindByEmailAsync(email);
+
+                if (user == null)
+                {
+                    return new JsonResult(new ResponseModel<string>
+                    {
+                        StatusCode = StatusCodes.Status403Forbidden,
+                        IsSucceeded = false,
+                        Message = "Không tìm thấy email trong hệ thống."
+                    });
+                }
+
+                var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+
+                var confirmationLink = $"{_configuration.GetValue<string>("Client:Scheme")}" +
+                    $"://{_configuration.GetValue<string>("Client:Host")}/reset-password" +
+                    $"/{user.Id}/{code}";
+
+                #region email body 
+                var htmlBody_1 =
+                 @"<!DOCTYPE html>
+                        <html lang='en'>
+                        <head>
+                        <meta charset='UTF-8'>
+                        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                        <title>Email Confirmation</title>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                background-color: #f4f4f4;
+                                margin: 0;
+                                padding: 0;
+                            }
+                            .container {
+                                width: 100%;
+                                max-width: 600px;
+                                margin: 0 auto;
+                                background-color: #ffffff;
+                                border-radius: 8px;
+                                overflow: hidden;
+                                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                            }
+                            .header {
+                                background-color: #2c7a7b;
+                                color: #ffffff;
+                                text-align: center;
+                                padding: 20px;
+                            }
+                            .header h1 {
+                                margin: 0;
+                                font-size: 24px;
+                            }
+                            .content {
+                                padding: 30px;
+                                color: #333;
+                            }
+                            .content h2 {
+                                color: #2c7a7b;
+                            }
+                            .content p {
+                                line-height: 1.6;
+                                margin-bottom: 20px;
+                            }
+                            .button-container {
+                                text-align: center;
+                                margin-top: 20px;
+                            }
+                            .button {
+                                background-color: #3182ce;
+                                text-decoration: none;
+                                padding: 15px 25px;
+                                border-radius: 5px;
+                                font-size: 18px;
+                                display: inline-block;
+                                color: #fff !important;
+                            }
+                            .button a{
+                                color: #fff !important;
+                            }
+                            .footer {
+                                text-align: center;
+                                padding: 20px;
+                                font-size: 12px;
+                                background-color: #f4f4f4;
+                                color: #777;
+                            }
+                            .footer a {
+                                color: #3182ce;
+                                text-decoration: none;
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class='container'>
+                            <div class='header'>
+                                <h1>Welcome to YourCare!</h1>
+                            </div>
+                            <div class='content'>
+                                <h2>Confirmation to reset your password</h2>
+                                <p>Hello,</p>
+                                <p>You have requested a reset password <strong>YourCare</strong>. If that wasn't you, please ignore this email. If you actually want to change your password, click this:</p>";
+
+                var htmlBodyLink = $"<div class='button-container'><a href = " +
+                    $"'{confirmationLink}' class='button'>Thay đổi mật khẩu</a></div><p>If the button doesn't work, you click the following link:" +
+                    $"</p><p><a href = '{confirmationLink}' >Click here</a></p></div>";
+
+                var htmlBody_2 = @"<div class='footer'>
+                            <p>If you didn't request to chagne your password, please ignore this email.</p>
+                            <p>&copy; 2024 YourCare. All rights reserved.</p>
+                            </div>
+                            </div>
+                            </body>
+                            </html>";
+                #endregion
+
+                var htmlBody = htmlBody_1 + htmlBodyLink + htmlBody_2;
+                await _emailSender.SendEmailAsync(email, "YourCare - Reset your password !", htmlBody);
+
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Yêu cầu đã được gửi. Vui lòng kiểm tra Email.",
+                    IsSucceeded = true,
+                });
+
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Lỗi. Vui lòng thử lại sau",
+                    IsSucceeded = false,
+                });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ResetPassword([FromBody] EmailRequestModel request)
+        {
+            try
+            {
+                var code = request.Code;
+                code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
+
+                var user = await _userManager.FindByIdAsync(request.UserId);
+
+                if (user == null)
+                {
+                    return new JsonResult(new ResponseModel<string>
+                    {
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                        Message = "Lỗi. Người dùng không tồn tại",
+                        IsSucceeded = false,
+                    });
+                }
+
+                await _userManager.ResetPasswordAsync(user, code, request.Password);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Thay đổi mật khẩu thành công.",
+                    IsSucceeded = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Lỗi. Vui lòng thử lại sau",
+                    IsSucceeded = false,
+                });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ConfirmEmail([FromBody] EmailRequestModel request)
+        {
+            var userId = request.UserId;
+            var code = request.Code;
 
             if (userId == null || code == null)
             {

@@ -117,5 +117,13 @@ export const useAuthStore = defineStore({
                 console.error("Login failed:", error);
             }
         },
+
+        async sendEmailForgotPassword(email) {
+            return await API.post(`${baseURL}/sendEmailForgotPassword`, email);
+        },
+
+        async resetPassword(formState) {
+            return await API.post(`${baseURL}/resetPassword`, formState);
+        },
     },
 });
