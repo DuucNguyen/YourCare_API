@@ -6,6 +6,7 @@ const baseURL = `${import.meta.env.VITE_API_URL_LOCAL}/Authentication`;
 import TokenService from "@/api/TokenService";
 import ApiUser from "@/api/ApiUser";
 import CookieService from "@/api/CookieService";
+import { message } from "ant-design-vue";
 
 // function
 export const useAuthStore = defineStore({
@@ -32,6 +33,9 @@ export const useAuthStore = defineStore({
             if (result.data.isSucceeded) {
                 this.getUserInfo();
                 this.router.push(this.returnURL || "/");
+                message.success("Đăng nhập thành công");
+            } else {
+                message.error("Sai tên tài khoản hoặc mật khẩu");
             }
         },
         logOut() {

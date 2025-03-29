@@ -58,6 +58,7 @@ import {
     UploadDragger,
     Badge,
     Steps,
+    Spin,
 } from "ant-design-vue";
 
 //
@@ -114,6 +115,7 @@ app.use(Empty);
 app.use(UploadDragger);
 app.use(Badge);
 app.use(Steps);
+app.use(Spin);
 
 /**
  * highcharts
@@ -121,4 +123,3 @@ app.use(Steps);
 app.use(HighchartsVue);
 
 app.mount("#app");
-

@@ -92,7 +92,7 @@
     const doctor_timetables = ref([]); //doctor schedule for the next 10 days + today
     const doctor_timetables_day = ref([]); //unique days in the list
     const day_timeTable = ref([]); //time slots of a day - dynamic
-    const chosenDate = ref(); //chosen date item in doctor_timetables 
+    const chosenDate = ref(); //chosen date item in doctor_timetables
 
     //appointment form
     //
@@ -468,8 +468,7 @@
 
                                         <label class="d-flex w-100" :for="'profile-' + profile.id">
                                             <div class="profile-item-img">
-                                                <img
-                                                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/User-avatar.svg/2048px-User-avatar.svg.png" />
+                                                <img src="\src\assets\profile.png" />
                                             </div>
                                             <div class="profile-item-info">
                                                 <span>{{ profile.name }}</span>

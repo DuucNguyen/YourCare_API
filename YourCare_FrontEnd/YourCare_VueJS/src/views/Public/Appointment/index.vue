@@ -15,13 +15,16 @@
     const appointments = ref([]);
     const appointmentDetail = ref({});
     const chosenAppointment = ref({});
+    const spinning = ref(false);
 
     const InitAppointments = async () => {
+        spinning.value = true;
         var user = await authStore.getUserInfo();
         var result = await ApiAppointment.GetAllByUserID(user.id);
         if (result.data.isSucceeded) {
             appointments.value = result.data.data;
         }
+        spinning.value = false;
     };
 
     const searchAppointment = () => {
@@ -95,6 +98,9 @@
                             placeholder="Mã phiếu khám, tên bệnh nhân,...">
                         </a-input>
                     </div>
+                    <a-spin :spinning="spinning">
+
+                    </a-spin>
                     <div>
                         <template v-for="item in appointments">
                             <div

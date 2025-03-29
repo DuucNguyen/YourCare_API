@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using YourCare_BOs;
 using YourCare_Repos.Interfaces;
@@ -6,6 +7,7 @@ using YourCare_WebApi.Models.Auth;
 
 namespace YourCare_WebApi.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class PatientProfileController : ControllerBase
@@ -87,13 +89,13 @@ namespace YourCare_WebApi.Controllers
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
-                    Message =  ex.Message,
+                    Message = ex.Message,
                     IsSucceeded = false,
                 });
             }
         }
 
-        [HttpPost("Update")]
+        [HttpPut("Update")]
         public async Task<IActionResult> Update([FromForm] PatientProfile request)
         {
             try
@@ -117,5 +119,30 @@ namespace YourCare_WebApi.Controllers
             }
         }
 
+
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> Delete([FromQuery] Guid id)
+        {
+            try
+            {
+                var result = await _patientRepository.Delete(id);
+
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = result ? StatusCodes.Status200OK : StatusCodes.Status400BadRequest,
+                    Message = result ? "Xóa thành công." : "Lỗi. Vui lòng thử lại sau",
+                    IsSucceeded = result,
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Lỗi. Vui lòng thử lại sau",
+                    IsSucceeded = false,
+                });
+            }
+        }
     }
 }

@@ -44,5 +44,10 @@ namespace YourCare_DAOs.DAOs
         {
             return await _context.PatientProfiles.FirstOrDefaultAsync(x => x.Id == id);
         }
+
+        public async Task<int> GetCountAppointment(Guid id)
+        {
+            return await _context.Appointments.Where(x => x.PatientProfileID == id).CountAsync();
+        }
     }
 }

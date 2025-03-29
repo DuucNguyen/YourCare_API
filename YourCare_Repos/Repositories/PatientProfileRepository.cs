@@ -39,9 +39,21 @@ namespace YourCare_Repos.Repositories
             return true;
         }
 
-        public Task<bool> Delete(PatientProfile request)
+        public async Task<bool> Delete(Guid id)
         {
-            throw new NotImplementedException();
+            var find = await _patientProfileDAO.GetByID(id);
+            if(find == null) { return false; }
+
+            var countAppointment = await _patientProfileDAO.GetCountAppointment(id);
+            if(countAppointment <= 0)
+            {
+                await _patientProfileDAO.Delete(find);
+                return true;
+            }
+            find.IsActive = false;
+            await _patientProfileDAO.Update(find);
+
+            return true;
         }
 
         public async Task<List<PatientProfile>> GetAllByUserId(string userID)

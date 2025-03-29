@@ -6,15 +6,13 @@
 
     // //
     import Button from "@/components/Button.vue";
-    import Message from "@/components/Message.vue";
+    import { message } from "ant-design-vue";
 
     const authStore = useAuthStore();
 
     const externalLogins = ref([]);
 
     // Directly bind to store properties
-    const message = computed(() => authStore.message);
-    const isSucceeded = computed(() => authStore.isSucceeded);
 
     const formState = reactive({
         username: "",
@@ -26,13 +24,13 @@
         return !(formState.username && formState.password);
     });
 
-    const InitExternalLogin = async () => {
-        const result = await authStore.getExternalLogin();
-        externalLogins.value = result.data;
-    };
+    // const InitExternalLogin = async () => {
+    //     const result = await authStore.getExternalLogin();
+    //     externalLogins.value = result.data;
+    // };
 
     onMounted(async () => {
-        await InitExternalLogin();
+        // await InitExternalLogin();
         console.log(externalLogins.value);
     });
 
@@ -43,15 +41,7 @@
         await authStore
             .login(formState.username, formState.password)
             .catch((error) => {
-                console.log("ERROR: LOGIN ==> " + error);
-                if (error.response.status == 200) {
-                    console.log("Login successfully !");
-                }
-                if (error.response.status === 401 || error.response.status === 500) {
-                    console.log("Username or password is incorrect.");
-                } else {
-                    console.log("ERROR: " + error.response);
-                }
+                console.log("ERROR: " + error.response);
             })
             .finally(() => {
                 buttonTitle.value = "Login";
@@ -59,9 +49,9 @@
             });
     };
 
-    const externalLogin = async () => {
-        await authStore.externalLogin();
-    };
+    // const externalLogin = async () => {
+    //     await authStore.externalLogin();
+    // };
 </script>
 
 <template>
@@ -118,10 +108,6 @@
                             <div class="form-group mt-5">
                                 <Button :title="buttonTitle" :isDisabled="isDisabled" />
                             </div>
-                            <div class="mt-3 mb-3">
-                                <Message :context="message" :isError="isSucceeded" />
-                            </div>
-
                             <!-- <div v-if="externalLogins" class="external_login_container">
                                 <div
                                     v-for="item in externalLogins"
