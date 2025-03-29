@@ -12,7 +12,7 @@ export default mergeConfig(
         },
         server: {
             port: 5173,
-            host: 'localhost',
+            host: "localhost",
             strictPort: true,
         },
     }),

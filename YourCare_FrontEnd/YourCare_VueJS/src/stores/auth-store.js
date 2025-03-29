@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { useRoute, useRouter } from "vue-router";
 import API from "@/api/api";
 const baseURL = `${import.meta.env.VITE_API_URL_LOCAL}/Authentication`;
+// const baseURL = `${import.meta.env.VITE_API_URL_PRODUCT}/Authentication`;
 import TokenService from "@/api/TokenService";
 import ApiUser from "@/api/ApiUser";
 import CookieService from "@/api/CookieService";

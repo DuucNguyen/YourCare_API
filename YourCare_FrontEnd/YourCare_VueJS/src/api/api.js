@@ -2,6 +2,7 @@ import axios from "axios";
 import TokenService from "./TokenService";
 import { useAuthStore } from "@/stores/auth-store";
 const baseURL = import.meta.env.VITE_API_URL_LOCAL;
+// const baseURL = import.meta.env.VITE_API_URL_PRODUCT;
 
 const instance = axios.create({
     baseURL,

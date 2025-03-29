@@ -401,3 +401,4 @@ FodyWeavers.xsd
 /YourCare_DAOs/appsettings.json
 
 .env
+/YourCare_FrontEnd/YourCare_VueJS/src/assets

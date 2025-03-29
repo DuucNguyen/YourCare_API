@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from "vue-router";
+import { createRouter, createWebHistory, createWebHashHistory } from "vue-router";
 import adminRoutes from "@/router/route-admin";
 import authRoutes from "@/router/router-auth";
 import { useAuthStore } from "@/stores/auth-store";
@@ -30,7 +30,7 @@ const publicRoutes = [
     "404",
 ];
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHistory(import.meta.env.BASE_URL),
     routes,
 });
 
@@ -88,4 +88,3 @@ router.beforeEach(async (to, from, next) => {
 });
 
 export default router;
-
