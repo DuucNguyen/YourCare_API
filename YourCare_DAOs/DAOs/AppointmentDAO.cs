@@ -55,6 +55,16 @@ namespace YourCare_DAOs.DAOs
               .Include(x => x.CreatedByUser)
               .ToListAsync();
         }
+        public async Task<List<Appointment>> GetAllByYear(int year)
+        {
+            return await _context.Appointments
+              .Include(x => x.Doctor)
+              .Include(x => x.TimeTable)
+              .Include(x => x.PatientProfile)
+              .Include(x => x.CreatedByUser)
+              .Where(x=>x.TimeTable.Date.Year == year)
+              .ToListAsync();
+        }
 
         public async Task<List<Appointment>> GetAllByUserID(string userID)
         {
@@ -85,6 +95,17 @@ namespace YourCare_DAOs.DAOs
                 .Include(x => x.CreatedByUser)
                 .Where(x => x.DoctorID == doctorID && x.TimeTable.Date.Date == date.Date).ToListAsync();
         }
+
+        public async Task<List<Appointment>> GetAllAppointmentByDate(DateTime date)
+        {
+            return await _context.Appointments
+                .Include(x => x.Doctor)
+                .Include(x => x.TimeTable)
+                .Include(x => x.PatientProfile)
+                .Include(x => x.CreatedByUser)
+                .Where(x => x.TimeTable.Date.Date == date.Date).ToListAsync();
+        }
+
 
         public async Task<Appointment> GetAllByID(int id)
         {

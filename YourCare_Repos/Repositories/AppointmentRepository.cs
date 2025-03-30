@@ -158,11 +158,19 @@ namespace YourCare_Repos.Repositories
             }
         }
 
-
-
-        public async Task<int> CountAppointmentByDate(Guid doctorID, DateTime date)
+        public async Task<int> CountDoctorAppointmentByDate(Guid doctorID, DateTime date)
         {
             return await _appointmentDAO.CountAppointmentByDate(doctorID, date);
+        }
+
+        public async Task<List<Appointment>> GetAllAppointmentByDate(DateTime date)
+        {
+            return await _appointmentDAO.GetAllAppointmentByDate(date);
+        }
+
+        public async Task<List<Appointment>> GetAllByYear(int year)
+        {
+            return await _appointmentDAO.GetAllByYear(year);
         }
     }
 }

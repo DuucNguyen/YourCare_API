@@ -358,5 +358,6 @@
         height: 300px;
         margin-top: 10px;
         border-radius: 8px;
+        overflow: hidden;
     }
 </style>

@@ -1,18 +1,20 @@
 <script setup>
-    import { ref, reactive, onMounted, onBeforeMount } from "vue";
-    import ApiUser from "@/api/ApiUser";
-    import { useAuthStore } from "@/stores/auth-store";
+    // import { ref, reactive, onMounted, onBeforeMount } from "vue";
+    // import ApiUser from "@/api/ApiUser";
+    // import { useAuthStore } from "@/stores/auth-store";
+    import { RouterView } from "vue-router";
+    import Header from "./Header.vue";
 
-    const authStore = useAuthStore();
-    const user = ref({});
+    // const authStore = useAuthStore();
+    // const user = ref({});
 
-    onBeforeMount(async () => {
-        user.value = await authStore.getUserInfo();
-        console.log(user);
-    });
+    // onBeforeMount(async () => {
+    //     user.value = await authStore.getUserInfo();
+    //     console.log(user);
+    // });
 </script>
 <template>
-    <div class="admin_body">
+    <!-- <div class="admin_body">
         <div class="admin_header border-bottom">
             <div class="admin_header_title">
                 <RouterLink :to="{ name: 'Admin_Dashboards' }">Dashboads</RouterLink>
@@ -105,154 +107,10 @@
                 <RouterView />
             </main>
         </div>
+    </div> -->
+
+    <Header />
+    <div class="doctor_layout_container">
+        <RouterView />
     </div>
 </template>
-<style scoped>
-    .admin_body {
-        background: #cecece;
-    }
-
-    .body_container {
-        margin-top: 80px;
-        width: 92%;
-        position: absolute;
-        right: 0;
-        margin-right: 30px;
-    }
-    .admin_header {
-        padding: 5px 20px;
-        background-color: #fff;
-        position: fixed;
-        width: 100%;
-        height: 60px;
-        z-index: 99;
-        display: flex;
-        align-items: center;
-    }
-    .admin_header_title {
-        background: linear-gradient(to right, #3903fc, #03fc5e);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        color: transparent;
-    }
-
-    .admin_header_title a {
-        font-size: 30px;
-        font-weight: 700;
-        text-decoration: none;
-    }
-
-    .sidebar_header {
-        padding: 10px 0;
-        display: flex;
-        align-items: center;
-        border-bottom: 1px solid #fff;
-    }
-    .sidebar_header_img {
-        width: 50px;
-        height: 50px;
-        margin-right: 10px;
-        border-radius: 50%;
-        overflow: hidden;
-        flex-shrink: 0;
-    }
-
-    .sidebar_header_img img {
-        width: 100%;
-        object-fit: cover;
-    }
-
-    .sidebar_header_user_info {
-        color: #fff;
-        visibility: hidden;
-        opacity: 0;
-        transition: all 0.3s ease;
-    }
-
-    .sidebar_header_user_info div:nth-child(2) {
-        color: #999;
-        font-size: 14px;
-    }
-
-    .sidebar {
-        margin-top: 60px;
-        position: fixed;
-        height: 100vh;
-        width: 60px;
-        background: #fff;
-        padding: 0 5px;
-        z-index: 99;
-        transition: width 0.3s ease, background-color 0.1s ease;
-    }
-
-    .sidebar:hover {
-        width: 300px;
-        background: #101a33;
-    }
-
-    .sidebar_body_item_container ul {
-        list-style: none;
-        padding: 0px;
-    }
-
-    .sidebar_body_item {
-        margin: 5px 0;
-        padding: 3px;
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-        font-size: 18px;
-        font-weight: 300;
-        color: #0d61c1;
-        border-bottom: 2px solid transparent;
-    }
-
-    .sidebar_body_item i:first-child {
-        padding: 4px;
-        border: 2px solid #0d61c1;
-        font-size: 30px;
-        border-radius: 50%;
-        margin-right: 10px;
-        transition: color 0.2s ease;
-    }
-
-    .sidebar_body_item_title {
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        color: #fff;
-        opacity: 0;
-        visibility: hidden;
-        transition: visibility 0.3s ease, opacity 0.3s ease;
-    }
-
-    .sidebar_body_item_title i {
-        visibility: hidden;
-        opacity: 0;
-    }
-
-    .sidebar:hover .sidebar_header_user_info {
-        visibility: visible;
-        opacity: 1;
-    }
-
-    .sidebar:hover .sidebar_body_item_title {
-        visibility: visible;
-        opacity: 1;
-    }
-    .sidebar:hover .sidebar_body_item i {
-        color: #fff;
-        border-color: transparent;
-    }
-
-    .sidebar_body_item:hover {
-        border-bottom: 2px solid #fff;
-    }
-
-    .sidebar_body_item:hover .sidebar_body_item_title i {
-        visibility: visible;
-        opacity: 1;
-    }
-</style>

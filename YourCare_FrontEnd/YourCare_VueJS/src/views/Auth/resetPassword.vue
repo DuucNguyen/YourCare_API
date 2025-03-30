@@ -172,7 +172,7 @@
     }
 
     .step-container {
-        width: 60vw;
+        width: 80vw;
         margin: auto;
     }
 

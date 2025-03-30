@@ -15,5 +15,6 @@ namespace YourCare_BOs.Enums
         public const string Complete = "Đã khám xong";
         public const string Waiting = "Đang đợi";
         public const string Processing = "Đang xử lí";
+        public const string Canceled = "Đã hủy";
     }
 }

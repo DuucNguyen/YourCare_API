@@ -252,6 +252,53 @@ namespace YourCare_WebApi.Controllers
             }
         }
 
+        [HttpGet("GetAllAppointmentByDate")]
+        public async Task<IActionResult> GetAllAppointmentByDate(DateTime date)
+        {
+            try
+            {
+                var query = await _appointmentRepository.GetAllAppointmentByDate(date);
+                var result = query.Select(x => new AppointmentResponseModel
+                {
+                    Id = x.Id,
+                    DoctorID = x.DoctorID,
+                    TimetableID = x.TimetableID,
+                    PatientProfileID = x.PatientProfileID,
+                    PatientName = x.PatientProfile.Name,
+                    TimetableDate = x.TimeTable.Date,
+                    TimetableStartTime = x.TimeTable.StartTime,
+                    TimetableEndTime = x.TimeTable.EndTime,
+                    TimeTableOrder = x.TimetableOrder,
+                    Status = x.Status,
+                }).OrderBy(x => x.TimetableStartTime).ThenBy(x => x.TimeTableOrder).ToList();
+                if (result.Any())
+                {
+                    foreach (var item in result)
+                    {
+                        item.DoctorName = await _doctorRepository.GetDoctorNameByID(item.DoctorID.ToString());
+                    }
+                }
+                return new JsonResult(new ResponseModel<List<AppointmentResponseModel>>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "GetAllAppointmentByDate successfully",
+                    IsSucceeded = true,
+                    Data = result
+                });
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message + " - " + ex.StackTrace);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "GetAllAppointmentByDate failed",
+                    IsSucceeded = false,
+                });
+            }
+        }
+
 
         [HttpPost("CompleteAppointment")]
         public async Task<IActionResult> CompleteAppointment([FromForm] AppointmentUpdateModel request)
@@ -373,7 +420,7 @@ namespace YourCare_WebApi.Controllers
                     result.Add(new CountAppointmentModel
                     {
                         Date = currentDate,
-                        AppointmentCount = await _appointmentRepository.CountAppointmentByDate(doctorID, currentDate)
+                        AppointmentCount = await _appointmentRepository.CountDoctorAppointmentByDate(doctorID, currentDate)
                     });
                 }
 
@@ -388,6 +435,50 @@ namespace YourCare_WebApi.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message + " - " + ex.StackTrace);
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "GetNumberOfAppointmentInMonthByDate failed.",
+                    IsSucceeded = false,
+                });
+            }
+        }
+
+
+        [HttpGet("GetMonthChartData")]
+        public async Task<IActionResult> GetMonthChartData([FromQuery] int year)
+        {
+            try
+            {
+                var status = new List<string>()
+                {
+                    AppointmentStatus.Complete,
+                    AppointmentStatus.Processing,
+                    AppointmentStatus.Canceled,
+                };
+
+                var query = await _appointmentRepository.GetAllByYear(year);
+
+
+                var result = new Dictionary<int, List<AppointmentByMonthResponseModel>>();
+                for (int i = 1; i <= 12; i++)
+                {
+                    var data = status.Select(x => new AppointmentByMonthResponseModel
+                    {
+                        Status = x,
+                        Count = query.Where(x => x.TimeTable.Date.Month == i).Count(q => q.Status == x)
+                    }).ToList();
+                    result.Add(i, data);
+                }
+                return new JsonResult(new ResponseModel<Dictionary<int, List<AppointmentByMonthResponseModel>>>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    IsSucceeded = true,
+                    Data = result
+                });
+            }
+            catch (Exception ex)
+            {
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,

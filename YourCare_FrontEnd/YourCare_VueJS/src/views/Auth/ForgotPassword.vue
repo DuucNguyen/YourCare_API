@@ -119,13 +119,13 @@
     }
 
     :deep(.ant-steps-item-icon) {
-        display: flex !important;
+        /* display: flex !important;
         align-items: center !important;
-        justify-content: center !important;
+        justify-content: center !important; */
     }
 
     .step-container {
-        width: 60vw;
+        width: 80vw;
         margin: auto;
     }
 

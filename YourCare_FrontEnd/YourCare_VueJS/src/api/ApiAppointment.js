@@ -8,10 +8,12 @@ const END_POINTS = {
     GET_ALL_BY_DOCTOR_ID: "Appointment/GetAllByDoctorID",
     GET_ALL_BY_TIMETABLE_ID: "Appointment/GetAllByTimetableID",
     GET_DOCTOR_APPOINTMENT_BY_DATE: "Appointment/GetDoctorAppointmentByDate",
+    GET_ALL_APPOINTMENT_BY_DATE: "Appointment/GetAllAppointmentByDate",
     COMPLETE_APPOINTMENT: "Appointment/CompleteAppointment",
     COUNT_APPOINTMENT_IN_MONTH_BY_DATE: "Appointment/GetNumberOfAppointmentInMonthByDate",
     UPDATE_APPOINTMENT_STATUS: "Appointment/UpdateAppointmentStatus",
     DOWNLOAD_FILE: "Appointment/DownloadFile",
+    GET_MONTH_CHART_DATA_BY_YEAR: "Appointment/GetMonthChartData",
 };
 class ApiAppointment {
     Create = async (formData) => {
@@ -40,6 +42,21 @@ class ApiAppointment {
             },
         });
     };
+    GetAllAppointmentByDate = async (date) => {
+        return await API.get(`${END_POINTS.GET_ALL_APPOINTMENT_BY_DATE}`, {
+            params: {
+                date: date,
+            },
+        });
+    };
+    GetMonthChartDataByYear = async (year) => {
+        return await API.get(`${END_POINTS.GET_MONTH_CHART_DATA_BY_YEAR}`, {
+            params: {
+                year: year,
+            },
+        });
+    };
+
     CompleteAppointment = async (formData) => {
         return await API.post(`${END_POINTS.COMPLETE_APPOINTMENT}`, formData, {
             headers: {

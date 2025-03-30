@@ -249,7 +249,7 @@ namespace YourCare_WebApi
 
             app.UseCors("AllowAllOrigins");
 
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseAuthorization();

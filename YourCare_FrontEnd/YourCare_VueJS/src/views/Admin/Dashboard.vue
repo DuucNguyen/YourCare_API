@@ -1,75 +1,546 @@
+<script setup>
+    import AdminSideBar from "@/shared/AdminSideBar.vue";
+    import dayjs from "dayjs";
+    import ApiAppointment from "@/api/ApiAppointment";
+    import { ref, onMounted, reactive, watch } from "vue";
+    import AppointmentStatus from "@/constants/AppointmentStatus";
+    import Highcharts from "highcharts";
+    Highcharts.setOptions({
+        lang: {
+            decimalPoint: ".",
+            thousandsSep: ",",
+        },
+    });
+
+    const appointments = ref([]);
+    const date = ref(dayjs());
+    const monthChartData = ref();
+
+    const InitAppointment = async () => {
+        var result_appointment = await ApiAppointment.GetAllAppointmentByDate(
+            dayjs(date.value).format("MM/DD/YYYY"),
+        );
+        if (result_appointment.data.isSucceeded) {
+            appointments.value = result_appointment.data.data;
+        }
+    };
+
+    const InitMonthChartData = async () => {
+        var result = await ApiAppointment.GetMonthChartDataByYear(dayjs().year());
+        if (result.data.isSucceeded) {
+            monthChartData.value = result.data.data;
+        }
+        console.log(GetDataTotalCount(monthChartData.value));
+        console.log(GetDataByStatusCount(monthChartData.value, AppointmentStatus.COMPLETED));
+        console.log(GetDataByStatusCount(monthChartData.value, AppointmentStatus.CANCELLED));
+        console.log(GetDataByStatusCount(monthChartData.value, AppointmentStatus.PROCESSING));
+    };
+    const GetDataTotalCount = (data) => {
+        return Object.keys(data).map((month) =>
+            data[month].reduce((sum, item) => sum + item.count, 0),
+        );
+    };
+
+    const GetDataByStatusCount = (data, status) => {
+        return Object.keys(data).map((month) =>
+            data[month]
+                .filter((item) => item.status == status)
+                .reduce((sum, item) => sum + item.count, 0),
+        );
+    };
+
+    const CountStatusAppointment = (status) => {
+        return appointments.value
+            .filter((x) => x.status === status)
+            .length.toString()
+            .padStart(2, "0");
+    };
+
+    const onDateChange = async () => {
+        await InitAppointment();
+    };
+
+    const GetChartDataFromAppointments = () => {
+        var listStatus = AppointmentStatus.values();
+        var result = listStatus.map((x) => {
+            return {
+                name: x,
+                y: GetPercentageByStatus(x),
+            };
+        });
+
+        return result;
+    };
+
+    const GetPercentageByStatus = (status) => {
+        var total = appointments.value.length;
+        var count = appointments.value.filter((x) => x.status === status).length;
+
+        return (count * 100) / total;
+    };
+
+    let dayChartInstance = null;
+    const GenerateDayChart = () => {
+        if (dayChartInstance) {
+            dayChartInstance.destroy();
+        }
+
+        Highcharts.chart("day_chart_container", {
+            chart: {
+                type: "pie",
+                custom: {},
+                events: {
+                    render() {
+                        const chart = this,
+                            series = chart.series[0];
+                        let customLabel = chart.options.chart.custom.label;
+
+                        if (!customLabel) {
+                            customLabel = chart.options.chart.custom.label = chart.renderer
+                                .label(
+                                    "Total<br/>" +
+                                        "<strong>" +
+                                        appointments.value.length +
+                                        "</strong>",
+                                )
+                                .css({
+                                    color: "#000",
+                                    textAnchor: "middle",
+                                })
+                                .add();
+                        }
+
+                        const x = series.center[0] + chart.plotLeft,
+                            y = series.center[1] + chart.plotTop - customLabel.attr("height") / 2;
+
+                        customLabel.attr({
+                            x,
+                            y,
+                        });
+                        // Set font size based on chart diameter
+                        customLabel.css({
+                            fontSize: `${series.center[2] / 12}px`,
+                        });
+                    },
+                },
+            },
+            lang: {
+                locale: "en",
+            },
+            accessibility: {
+                point: {
+                    valueSuffix: "%",
+                },
+            },
+            credits: {
+                enabled: false,
+            },
+            title: {
+                text: "Tiến độ " + dayjs(date.value).format("DD/MM/YYYY"),
+            },
+            tooltip: {
+                pointFormat: "{series.name}: <b>{point.percentage:.0f}%</b>",
+            },
+            legend: {
+                enabled: false,
+            },
+            plotOptions: {
+                series: {
+                    allowPointSelect: true,
+                    cursor: "pointer",
+                    borderRadius: 5,
+                    dataLabels: [
+                        {
+                            enabled: true,
+                            distance: 20,
+                            format: "{point.name}",
+                        },
+                        {
+                            enabled: true,
+                            distance: -16,
+                            format: "{point.percentage:.0f}%",
+                            style: {
+                                fontSize: "0.9em",
+                            },
+                        },
+                    ],
+                    showInLegend: true,
+                },
+            },
+            series: [
+                {
+                    name: "Phần trăm",
+                    colorByPoint: true,
+                    innerSize: "70%",
+                    data: GetChartDataFromAppointments(),
+                },
+            ],
+        });
+    };
+
+    let monthChartInstance = null;
+    const GenerateMonthChart = () => {
+        if (monthChartInstance) {
+            monthChartInstance.destroy();
+        }
+        Highcharts.chart("month_chart_container", {
+            chart: {
+                zooming: {
+                    type: "xy",
+                },
+            },
+            credits: false,
+            title: {
+                text: "Thống kê lịch khám trong tháng " + (dayjs().month() + 1),
+            },
+            subtitle: {
+                text: "Tính tới ngày " + dayjs().format("DD/MM/YYYY"),
+            },
+            xAxis: [
+                {
+                    categories: [
+                        "Tháng 1",
+                        "Tháng 2",
+                        "Tháng 3",
+                        "Tháng 4",
+                        "Tháng 5",
+                        "Tháng 6",
+                        "Tháng 7",
+                        "Tháng 8",
+                        "Tháng 9",
+                        "Tháng 10",
+                        "Tháng 11",
+                        "Tháng 12",
+                    ],
+                    crosshair: true,
+                },
+            ],
+            yAxis: [
+                {
+                    // Primary yAxis
+                    labels: {
+                        format: "{value}",
+                        style: {
+                            color: Highcharts.getOptions().colors[0],
+                        },
+                    },
+                    title: {
+                        text: "Tổng",
+                        style: {
+                            color: Highcharts.getOptions().colors[0],
+                        },
+                    },
+                },
+                // {
+                //     // Secondary yAxis
+                //     gridLineWidth: 0,
+                //     title: {
+                //         text: AppointmentStatus.COMPLETED,
+                //         style: {
+                //             color: Highcharts.getOptions().colors[2],
+                //         },
+                //     },
+                //     opposite: true,
+                //     labels: {
+                //         format: "{value}",
+                //         style: {
+                //             color: Highcharts.getOptions().colors[2],
+                //         },
+                //     },
+                // },
+                // {
+                //     // Tertiary yAxis
+                //     gridLineWidth: 0,
+                //     title: {
+                //         text: AppointmentStatus.CANCELLED,
+                //         style: {
+                //             color: Highcharts.getOptions().colors[3],
+                //         },
+                //     },
+                //     labels: {
+                //         format: "{value}",
+                //         style: {
+                //             color: Highcharts.getOptions().colors[3],
+                //         },
+                //     },
+                //     opposite: true,
+                // },
+                // {
+                //     gridLineWidth: 0,
+                //     title: {
+                //         text: AppointmentStatus.PROCESSING,
+                //         style: {
+                //             color: Highcharts.getOptions().colors[4],
+                //         },
+                //     },
+                //     labels: {
+                //         format: "{value}",
+                //         style: {
+                //             color: Highcharts.getOptions().colors[4],
+                //         },
+                //     },
+                //     opposite: true,
+                // },
+            ],
+            tooltip: {
+                shared: true,
+            },
+            legend: {
+                layout: "horizontal",
+                align: "center",
+                verticalAlign: "bottom",
+                backgroundColor:
+                    Highcharts.defaultOptions.legend.backgroundColor || // theme
+                    "rgba(255,255,255,0.25)",
+            },
+            series: [
+                {
+                    name: "Tổng",
+                    type: "column",
+                    yAxis: 0,
+                    data: GetDataTotalCount(monthChartData.value),
+                    tooltip: {
+                        valueSuffix: " lịch khám",
+                    },
+                },
+                {
+                    name: AppointmentStatus.COMPLETED,
+                    type: "spline",
+                    yAxis: 0,
+                    data: GetDataByStatusCount(monthChartData.value, AppointmentStatus.COMPLETED),
+                    marker: {
+                        enabled: false,
+                    },
+                    tooltip: {
+                        valueSuffix: " lịch khám",
+                    },
+                    color: Highcharts.getOptions().colors[2],
+                },
+                {
+                    name: AppointmentStatus.CANCELLED,
+                    type: "spline",
+                    yAxis: 0,
+                    data: GetDataByStatusCount(monthChartData.value, AppointmentStatus.CANCELLED),
+                    dashStyle: "shortdot",
+                    tooltip: {
+                        valueSuffix: " lịch khám",
+                    },
+                    color: Highcharts.getOptions().colors[3],
+                },
+                {
+                    name: AppointmentStatus.PROCESSING,
+                    type: "spline",
+                    yAxis: 0,
+                    data: GetDataByStatusCount(monthChartData.value, AppointmentStatus.PROCESSING),
+                    dashStyle: "dot",
+                    tooltip: {
+                        valueSuffix: " lịch khám",
+                    },
+                    color: Highcharts.getOptions().colors[1],
+                },
+            ],
+            responsive: {
+                rules: [
+                    {
+                        condition: {
+                            maxWidth: 500,
+                        },
+                        chartOptions: {
+                            legend: {
+                                floating: false,
+                                layout: "horizontal",
+                                align: "center",
+                                verticalAlign: "bottom",
+                                x: 0,
+                                y: 0,
+                            },
+                            yAxis: [
+                                {
+                                    labels: {
+                                        align: "right",
+                                        x: 0,
+                                        y: -6,
+                                    },
+                                    showLastLabel: false,
+                                },
+                                {
+                                    labels: {
+                                        align: "left",
+                                        x: 0,
+                                        y: -6,
+                                    },
+                                    showLastLabel: false,
+                                },
+                                {
+                                    visible: false,
+                                },
+                            ],
+                        },
+                    },
+                ],
+            },
+        });
+    };
+
+    onMounted(async () => {
+        await InitAppointment();
+        await InitMonthChartData();
+
+        GenerateDayChart();
+        GenerateMonthChart();
+
+        watch(
+            () => appointments.value,
+            () => {
+                if (appointments.value.length > 0) {
+                    GenerateDayChart();
+                }
+            },
+            { deep: true },
+        );
+    });
+</script>
+
 <template>
-    <div class="dashboards_container">
-        <div class="dashboards_title">
-            <h3>Dashboard</h3>
-        </div>
-        <div class="dashboards_body">
-            <div class="dashboards_body_left col-md-7">
-                <div class="dashboards_body_item_container">
-                    <RouterLink
-                        class="dashboards_body_item"
-                        :to="{ name: 'Admin_DoctorProfile_View' }">
-                        <i class="bx bxs-user-rectangle fs-1"></i>
-                        DoctorProfile
-                    </RouterLink>
-                    <RouterLink class="dashboards_body_item" :to="{ name: 'Admin_Specialty_View' }">
-                        <i class="bx bxs-category fs-1"></i>
-                        Specialty
-                    </RouterLink>
-                    <RouterLink class="dashboards_body_item" :to="{ name: 'Admin_User_View' }">
-                        <i class="bx bxs-user-circle fs-1"></i>
-                        User
-                    </RouterLink>
-                    <RouterLink class="dashboards_body_item" :to="{ name: 'Doctor_Appointment_View' }">
-                        <i class="bx bxs-user-circle fs-1"></i>
-                        Doctor
-                    </RouterLink>
+    <div class="admin_dashboard">
+        <AdminSideBar active-item="dashboard" />
+        <div class="admin_dashboard_section">
+            <div class="admin_dashboard_title">
+                <h3>Dashboards</h3>
+            </div>
+            <div class="admin_dashboard_body">
+                <div class="col-md-8">
+                    <div class="row admin_dashboard_statistic">
+                        <div class="col statistic_item">
+                            <div
+                                class="statistic_item_icon"
+                                style="color: #3a57e8; background-color: #d8ddfa">
+                                <i class="bx bx-calendar"></i>
+                            </div>
+                            <div class="statistic_item_data">
+                                <span style="color: #3a57e8">
+                                    {{ dayjs(date).format("DD/MM/YYYY") }}
+                                </span>
+                                <span>Ngày</span>
+                            </div>
+                        </div>
+                        <div class="col statistic_item">
+                            <div
+                                class="statistic_item_icon"
+                                style="color: #00cccc; background-color: #bceff2">
+                                <i class="bx bx-align-left"></i>
+                            </div>
+                            <div class="statistic_item_data">
+                                <span style="color: #00cccc">
+                                    {{ appointments.length.toString().padStart(2, "0") }}
+                                </span>
+                                <span>Tổng</span>
+                            </div>
+                        </div>
+                        <div class="col statistic_item">
+                            <div
+                                class="statistic_item_icon"
+                                style="color: #eb991b; background-color: #f6e6cc">
+                                <i class="bx bx-calendar-exclamation"></i>
+                            </div>
+                            <div class="statistic_item_data">
+                                <span style="color: #eb991b">
+                                    {{ CountStatusAppointment(AppointmentStatus.WAITING) }}
+                                </span>
+                                <span>Đang đợi</span>
+                            </div>
+                        </div>
+                        <div class="col statistic_item">
+                            <div
+                                class="statistic_item_icon"
+                                style="color: #1aa053; background-color: #d1ecdd">
+                                <i class="bx bx-calendar-check"></i>
+                            </div>
+                            <div class="statistic_item_data">
+                                <span style="color: #1aa053">{{
+                                    CountStatusAppointment(AppointmentStatus.COMPLETED)
+                                }}</span>
+                                <span>Đã được xử lí</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="admin_dashboard_month_chart">
+                        <div v-if="true" id="month_chart_container"></div>
+                        <div v-else>
+                            <a-empty>
+                                <template #description>
+                                    <span>Không có lịch khám trong hôm nay</span>
+                                </template>
+                            </a-empty>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div
+                        :style="{
+                            width: '400px',
+                            border: '1px solid #fff',
+                            borderRadius: '8px',
+                        }">
+                        <a-calendar
+                            v-model:value="date"
+                            :fullscreen="false"
+                            @change="onDateChange" />
+                    </div>
+                    <div v-show="appointments.length > 0" id="day_chart_container"></div>
+                    <div v-show="appointments.length <= 0" class="mt-5">
+                        <a-empty>
+                            <template #description>
+                                <span>Không có dữ liệu cho biểu đồ</span>
+                            </template>
+                        </a-empty>
+                    </div>
                 </div>
             </div>
-            <div class="dashboards_body_right col-md-5"></div>
         </div>
     </div>
 </template>
-<style scoped>
-    .dashboards_container {
-        background: #fff;
-        border-radius: 8px;
-        overflow: hidden;
+<style>
+    .admin_dashboard {
+        display: flex;
     }
-    .dashboards_title {
-        background: #0d61c1;
-        color: #fff;
-        padding: 10px;
-    }
-    .dashboards_title h3 {
-        margin: 0;
-    }
-    .dashboards_body {
-        padding: 10px;
+    .admin_dashboard_section {
+        margin-top: 10px;
+        margin-left: 50px;
+        width: 100%;
     }
 
-    .dashboards_body_item_container {
-        display: flex;
-        justify-content: space-around;
+    .admin_dashboard_statistic {
+        width: 100%;
     }
-    .dashboards_body_item {
+    .admin_dashboard_body {
+        display: flex;
+    }
+
+    .admin_dashboard_month_chart {
+        height: 500px;
+        background: #fff;
+        margin: 20px 20px 0 0;
+        border-radius: 5px;
+        padding: 15px;
         display: flex;
         align-items: center;
         justify-content: center;
-        flex-direction: column;
-        width: calc(100% / 4);
-        height: 150px;
-        border: 5px solid #0d61c1;
-        border-radius: 5px;
-        font-size: 20px;
-        font-weight: 500;
-        color: #0d61c1;
-        cursor: pointer;
-        text-decoration: none;
-        color: #0d61c1;
     }
-    .dashboards_body_item:hover {
-        color: #fff;
-        background-color: #0d61c1;
+    .month_chart_container {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    #month_chart_container {
+        width: 100%;
+    }
+
+    #day_chart_container {
+        width: 400px;
+        height: 300px;
+        margin-top: 10px;
+        border-radius: 8px;
+        overflow: hidden;
     }
 </style>

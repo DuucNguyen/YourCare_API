@@ -61,7 +61,6 @@ namespace YourCare_BOs
 
         [ForeignKey("CreatedBy")]
         public virtual ApplicationUser CreatedByUser { get; set; }
-
         public virtual List<AppointmentFilesUpload>? Files { get; set; }
     }
 }

@@ -17,10 +17,14 @@ namespace YourCare_Repos.Interfaces
         public Task<Appointment> GetById(int id);
         public Task<List<Appointment>> GetAllByDoctorId(Guid doctorId);
         public Task<List<Appointment>> GetDoctorAppointmentByDate(Guid doctorId, DateTime date);
+        public Task<List<Appointment>> GetAllAppointmentByDate(DateTime date);
         public Task<List<Appointment>> GetAll();
+        public Task<List<Appointment>> GetAllByYear(int year);
         public Task<List<Appointment>> GetAllByUserId(string userId);
         public Task<bool> CompleteAppointment(int id, string dianosis, string note);
-        public Task<int> CountAppointmentByDate(Guid doctorID, DateTime date);
+        public Task<int> CountDoctorAppointmentByDate(Guid doctorID, DateTime date);
+
+
 
     }
 }

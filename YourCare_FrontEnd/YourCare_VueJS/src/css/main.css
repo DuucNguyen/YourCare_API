@@ -76,7 +76,8 @@ CRUD - Layout
 }
 .crud-layout-form {
     padding: 20px 10px;
-    background: #f3f4f6;
+    background: #FFF;
+    box-shadow: 1px 1px 20px #ddd;
 }
 
 .button-hover {

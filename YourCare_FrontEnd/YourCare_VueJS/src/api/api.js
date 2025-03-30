@@ -10,7 +10,7 @@ const instance = axios.create({
     withCredentials: true, //Ensure cookies are sent with request
     headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
+        // "Access-Control-Allow-Origin": "*",
     },
     responseType: "json",
 });
