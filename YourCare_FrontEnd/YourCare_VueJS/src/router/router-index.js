@@ -49,7 +49,8 @@ router.beforeEach(async (to, from, next) => {
     if (to.name === "login" && useAuthStore().checkUser()) {
         if (useAuthStore().user_claims.Claims["Admin_Dashboards_View"] === "1") {
             //test
-            next({ name: "Admin_Dashboards_View" });
+            next({ name: "Admin_Dashboards" });
+            return;
         } else {
             //home page
             next({ name: "404" });
@@ -74,7 +75,20 @@ router.beforeEach(async (to, from, next) => {
         Admin_Role_View: "Admin_Role_View",
         Admin_Role_Create: "Admin_Role_Create",
         Admin_Role_Update: "Admin_Role_Update",
+
+        Admin_Dashboards_View: "Admin_Dashboards_View",
+        Doctor_Calendar_View: "Doctor_Calendar_View",
+        Doctor_Appointment_Create: "Doctor_Appointment_Create",
+        Doctor_Appointment_View: "Doctor_Appointment_View",
+        Doctor_Dashboard_View: "Doctor_Dashboard_View",
     };
+
+    if (to.name == "Admin_Dashboards") {
+        if (useAuthStore().user_claims.Claims[claimRoutes.Admin_Dashboards_View] === "1") {
+            next();
+        }
+        next({ name: "404" });
+    }
 
     if (claimRoutes[to.name]) {
         const claimKey = claimRoutes[to.name];

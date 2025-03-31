@@ -71,7 +71,7 @@ namespace YourCare_WebApi.Controllers
                     Specialties = _doctorSpecialtiesRepository.GetAllSpeByDoctorID(x.DoctorID).Result,
                 }).ToList();
 
-                if (!string.IsNullOrEmpty(specialtyID) && specialtyID!="all")
+                if (!string.IsNullOrEmpty(specialtyID) && specialtyID != "all")
                 {
                     result = result.Where(x => x.Specialties.Select(x => x.SpecialtyID).Contains(Guid.Parse(specialtyID))).ToList();
                 }
@@ -98,7 +98,6 @@ namespace YourCare_WebApi.Controllers
 
 
         [HttpGet("GetByUserID")]
-        [Authorize]
 
         public async Task<IActionResult> GetDoctorIDByUserID(string userID)
         {
@@ -190,7 +189,7 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpPost("Create")]
-        [Authorize]
+        [Authorize(Policy = "AdminOnly")]
 
         public async Task<IActionResult> Create([FromForm] RequestDoctorProfileModel request)
         {
@@ -223,8 +222,8 @@ namespace YourCare_WebApi.Controllers
             }
         }
 
-        [HttpPost("Update")]
-        [Authorize]
+        [HttpPut("Update")]
+        [Authorize(Policy = "AdminOnly")]
 
         public async Task<IActionResult> Update([FromForm] RequestDoctorProfileModel request)
         {
@@ -252,7 +251,7 @@ namespace YourCare_WebApi.Controllers
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
-                    Message =  ex.Message,
+                    Message = ex.Message,
                     IsSucceeded = false,
                 });
             }

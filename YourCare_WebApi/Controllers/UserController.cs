@@ -76,6 +76,8 @@ namespace YourCare_WebApi.Controllers
 
 
         [HttpGet("GetByID")]
+        [Authorize(Policy = "AdminOnly")]
+
         public async Task<IActionResult> GetByID([FromQuery] string id)
         {
             try
@@ -108,6 +110,7 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpGet("GetByDoctorID")]
+        [Authorize(Policy = "AdminOnly")]
 
         public async Task<IActionResult> GetByDoctorID([FromQuery] string doctorID)
         {
@@ -191,6 +194,8 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpPost("Create")]
+        [Authorize(Policy = "AdminOnly")]
+
         public async Task<IActionResult> Create([FromForm] ApplicationUserViewModel request)
         {
             using (TransactionScope scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
@@ -242,7 +247,9 @@ namespace YourCare_WebApi.Controllers
 
         }
 
-        [HttpPost("Update")]
+        [HttpPut("Update")]
+        [Authorize(Policy = "AdminOnly")]
+
         public async Task<IActionResult> Update([FromForm] ApplicationUserViewModel request)
         {
             try

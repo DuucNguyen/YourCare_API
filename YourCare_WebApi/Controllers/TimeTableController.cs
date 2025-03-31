@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using YourCare_BOs;
 using YourCare_Repos.Interfaces;
@@ -27,6 +28,7 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpPost("CreateRange")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> CreateRange([FromForm] CreateTimetableModel request)
         {
             try

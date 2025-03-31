@@ -40,7 +40,7 @@ class ApiSpecialty {
     };
 
     Update = (formData) => {
-        return API.post(`${END_POINT.UPDATE}`, formData, {
+        return API.put(`${END_POINT.UPDATE}`, formData, {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "multipart/form-data;",

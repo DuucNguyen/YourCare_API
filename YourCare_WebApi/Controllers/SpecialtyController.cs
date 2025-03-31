@@ -128,8 +128,7 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpPost("Create")]
-        [Authorize]
-
+        [Authorize(Policy = "AdminOnly")]
 
         public async Task<IActionResult> Create([FromForm] FormModel request)
         {
@@ -169,7 +168,7 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpDelete("Delete")]
-        [Authorize]
+        [Authorize(Policy = "AdminOnly")]
 
         public async Task<IActionResult> Delete(string id)
         {
@@ -195,9 +194,8 @@ namespace YourCare_WebApi.Controllers
             }
         }
 
-        [HttpPost("Update")]
-        [Authorize]
-
+        [HttpPut("Update")]
+        [Authorize(Policy = "AdminOnly")]
         public async Task<IActionResult> Update([FromForm] FormModel request)
         {
             try

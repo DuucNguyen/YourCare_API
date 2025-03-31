@@ -45,7 +45,7 @@ class ApiUser {
         });
     };
     Update = async (formData) => {
-        return await API.post(`${END_POINTS.UPDATE}`, formData, {
+        return await API.put(`${END_POINTS.UPDATE}`, formData, {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "multi-part/json",

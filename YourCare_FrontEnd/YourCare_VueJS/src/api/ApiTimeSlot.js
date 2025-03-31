@@ -24,7 +24,7 @@ class ApiTimeSlot {
     };
 
     Update = (formState) => {
-        return API.post(`${END_POINTS.UPDATE}`, formState);
+        return API.put(`${END_POINTS.UPDATE}`, formState);
     };
 
     CreateRange = (formState) => {

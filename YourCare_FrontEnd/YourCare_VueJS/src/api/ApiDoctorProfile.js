@@ -46,7 +46,7 @@ class ApiDoctorProfile {
     };
 
     Update = async (formData) => {
-        return await API.post(`${END_POINTS.UPDATE}`, formData, {
+        return await API.put(`${END_POINTS.UPDATE}`, formData, {
             headers: {
                 Accept: "application/json",
                 "Content-Type": "multipart/form-data;",

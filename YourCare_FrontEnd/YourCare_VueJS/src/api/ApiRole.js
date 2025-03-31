@@ -23,7 +23,7 @@ class ApiRole {
     }
 
     async UpdateRoleClaim(formData) {
-        return await API.post(`${END_POINTS.UPDATE_ROLE_CLAIM}`, formData);
+        return await API.put(`${END_POINTS.UPDATE_ROLE_CLAIM}`, formData);
     }
 
     async GetRoleClaimByRoleID(id) {

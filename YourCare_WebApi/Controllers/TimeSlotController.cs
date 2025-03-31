@@ -1,5 +1,6 @@
 ﻿
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using YourCare_BOs;
@@ -10,6 +11,8 @@ namespace YourCare_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Policy = "AdminOnly")]
+
     public class TimeSlotController : ControllerBase
     {
         private readonly ITimeSlotRepository _timeSlotRepository;
@@ -54,7 +57,7 @@ namespace YourCare_WebApi.Controllers
         }
 
 
-        [HttpPost("Update")]
+        [HttpPut("Update")]
         public async Task<IActionResult> Update([FromForm] TimeSlot request)
         {
             try

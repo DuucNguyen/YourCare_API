@@ -12,7 +12,8 @@ namespace YourCare_WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Policy = "AdminOnly")]
+
     public class RoleController : ControllerBase
     {
         private readonly IRoleRepository _roleRepository;
@@ -203,7 +204,7 @@ namespace YourCare_WebApi.Controllers
             }
         }
 
-        [HttpPost("UpdateRoleClaim")]
+        [HttpPut("UpdateRoleClaim")]
         public async Task<IActionResult> UpdateRoleClaim([FromBody] UpdateRoleClaimModel request)
         {
             try

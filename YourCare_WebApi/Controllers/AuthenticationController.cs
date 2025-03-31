@@ -96,7 +96,7 @@ namespace YourCare_WebApi.Controllers
                 {
                     return new JsonResult(new ResponseModel<string>
                     {
-                        StatusCode = StatusCodes.Status403Forbidden,
+                        StatusCode = StatusCodes.Status400BadRequest,
                         IsSucceeded = false,
                         Message = "Email has been used."
                     });
@@ -104,6 +104,7 @@ namespace YourCare_WebApi.Controllers
 
                 ApplicationUser newUser = new ApplicationUser
                 {
+                    Id = Guid.NewGuid().ToString(),
                     Email = email,
                     UserName = email,
                     NormalizedEmail = email.ToUpper(),
@@ -244,6 +245,7 @@ namespace YourCare_WebApi.Controllers
             }
             catch (Exception ex)
             {
+                Console.WriteLine(ex.Message + " - " + ex.StackTrace);
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
