@@ -8,7 +8,19 @@ const adminRoutes = [
                 path: "dashboards",
                 name: "Admin_Dashboards",
                 meta: { title: "Dashboards" },
-                component: () => import("@/views/Admin/Dashboard.vue"),
+                component: () => import("@/views/Admin/Dashboards/dashboard.vue"),
+            },
+            {
+                path: "appointment",
+                name: "Admin_Appointments",
+                meta: { title: "Appointments" },
+                component: () => import("@/views/Admin/Dashboards/appointment.vue"),
+            },
+            {
+                path: "data",
+                name: "Admin_Data",
+                meta: { title: "Data" },
+                component: () => import("@/views/Admin/Dashboards/data.vue"),
             },
             /**
              *

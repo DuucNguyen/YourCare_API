@@ -1,4 +1,6 @@
 <script setup>
+    import AdminSideBar from "@/shared/AdminSideBar.vue";
+
     import ApiRole from "@/api/ApiRole";
     import { ref, reactive, onMounted, watch } from "vue";
 
@@ -147,82 +149,105 @@
 </script>
 
 <template>
-    <div class="main">
-        <div class="crud-layout-header">
-            <h2 class="crud-layout-header-title">Create Role</h2>
-            <RouterLink class="crud-layout-header-button" :to="{ name: 'Admin_Role_View' }">
-                Index
-            </RouterLink>
-        </div>
-        <div class="main_body">
-            <a-form layout="vertical" ref="formRef" :model="formState" :rules="rules">
-                <a-form-item name="roleName" label="Tên vai trò mới">
-                    <a-input v-model:value="formState.roleName" placeholder="Tên vai trò"></a-input>
-                </a-form-item>
-                <a-checkbox
-                    class="checkbox_all"
-                    v-model:checked="checkBox_state.isCheckedAll"
-                    :indeterminate="checkBox_state.indeterminate"
-                    @change="onCheckAll"
-                    >Check all</a-checkbox
-                >
-                <a-form-item name="roleClaims" label="Quyền truy cập">
-                    <div class="claim_container">
-                        <div class="claim_item" v-for="claim in data">
-                            <div class="claim_header">
-                                <span>{{ claim.name }}</span>
-                            </div>
-                            <div class="claim_body">
-                                <a-checkbox-group
-                                    class="claim_group"
-                                    v-model:value="checkBox_state[claimBinding(claim.name)]">
-                                    <a-checkbox v-for="action in claim.actions" :value="action">
-                                        {{ action }}
-                                    </a-checkbox>
-                                </a-checkbox-group>
-                            </div>
-                        </div>
+    <div class="admin_dashboard">
+        <AdminSideBar style="position: sticky; top: 68px" active-item="role" />
+        <div class="admin_dashboard_section">
+            <div class="admin_dashboard_body">
+                <div class="main">
+                    <div class="crud-layout-header">
+                        <h2 class="crud-layout-header-title">Create Role</h2>
+                        <RouterLink
+                            class="crud-layout-header-button"
+                            :to="{ name: 'Admin_Role_View' }">
+                            Index
+                        </RouterLink>
                     </div>
-                </a-form-item>
-                <a-form-item class="w-100 d-flex justify-content-end">
-                    <a-popconfirm
-                        placement="bottom"
-                        ok-text="Xác nhận"
-                        :okButtonProps="{
-                            type: 'primary',
-                            style: {
-                                height: '30px',
-                                width: '150px',
-                            },
-                        }"
-                        :cancelButtonProps="{
-                            style: {
-                                height: '30px',
-                                width: '80px',
-                            },
-                        }"
-                        cancel-text="Hủy"
-                        @confirm="onFinish">
-                        <template #title>
-                            <span class="fs-6 text-primary">Xác nhận tạo mới</span>
-                            <br />
-                            <span class="text-danger"
-                                >Vui lòng kiểm tra lại thông tin phía trên.</span
+                    <div class="main_body">
+                        <a-form layout="vertical" ref="formRef" :model="formState" :rules="rules">
+                            <a-form-item name="roleName" label="Tên vai trò mới">
+                                <a-input
+                                    v-model:value="formState.roleName"
+                                    placeholder="Tên vai trò"></a-input>
+                            </a-form-item>
+                            <a-checkbox
+                                class="checkbox_all"
+                                v-model:checked="checkBox_state.isCheckedAll"
+                                :indeterminate="checkBox_state.indeterminate"
+                                @change="onCheckAll"
+                                >Check all</a-checkbox
                             >
-                        </template>
-                        <a-button
-                            type="primary"
-                            style="height: 40px; font-weight: 500"
-                            class="w-100 fs-6">
-                            Tạo mới
-                        </a-button>
-                    </a-popconfirm>
-                </a-form-item>
-            </a-form>
+                            <a-form-item name="roleClaims" label="Quyền truy cập">
+                                <div class="claim_container">
+                                    <div class="claim_item" v-for="claim in data">
+                                        <div class="claim_header">
+                                            <span>{{ claim.name }}</span>
+                                        </div>
+                                        <div class="claim_body">
+                                            <a-checkbox-group
+                                                class="claim_group"
+                                                v-model:value="
+                                                    checkBox_state[claimBinding(claim.name)]
+                                                ">
+                                                <a-checkbox
+                                                    v-for="action in claim.actions"
+                                                    :value="action">
+                                                    {{ action }}
+                                                </a-checkbox>
+                                            </a-checkbox-group>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a-form-item>
+                            <a-form-item class="w-100 d-flex justify-content-end">
+                                <a-popconfirm
+                                    placement="bottom"
+                                    ok-text="Xác nhận"
+                                    :okButtonProps="{
+                                        type: 'primary',
+                                        style: {
+                                            height: '30px',
+                                            width: '150px',
+                                        },
+                                    }"
+                                    :cancelButtonProps="{
+                                        style: {
+                                            height: '30px',
+                                            width: '80px',
+                                        },
+                                    }"
+                                    cancel-text="Hủy"
+                                    @confirm="onFinish">
+                                    <template #title>
+                                        <span class="fs-6 text-primary">Xác nhận tạo mới</span>
+                                        <br />
+                                        <span class="text-danger"
+                                            >Vui lòng kiểm tra lại thông tin phía trên.</span
+                                        >
+                                    </template>
+                                    <a-button
+                                        type="primary"
+                                        style="height: 40px; font-weight: 500"
+                                        class="w-100 fs-6">
+                                        Tạo mới
+                                    </a-button>
+                                </a-popconfirm>
+                            </a-form-item>
+                        </a-form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 <style scoped>
+    .admin_dashboard {
+        display: flex;
+    }
+    .admin_dashboard_body {
+        display: flex;
+        flex-direction: column;
+        padding-left: 30px;
+    }
     .main {
         margin: auto;
         width: 60%;

@@ -455,6 +455,7 @@ namespace YourCare_WebApi.Controllers
                     AppointmentStatus.Complete,
                     AppointmentStatus.Processing,
                     AppointmentStatus.Canceled,
+                    AppointmentStatus.Waiting,
                 };
 
                 var query = await _appointmentRepository.GetAllByYear(year);

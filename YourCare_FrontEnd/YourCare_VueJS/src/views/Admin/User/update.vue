@@ -1,4 +1,6 @@
 <script setup>
+    import AdminSideBar from "@/shared/AdminSideBar.vue";
+
     import ApiUser from "@/api/ApiUser";
     import { reactive, ref, onMounted } from "vue";
 
@@ -222,70 +224,90 @@
 </script>
 
 <template>
-    <div class="crud-layout-header">
-        <h2 class="crud-layout-header-title">Update User</h2>
-        <RouterLink class="crud-layout-header-button" :to="{ name: 'Admin_User_View' }"
-            >Back to Lists</RouterLink
-        >
-    </div>
-    <div class="crud-layout-form">
-        <a-form
-            ref="formRef"
-            :model="formState"
-            :rules="rules"
-            :label-col="labelCol"
-            :wrapper-col="wrapperCol">
-            <a-form-item class="mb-5" label="Image" name="image">
-                <a-upload
-                    v-model:fileList="formState.image"
-                    action="/upload.do"
-                    list-type="picture-card"
-                    :maxCount="1"
-                    :beforeUpload="validateFile"
-                    @preview="handlePreview">
-                    <div>
-                        <PlusOutlined />
-                        <div style="margin-top: 8px">Upload</div>
-                    </div>
-                </a-upload>
-                <a-modal
-                    :open="previewVisible"
-                    :title="previewTitle"
-                    :footer="null"
-                    @cancel="handleCancel">
-                    <img alt="example" style="width: 100%" :src="previewImage" />
-                </a-modal>
-            </a-form-item>
+    <div class="admin_dashboard">
+        <AdminSideBar active-item="user" />
+        <div class="admin_dashboard_section">
+            <div class="admin_dashboard_body">
+                <div class="crud-layout-header">
+                    <h2 class="crud-layout-header-title">Update User</h2>
+                    <RouterLink class="crud-layout-header-button" :to="{ name: 'Admin_User_View' }"
+                        >Back to Lists</RouterLink
+                    >
+                </div>
+                <div class="crud-layout-form">
+                    <a-form
+                        ref="formRef"
+                        :model="formState"
+                        :rules="rules"
+                        :label-col="labelCol"
+                        :wrapper-col="wrapperCol">
+                        <a-form-item class="mb-5" label="Image" name="image">
+                            <a-upload
+                                v-model:fileList="formState.image"
+                                action="/upload.do"
+                                list-type="picture-card"
+                                :maxCount="1"
+                                :beforeUpload="validateFile"
+                                @preview="handlePreview">
+                                <div>
+                                    <PlusOutlined />
+                                    <div style="margin-top: 8px">Upload</div>
+                                </div>
+                            </a-upload>
+                            <a-modal
+                                :open="previewVisible"
+                                :title="previewTitle"
+                                :footer="null"
+                                @cancel="handleCancel">
+                                <img alt="example" style="width: 100%" :src="previewImage" />
+                            </a-modal>
+                        </a-form-item>
 
-            <a-form-item label="FullName" name="fullName">
-                <a-input v-model:value="formState.fullName"></a-input>
-            </a-form-item>
-            <a-form-item label="Email" name="email">
-                <a-input v-model:value="formState.email"></a-input>
-            </a-form-item>
-            <a-form-item label="Phone" name="phoneNumber">
-                <a-input v-model:value="formState.phoneNumber"></a-input>
-            </a-form-item>
-            <a-form-item label="Date of birth" name="dob">
-                <a-date-picker
-                    v-model:value="formState.dob"
-                    placeholder="Pick a date"
-                    style="width: 100%"></a-date-picker>
-            </a-form-item>
-            <a-form-item label="Gender" name="gender">
-                <a-radio-group v-model:value="formState.gender">
-                    <a-radio :value="true">Male</a-radio>
-                    <a-radio :value="false">Female</a-radio>
-                </a-radio-group>
-            </a-form-item>
-            <a-form-item label="Address" name="address">
-                <a-input v-model:value="formState.address"></a-input>
-            </a-form-item>
-            <a-form-item :wrapper-col="{ span: 24, offset: 10 }">
-                <!-- default ant : 24 colums; offset means add columns (margin) in the left item -->
-                <a-button type="primary" @click="onFinish">Update</a-button>
-                <a-button style="margin-left: 10px" @click="resetForm">Reset</a-button>
-            </a-form-item>
-        </a-form>
+                        <a-form-item label="FullName" name="fullName">
+                            <a-input v-model:value="formState.fullName"></a-input>
+                        </a-form-item>
+                        <a-form-item label="Email" name="email">
+                            <a-input v-model:value="formState.email"></a-input>
+                        </a-form-item>
+                        <a-form-item label="Phone" name="phoneNumber">
+                            <a-input v-model:value="formState.phoneNumber"></a-input>
+                        </a-form-item>
+                        <a-form-item label="Date of birth" name="dob">
+                            <a-date-picker
+                                v-model:value="formState.dob"
+                                placeholder="Pick a date"
+                                style="width: 100%"></a-date-picker>
+                        </a-form-item>
+                        <a-form-item label="Gender" name="gender">
+                            <a-radio-group v-model:value="formState.gender">
+                                <a-radio :value="true">Male</a-radio>
+                                <a-radio :value="false">Female</a-radio>
+                            </a-radio-group>
+                        </a-form-item>
+                        <a-form-item label="Address" name="address">
+                            <a-input v-model:value="formState.address"></a-input>
+                        </a-form-item>
+                        <a-form-item :wrapper-col="{ span: 24, offset: 10 }">
+                            <!-- default ant : 24 colums; offset means add columns (margin) in the left item -->
+                            <a-button type="primary" @click="onFinish">Update</a-button>
+                            <a-button style="margin-left: 10px" @click="resetForm">Reset</a-button>
+                        </a-form-item>
+                    </a-form>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
+<style>
+    .admin_dashboard {
+        display: flex;
+    }
+    .admin_dashboard_body {
+        display: flex;
+        flex-direction: column;
+        padding-left: 30px;
+    }
+    .admin_dashboard_section {
+        flex-grow: 1;
+    }
+</style>

@@ -1,4 +1,6 @@
 <script setup>
+    import AdminSideBar from "@/shared/AdminSideBar.vue";
+
     import ApiUser from "@/api/ApiUser";
     import ApiRole from "@/api/ApiRole";
     import { reactive, ref, onMounted, onUpdated } from "vue";
@@ -143,213 +145,265 @@
 </script>
 
 <template>
-    <div class="crud-layout-header">
-        <h2 class="crud-layout-header-title">Manage User</h2>
-        <RouterLink class="crud-layout-header-button" :to="{ name: 'Admin_User_Create' }"
-            >Create</RouterLink
-        >
-    </div>
-    <div class="crud-layout-table">
-        <div>
-            <div v-for="user in data" class="user_item">
-                <div class="col-md-2 user_item_image">
-                    <img :src="user.imageString" />
+    <div class="admin_dashboard">
+        <AdminSideBar style="position: sticky; top: 68px" active-item="user" />
+        <div class="admin_dashboard_section">
+            <div style="background: #fff" class="admin_dashboard_body">
+                <div class="crud-layout-header">
+                    <h2 class="crud-layout-header-title">Manage User</h2>
+                    <RouterLink
+                        class="crud-layout-header-button"
+                        :to="{ name: 'Admin_User_Create' }"
+                        >Create</RouterLink
+                    >
                 </div>
-                <div class="col-md-10 user_item_info">
+                <a-pagination
+                    @change="onChange"
+                    v-model:current="pageParams.pageNumber"
+                    :total="pageParams.totalRecords"
+                    :pageSize="pageParams.pageSize"
+                    :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
+                    show-size-changer
+                    show-quick-jumper
+                    class="crud-layout-pagination"></a-pagination>
+                <div class="crud-layout-table">
+                    <div>
+                        <div v-for="user in data" class="user_item">
+                            <div class="col-md-2 user_item_image">
+                                <img :src="user.imageString" />
+                            </div>
+                            <div class="col-md-10 user_item_info">
+                                <a-row>
+                                    <a-col :span="4">Họ và tên</a-col>
+                                    <a-col :span="12">
+                                        <span>{{ user.fullName }}</span>
+                                    </a-col>
+                                </a-row>
+                                <a-divider class="m-1"></a-divider>
+                                <div class="mt-3">
+                                    <a-row>
+                                        <a-col :span="4">Email</a-col>
+                                        <a-col :span="12">
+                                            <span>{{ user.email }}</span>
+                                        </a-col>
+                                    </a-row>
+                                    <a-row>
+                                        <a-col :span="4">SĐT</a-col>
+                                        <a-col :span="12">
+                                            <span>{{ user.phoneNumber }}</span>
+                                        </a-col>
+                                    </a-row>
+                                    <a-divider class="m-1"></a-divider>
+                                    <a-row class="user_btn_container">
+                                        <a-col :span="4">
+                                            <a-tooltip placement="top">
+                                                <template #title>
+                                                    <span>Change role</span>
+                                                </template>
+                                                <a
+                                                    class="user_btn"
+                                                    @click="openModalChangeRole(user)">
+                                                    <i
+                                                        style="color: coral"
+                                                        class="bx bx-git-compare"></i
+                                                    >Change role
+                                                </a>
+                                            </a-tooltip>
+                                        </a-col>
+                                        <a-col :span="4"
+                                            ><a-tooltip placement="top">
+                                                <template #title>
+                                                    <span>Details</span>
+                                                </template>
+                                                <RouterLink
+                                                    class="user_btn"
+                                                    :to="{
+                                                        name: 'Admin_User_Detail',
+                                                        params: { id: user.id },
+                                                    }">
+                                                    <i
+                                                        style="color: blueviolet"
+                                                        class="bx bxs-user-detail"></i>
+                                                    Detail
+                                                </RouterLink>
+                                            </a-tooltip>
+                                        </a-col>
+                                        <a-col :span="4">
+                                            <a-tooltip placement="top">
+                                                <template #title>
+                                                    <span>Create doctor profile</span>
+                                                </template>
+                                                <RouterLink
+                                                    class="user_btn"
+                                                    :to="{
+                                                        name: 'Admin_DoctorProfile_Create',
+                                                        params: { id: user.id },
+                                                    }"
+                                                    ><i
+                                                        style="color: forestgreen"
+                                                        class="bx bxs-user-badge"></i
+                                                    >Create doctor</RouterLink
+                                                >
+                                            </a-tooltip>
+                                        </a-col>
+                                        <a-col :span="4"
+                                            ><a-tooltip placement="top">
+                                                <template #title>
+                                                    <span>Update</span>
+                                                </template>
+                                                <RouterLink
+                                                    class="user_btn"
+                                                    :to="{
+                                                        name: 'Admin_User_Update',
+                                                        params: { id: user.id },
+                                                    }"
+                                                    ><i
+                                                        style="color: royalblue"
+                                                        class="bx bxs-edit"></i
+                                                    >Update</RouterLink
+                                                >
+                                            </a-tooltip>
+                                        </a-col>
+                                        <a-col :span="4">
+                                            <a-tooltip placement="top">
+                                                <template #title>
+                                                    <span>Deactivate</span>
+                                                </template>
+                                                <RouterLink
+                                                    class="user_btn"
+                                                    :to="{
+                                                        name: 'Admin_User_Update',
+                                                        params: { id: user.id },
+                                                    }">
+                                                    <i
+                                                        style="color: brown"
+                                                        class="bx bxs-trash"></i>
+                                                    Update</RouterLink
+                                                >
+                                            </a-tooltip>
+                                        </a-col>
+                                    </a-row>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <a-pagination
+                        @change="onChange"
+                        v-model:current="pageParams.pageNumber"
+                        :total="pageParams.totalRecords"
+                        :pageSize="pageParams.pageSize"
+                        :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
+                        show-size-changer
+                        show-quick-jumper
+                        class="crud-layout-pagination"></a-pagination>
+                </div>
+
+                <a-modal
+                    width="750px"
+                    title="Thay đổi vai trò trong hệ thống"
+                    v-model:open="showModalChangeRole"
+                    centered>
                     <a-row>
-                        <a-col :span="4">Họ và tên</a-col>
-                        <a-col :span="12">
-                            <span>{{ user.fullName }}</span>
+                        <a-col :span="24">
+                            <a-alert
+                                message="Thay đổi này có tác động đến quyền truy cập của người dùng này trong hệ thống."
+                                banner />
                         </a-col>
                     </a-row>
-                    <a-divider class="m-1"></a-divider>
-                    <div class="mt-3">
-                        <a-row>
-                            <a-col :span="4">Email</a-col>
-                            <a-col :span="12">
-                                <span>{{ user.email }}</span>
-                            </a-col>
-                        </a-row>
-                        <a-row>
-                            <a-col :span="4">SĐT</a-col>
-                            <a-col :span="12">
-                                <span>{{ user.phoneNumber }}</span>
-                            </a-col>
-                        </a-row>
-                        <a-divider class="m-1"></a-divider>
-                        <a-row class="user_btn_container">
-                            <a-col :span="4">
-                                <a-tooltip placement="top">
-                                    <template #title>
-                                        <span>Change role</span>
-                                    </template>
-                                    <a class="user_btn" @click="openModalChangeRole(user)">
-                                        <i style="color: coral" class="bx bx-git-compare"></i>Change
-                                        role
-                                    </a>
-                                </a-tooltip>
-                            </a-col>
-                            <a-col :span="4"
-                                ><a-tooltip placement="top">
-                                    <template #title>
-                                        <span>Details</span>
-                                    </template>
-                                    <RouterLink
-                                        class="user_btn"
-                                        :to="{
-                                            name: 'Admin_User_Detail',
-                                            params: { id: user.id },
-                                        }">
-                                        <i style="color: blueviolet" class="bx bxs-user-detail"></i>
-                                        Detail
-                                    </RouterLink>
-                                </a-tooltip>
-                            </a-col>
-                            <a-col :span="4">
-                                <a-tooltip placement="top">
-                                    <template #title>
-                                        <span>Create doctor profile</span>
-                                    </template>
-                                    <RouterLink
-                                        class="user_btn"
-                                        :to="{
-                                            name: 'Admin_DoctorProfile_Create',
-                                            params: { id: user.id },
-                                        }"
-                                        ><i style="color: forestgreen" class="bx bxs-user-badge"></i
-                                        >Create doctor</RouterLink
-                                    >
-                                </a-tooltip>
-                            </a-col>
-                            <a-col :span="4"
-                                ><a-tooltip placement="top">
-                                    <template #title>
-                                        <span>Update</span>
-                                    </template>
-                                    <RouterLink
-                                        class="user_btn"
-                                        :to="{
-                                            name: 'Admin_User_Update',
-                                            params: { id: user.id },
-                                        }"
-                                        ><i style="color: royalblue" class="bx bxs-edit"></i
-                                        >Update</RouterLink
-                                    >
-                                </a-tooltip>
-                            </a-col>
-                            <a-col :span="4">
-                                <a-tooltip placement="top">
-                                    <template #title>
-                                        <span>Deactivate</span>
-                                    </template>
-                                    <RouterLink
-                                        class="user_btn"
-                                        :to="{
-                                            name: 'Admin_User_Update',
-                                            params: { id: user.id },
-                                        }">
-                                        <i style="color: brown" class="bx bxs-trash"></i>
-                                        Update</RouterLink
-                                    >
-                                </a-tooltip>
-                            </a-col>
-                        </a-row>
-                    </div>
-                </div>
+
+                    <a-row>
+                        <a-col :span="12">
+                            <a-divider orientation="left" orientation-margin="0px"
+                                >Hiện tại</a-divider
+                            >
+                            <div class="mt-3 d-flex">
+                                <div style="width: 80px; height: 80px" class="user_item_image">
+                                    <img :src="selectedUser.imageString" />
+                                </div>
+                                <div class="mt-1 ms-3 user_item_info">
+                                    <a-row>
+                                        <a-col :span="24">
+                                            <span class="fs-6">{{ selectedUser.fullName }}</span>
+                                        </a-col>
+                                        <a-tag
+                                            :color="
+                                                selectedUser.roleName === 'Admin'
+                                                    ? '#cd201f'
+                                                    : '#3b5999'
+                                            ">
+                                            {{
+                                                selectedUser.roleName
+                                                    ? selectedUser.roleName
+                                                    : "chưa cấu hình"
+                                            }}
+                                        </a-tag>
+                                    </a-row>
+                                </div>
+                            </div>
+                        </a-col>
+                        <a-col :span="11">
+                            <a-divider orientation="left" orientation-margin="0px"
+                                >Thay đổi</a-divider
+                            >
+                            <div class="mt-3 d-flex">
+                                <div style="width: 80px; height: 80px" class="user_item_image">
+                                    <img :src="selectedUser.imageString" />
+                                </div>
+                                <div class="mt-1 ms-3 user_item_info">
+                                    <a-row>
+                                        <a-col :span="24">
+                                            <span class="fs-6">{{ selectedUser.fullName }}</span>
+                                        </a-col>
+                                    </a-row>
+                                    <a-row style="min-width: 150px">
+                                        <a-col :span="24">
+                                            <a-form
+                                                ref="formChangeRole"
+                                                :model="formStateChangeRole"
+                                                :rules="rulesChangeRole">
+                                                <a-form-item name="roleId">
+                                                    <a-select
+                                                        v-model:value="formStateChangeRole.roleId"
+                                                        placeholder="Chọn vai trò">
+                                                        <a-select-option
+                                                            v-for="role in roles"
+                                                            :value="role.roleId">
+                                                            {{ role.roleName }}
+                                                        </a-select-option>
+                                                    </a-select>
+                                                </a-form-item>
+                                            </a-form>
+                                        </a-col>
+                                    </a-row>
+                                </div>
+                            </div>
+                        </a-col>
+                    </a-row>
+                    <template #footer>
+                        <a-button key="Hủy" @click="showModalChangeRole = false">Hủy</a-button>
+                        <a-button key="Xác nhận" type="primary" @click="onFinishChangeRole">
+                            Xác nhận
+                        </a-button>
+                    </template>
+                </a-modal>
             </div>
         </div>
-        <a-pagination
-            @change="onChange"
-            v-model:current="pageParams.pageNumber"
-            :total="pageParams.totalRecords"
-            :pageSize="pageParams.pageSize"
-            :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
-            show-size-changer
-            show-quick-jumper
-            class="crud-layout-pagination"></a-pagination>
     </div>
-
-    <a-modal
-        width="750px"
-        title="Thay đổi vai trò trong hệ thống"
-        v-model:open="showModalChangeRole"
-        centered>
-        <a-row>
-            <a-col :span="24">
-                <a-alert
-                    message="Thay đổi này có tác động đến quyền truy cập của người dùng này trong hệ thống."
-                    banner />
-            </a-col>
-        </a-row>
-
-        <a-row>
-            <a-col :span="12">
-                <a-divider orientation="left" orientation-margin="0px">Hiện tại</a-divider>
-                <div class="mt-3 d-flex">
-                    <div style="width: 80px; height: 80px" class="user_item_image">
-                        <img :src="selectedUser.imageString" />
-                    </div>
-                    <div class="mt-1 ms-3 user_item_info">
-                        <a-row>
-                            <a-col :span="24">
-                                <span class="fs-6">{{ selectedUser.fullName }}</span>
-                            </a-col>
-                            <a-tag
-                                :color="selectedUser.roleName === 'Admin' ? '#cd201f' : '#3b5999'">
-                                {{
-                                    selectedUser.roleName ? selectedUser.roleName : "chưa cấu hình"
-                                }}
-                            </a-tag>
-                        </a-row>
-                    </div>
-                </div>
-            </a-col>
-            <a-col :span="11">
-                <a-divider orientation="left" orientation-margin="0px">Thay đổi</a-divider>
-                <div class="mt-3 d-flex">
-                    <div style="width: 80px; height: 80px" class="user_item_image">
-                        <img :src="selectedUser.imageString" />
-                    </div>
-                    <div class="mt-1 ms-3 user_item_info">
-                        <a-row>
-                            <a-col :span="24">
-                                <span class="fs-6">{{ selectedUser.fullName }}</span>
-                            </a-col>
-                        </a-row>
-                        <a-row style="min-width: 150px">
-                            <a-col :span="24">
-                                <a-form
-                                    ref="formChangeRole"
-                                    :model="formStateChangeRole"
-                                    :rules="rulesChangeRole">
-                                    <a-form-item name="roleId">
-                                        <a-select
-                                            v-model:value="formStateChangeRole.roleId"
-                                            placeholder="Chọn vai trò">
-                                            <a-select-option
-                                                v-for="role in roles"
-                                                :value="role.roleId">
-                                                {{ role.roleName }}
-                                            </a-select-option>
-                                        </a-select>
-                                    </a-form-item>
-                                </a-form>
-                            </a-col>
-                        </a-row>
-                    </div>
-                </div>
-            </a-col>
-        </a-row>
-        <template #footer>
-            <a-button key="Hủy" @click="showModalChangeRole = false">Hủy</a-button>
-            <a-button key="Xác nhận" type="primary" @click="onFinishChangeRole">
-                Xác nhận
-            </a-button>
-        </template>
-    </a-modal>
 </template>
 
 <style scoped>
+    .admin_dashboard {
+        display: flex;
+    }
+    .admin_dashboard_body {
+        display: flex;
+        flex-direction: column;
+        padding-left: 30px;
+    }
+    .admin_dashboard_section {
+        flex-grow: 1;
+    }
+
     .user_item {
         border: 1px solid #ddd;
         border-radius: 5px;

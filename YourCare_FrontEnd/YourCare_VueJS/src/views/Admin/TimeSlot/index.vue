@@ -1,4 +1,6 @@
 <script setup>
+    import AdminSideBar from "@/shared/AdminSideBar.vue";
+
     import { ref, reactive, onMounted } from "vue";
     import ApiTimeSlot from "@/api/ApiTimeSlot";
     import dayjs from "dayjs";
@@ -141,63 +143,82 @@
     };
 </script>
 <template>
-    <div class="main">
-        <div class="crud-layout-header">
-            <h2 class="crud-layout-header-title">Manage TimeSlot</h2>
-        </div>
-        <div class="main_body">
-            <a-form ref="formRef" :model="formState">
-                <a-form-item
-                    v-bind="formItemLayout"
-                    class="dynamic_item"
-                    v-for="(timeSlot, index) in formState.timeSlots"
-                    :key="index"
-                    :label="'Time Slot - ' + (index + 1)"
-                    :name="['timeSlots', index, 'timeRange']"
-                    :rules="[
-                        {
-                            required: true,
-                            message: 'Please input value',
-                            trigger: 'change',
-                        },
-                        {
-                            validator: (rule, value) => validateTime(value),
-                            trigger: 'change',
-                        },
-                    ]">
-                    <a-time-range-picker
-                        v-model:value="timeSlot.timeRange"
-                        size="large"
-                        format="h:mm a"
-                        :minute-step="15" />
+    <div class="admin_dashboard">
+        <AdminSideBar style="position: sticky; top: 68px" active-item="timeSlot" />
+        <div class="admin_dashboard_section">
+            <div class="admin_dashboard_body">
+                <div class="main">
+                    <div class="crud-layout-header">
+                        <h2 class="crud-layout-header-title">Manage TimeSlot</h2>
+                    </div>
+                    <div class="main_body">
+                        <a-form ref="formRef" :model="formState">
+                            <a-form-item
+                                v-bind="formItemLayout"
+                                class="dynamic_item"
+                                v-for="(timeSlot, index) in formState.timeSlots"
+                                :key="index"
+                                :label="'Time Slot - ' + (index + 1)"
+                                :name="['timeSlots', index, 'timeRange']"
+                                :rules="[
+                                    {
+                                        required: true,
+                                        message: 'Please input value',
+                                        trigger: 'change',
+                                    },
+                                    {
+                                        validator: (rule, value) => validateTime(value),
+                                        trigger: 'change',
+                                    },
+                                ]">
+                                <a-time-range-picker
+                                    v-model:value="timeSlot.timeRange"
+                                    size="large"
+                                    format="h:mm a"
+                                    :minute-step="15" />
 
-                    <MinusCircleOutlined
-                        class="dynamic-delete-button"
-                        @click="removeTimeSlot(timeSlot)"
-                        v-if="formState.timeSlots.length > 1" />
-                </a-form-item>
+                                <MinusCircleOutlined
+                                    class="dynamic-delete-button"
+                                    @click="removeTimeSlot(timeSlot)"
+                                    v-if="formState.timeSlots.length > 1" />
+                            </a-form-item>
 
-                <a-form-item v-bind="formItemLayoutWithOutLabel">
-                    <a-button
-                        style="width: 50%"
-                        @click="addTimeSlot()"
-                        class="d-flex align-items-center justify-content-center"
-                        type="dashed">
-                        <PlusOutlined />Add slot
-                    </a-button>
-                </a-form-item>
-                <a-form-item class="d-flex justify-content-end">
-                    <a-button @click="onFinish()" type="primary">Save</a-button>
-                </a-form-item>
-                <a-alert
-                    message="Click Save button to save any changes."
-                    type="warning"
-                    show-icon />
-            </a-form>
+                            <a-form-item v-bind="formItemLayoutWithOutLabel">
+                                <a-button
+                                    style="width: 50%"
+                                    @click="addTimeSlot()"
+                                    class="d-flex align-items-center justify-content-center"
+                                    type="dashed">
+                                    <PlusOutlined />Add slot
+                                </a-button>
+                            </a-form-item>
+                            <a-form-item class="d-flex justify-content-end">
+                                <a-button @click="onFinish()" type="primary">Save</a-button>
+                            </a-form-item>
+                            <a-alert
+                                message="Click Save button to save any changes."
+                                type="warning"
+                                show-icon />
+                        </a-form>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>
 <style scoped>
+    .admin_dashboard {
+        display: flex;
+    }
+    .admin_dashboard_body {
+        display: flex;
+        flex-direction: column;
+        padding-left: 30px;
+    }
+    .admin_dashboard_section {
+        flex-grow: 1;
+    }
+
     .main {
         margin: auto;
         width: 50%;

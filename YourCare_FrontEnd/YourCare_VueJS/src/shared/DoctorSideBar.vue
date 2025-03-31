@@ -29,7 +29,13 @@
         <div class="sidebar-wrapper">
             <div class="sidebar-profileSection">
                 <img :src="user.image" />
-                <span>{{ user.fullName }}</span>
+                <div>
+                    <span>{{ user.fullName }}</span>
+                    <br />
+                    <a-tag color="#3b5999">
+                        {{ user.roleName }}
+                    </a-tag>
+                </div>
             </div>
 
             <ul class="sidebar-list">

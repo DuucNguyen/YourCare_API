@@ -1,4 +1,6 @@
 <script setup>
+    import AdminSideBar from "@/shared/AdminSideBar.vue";
+
     import ApiDoctorProfile from "@/api/ApiDoctorProfile";
     import ApiSpecialty from "@/api/ApiSpecialty";
     import ApiUser from "@/api/ApiUser";
@@ -89,101 +91,128 @@
 </script>
 
 <template>
-    <div class="crud-layout-header">
-        <h2 class="crud-layout-header-title">Manage DoctorProfile</h2>
-    </div>
-    <div class="crud-layout-table">
-        <table class="table table-responsive table-bordered">
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Information</th>
-                    <th>Specialties</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="item in data">
-                    <td>
-                        <div
-                            style="width: 90px; height: 120px; object-fit: fill"
-                            class="list-image-container">
-                            <img :src="item.imageString" alt="avatar" />
-                        </div>
-                    </td>
+    <div class="admin_dashboard">
+        <AdminSideBar style="position: sticky; top: 65px" active-item="doctor" />
+        <div class="admin_dashboard_section">
+            <div class="admin_dashboard_body">
+                <div class="crud-layout-header">
+                    <h2 class="crud-layout-header-title">Manage DoctorProfile</h2>
+                </div>
+                <a-pagination
+                    @change="onChange"
+                    v-model:current="pageParams.pageNumber"
+                    :total="pageParams.totalRecords"
+                    :pageSize="pageParams.pageSize"
+                    :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
+                    show-size-changer
+                    show-quick-jumper
+                    class="crud-layout-pagination"></a-pagination>
+                <div class="crud-layout-table">
+                    <table class="table table-responsive table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Information</th>
+                                <th>Specialties</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in data">
+                                <td>
+                                    <div
+                                        style="width: 90px; height: 120px; object-fit: fill"
+                                        class="list-image-container">
+                                        <img :src="item.imageString" alt="avatar" />
+                                    </div>
+                                </td>
 
-                    <td>
-                        <div class="d-flex flex-column information-container">
-                            <div><span>FullName:</span>{{ item.fullName }}</div>
-                            <div><span>Email:</span>{{ item.email }}</div>
-                            <div><span>Phone:</span>{{ item.phoneNumber }}</div>
-                            <div><span>Address:</span>{{ item.address }}</div>
-                        </div>
-                    </td>
-                    <td>
-                        <label class="specialization-item-capsule" v-for="spe in item.specialties">
-                            {{ spe.title }}
-                        </label>
-                    </td>
-                    <td class="text-end">
-                        <a-tooltip placement="top">
-                            <template #title>
-                                <span>Timetable</span>
-                            </template>
-                            <RouterLink
-                                class="fs-3 text-primary"
-                                :to="{
-                                    name: 'Admin_DoctorProfile_Timetable',
-                                    params: { id: item.doctorProfileID },
-                                }"
-                                ><i class="bx bx-calendar"></i
-                            ></RouterLink>
-                        </a-tooltip>
-                        <a-tooltip placement="top">
-                            <template #title>
-                                <span>Update</span>
-                            </template>
-                            <RouterLink
-                                class="fs-3 text-success"
-                                :to="{
-                                    name: 'Admin_DoctorProfile_Update',
-                                    params: { id: item.doctorProfileID },
-                                }"
-                                ><i class="bx bxs-edit"></i
-                            ></RouterLink>
-                        </a-tooltip>
-                        <a-tooltip placement="top">
-                            <template #title>
-                                <span>Delete</span>
-                            </template>
-                            <RouterLink
-                                class="fs-3 text-danger"
-                                :to="{
-                                    name: 'Admin_DoctorProfile_Update',
-                                    params: { id: item.doctorProfileID },
-                                }"
-                                ><i class="bx bxs-trash"></i
-                            ></RouterLink>
-                        </a-tooltip>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <a-pagination
-            @change="onChange"
-            v-model:current="pageParams.pageNumber"
-            :total="pageParams.totalRecords"
-            :pageSize="pageParams.pageSize"
-            :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
-            show-size-changer
-            show-quick-jumper
-            class="crud-layout-pagination"></a-pagination>
+                                <td>
+                                    <div class="d-flex flex-column information-container">
+                                        <div><span>FullName:</span>{{ item.fullName }}</div>
+                                        <div><span>Email:</span>{{ item.email }}</div>
+                                        <div><span>Phone:</span>{{ item.phoneNumber }}</div>
+                                        <div><span>Address:</span>{{ item.address }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <label
+                                        class="specialization-item-capsule"
+                                        v-for="spe in item.specialties">
+                                        {{ spe.title }}
+                                    </label>
+                                </td>
+                                <td class="text-end">
+                                    <a-tooltip placement="top">
+                                        <template #title>
+                                            <span>Timetable</span>
+                                        </template>
+                                        <RouterLink
+                                            class="fs-3 text-primary"
+                                            :to="{
+                                                name: 'Admin_DoctorProfile_Timetable',
+                                                params: { id: item.doctorProfileID },
+                                            }"
+                                            ><i class="bx bx-calendar"></i
+                                        ></RouterLink>
+                                    </a-tooltip>
+                                    <a-tooltip placement="top">
+                                        <template #title>
+                                            <span>Update</span>
+                                        </template>
+                                        <RouterLink
+                                            class="fs-3 text-success"
+                                            :to="{
+                                                name: 'Admin_DoctorProfile_Update',
+                                                params: { id: item.doctorProfileID },
+                                            }"
+                                            ><i class="bx bxs-edit"></i
+                                        ></RouterLink>
+                                    </a-tooltip>
+                                    <a-tooltip placement="top">
+                                        <template #title>
+                                            <span>Delete</span>
+                                        </template>
+                                        <RouterLink
+                                            class="fs-3 text-danger"
+                                            :to="{
+                                                name: 'Admin_DoctorProfile_Update',
+                                                params: { id: item.doctorProfileID },
+                                            }"
+                                            ><i class="bx bxs-trash"></i
+                                        ></RouterLink>
+                                    </a-tooltip>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a-pagination
+                        @change="onChange"
+                        v-model:current="pageParams.pageNumber"
+                        :total="pageParams.totalRecords"
+                        :pageSize="pageParams.pageSize"
+                        :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
+                        show-size-changer
+                        show-quick-jumper
+                        class="crud-layout-pagination"></a-pagination>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
-<style>
+<style scoped>
     .information-container span {
         display: inline-block;
         width: 100px;
         font-weight: 500;
+    }
+    .admin_dashboard_body {
+        display: flex;
+        flex-direction: column;
+        padding-left: 30px;
+    }
+
+    .admin_dashboard {
+        display: flex;
     }
 </style>

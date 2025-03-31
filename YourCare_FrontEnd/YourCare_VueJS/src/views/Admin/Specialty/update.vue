@@ -1,4 +1,6 @@
 <script setup>
+    import AdminSideBar from "@/shared/AdminSideBar.vue";
+
     import ApiSpecialty from "@/api/ApiSpecialty";
     import { reactive, ref, onMounted, onUpdated } from "vue";
 
@@ -89,53 +91,73 @@
     });
 </script>
 <template>
-    <div class="crud-layout-header">
-        <h2 class="crud-layout-header-title">Create Specialty</h2>
-        <RouterLink class="crud-layout-header-button" :to="{ name: 'Admin_Specialty_View' }"
-            >Index</RouterLink
-        >
-    </div>
-    <div class="row d-flex justify-content-center">
-        <div class="col-md-6 form-create">
-            <form
-                @submit.prevent="showUpdateConfirm(formState.specialtyID)"
-                enctype="multipart/form-data">
-                <div class="mb-3 form-group">
-                    <label for="title" class="control-label"
-                        >Title<span class="text-danger">*</span></label
+    <div class="admin_dashboard">
+        <AdminSideBar style="position: sticky; top: 68px" active-item="specialty" />
+        <div class="admin_dashboard_section">
+            <div class="admin_dashboard_body">
+                <div class="crud-layout-header">
+                    <h2 class="crud-layout-header-title">Create Specialty</h2>
+                    <RouterLink
+                        class="crud-layout-header-button"
+                        :to="{ name: 'Admin_Specialty_View' }"
+                        >Index</RouterLink
                     >
-                    <input
-                        v-model="formState.title"
-                        id="title"
-                        class="form-control"
-                        placeholder="title for specialty"
-                        required />
                 </div>
+                <div class="row d-flex justify-content-center">
+                    <div class="col-md-6 form-create">
+                        <form
+                            @submit.prevent="showUpdateConfirm(formState.specialtyID)"
+                            enctype="multipart/form-data">
+                            <div class="mb-3 form-group">
+                                <label for="title" class="control-label"
+                                    >Title<span class="text-danger">*</span></label
+                                >
+                                <input
+                                    v-model="formState.title"
+                                    id="title"
+                                    class="form-control"
+                                    placeholder="title for specialty"
+                                    required />
+                            </div>
 
-                <div class="mb-3 form-group d-flex justify-content-between">
-                    <div>
-                        <label for="fileInput" class="control-label"
-                            >Image<span class="text-danger">*</span></label
-                        >
-                        <input
-                            id="fileInput"
-                            type="file"
-                            class="form-control"
-                            @change="handleFileChange"
-                            required />
-                    </div>
-                    <div class="img-container">
-                        <img id="previewImage" style="width: 100%" :src="previewUrl" />
+                            <div class="mb-3 form-group d-flex justify-content-between">
+                                <div>
+                                    <label for="fileInput" class="control-label"
+                                        >Image<span class="text-danger">*</span></label
+                                    >
+                                    <input
+                                        id="fileInput"
+                                        type="file"
+                                        class="form-control"
+                                        @change="handleFileChange"
+                                        required />
+                                </div>
+                                <div class="img-container">
+                                    <img id="previewImage" style="width: 100%" :src="previewUrl" />
+                                </div>
+                            </div>
+                            <div class="mb-3 form-group d-flex justify-content-end">
+                                <input type="submit" value="Update" class="btn btn-primary" />
+                            </div>
+                        </form>
                     </div>
                 </div>
-                <div class="mb-3 form-group d-flex justify-content-end">
-                    <input type="submit" value="Update" class="btn btn-primary" />
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </template>
 <style>
+    .admin_dashboard {
+        display: flex;
+    }
+    .admin_dashboard_body {
+        display: flex;
+        flex-direction: column;
+        padding-left: 30px;
+    }
+    .admin_dashboard_section {
+        flex-grow: 1;
+    }
     .form-create {
         padding: 20px 30px;
         border: 3px solid #1975dc;

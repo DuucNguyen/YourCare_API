@@ -1,4 +1,6 @@
 <script setup>
+    import AdminSideBar from "@/shared/AdminSideBar.vue";
+
     import ApiDoctorProfile from "@/api/ApiDoctorProfile";
     import ApiTimeSlot from "@/api/ApiTimeSlot";
     import ApiTimetable from "@/api/ApiTimetable";
@@ -161,108 +163,125 @@
 </script>
 
 <template>
-    <div v-if="doctor" class="d-flex justify-content-between">
-        <div class="col-md-4">
-            <div
-                class="p-3 shadow rounded-3 d-flex flex-column align-items-center"
-                style="background-color: #fff">
-                <div class="doctor-img">
-                    <img :src="doctor.imageString" alt="avatar" />
-                </div>
-                <div class="doctor-title">
-                    <span> {{ doctor.doctorTitle }}. </span>
-                    <span> {{ doctor.fullName }}</span>
-                </div>
-                <div class="mb-3 d-flex flex-wrap align-items-center">
-                    <label
-                        v-for="specialty in doctor.specialties"
-                        class="specialization-item-capsule"
-                        >{{ specialty.title }}</label
-                    >
-                </div>
-                <div class="d-flex flex-column">
-                    <div>
-                        <label style="width: 100px" class="">Phone: </label>
-                        <span class="text-decoration-underline">{{ doctor.phoneNumber }}</span>
+    <div class="admin_dashboard">
+        <AdminSideBar active-item="doctor" />
+        <div class="admin_dashboard_section">
+            <div class="admin_dashboard_body">
+                <div v-if="doctor" class="d-flex justify-content-evenly">
+                    <div class="col-md-4">
+                        <div
+                            class="p-3 shadow rounded-3 d-flex flex-column align-items-center"
+                            style="background-color: #fff">
+                            <div class="doctor-img">
+                                <img :src="doctor.imageString" alt="avatar" />
+                            </div>
+                            <div class="doctor-title">
+                                <span> {{ doctor.doctorTitle }}. </span>
+                                <span> {{ doctor.fullName }}</span>
+                            </div>
+                            <div class="mb-3 d-flex flex-wrap align-items-center">
+                                <label
+                                    v-for="specialty in doctor.specialties"
+                                    class="specialization-item-capsule"
+                                    >{{ specialty.title }}</label
+                                >
+                            </div>
+                            <div class="d-flex flex-column">
+                                <div>
+                                    <label style="width: 100px" class="">Phone: </label>
+                                    <span class="text-decoration-underline">{{
+                                        doctor.phoneNumber
+                                    }}</span>
+                                </div>
+                                <div>
+                                    <label style="width: 100px" class="">Email: </label>
+                                    <span class="text-decoration-underline">{{
+                                        doctor.email
+                                    }}</span>
+                                </div>
+                                <div>
+                                    <label style="width: 100px" class="">Address: </label>
+                                    <span class="text-decoration-underline">{{
+                                        doctor.address
+                                    }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label style="width: 100px" class="">Email: </label>
-                        <span class="text-decoration-underline">{{ doctor.email }}</span>
-                    </div>
-                    <div>
-                        <label style="width: 100px" class="">Address: </label>
-                        <span class="text-decoration-underline">{{ doctor.address }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="col-md-7" style="background-color: #fff">
-            <div class="p-3 shadow rounded-3">
-                <h4 class="text-center">Doctor schedule</h4>
-                <div class="mb-4">
-                    <a-checkbox
-                        class="timeTable-dayTime-item"
-                        v-model:checked="checkBox_state.checkAll"
-                        :indeterminate="checkBox_state.indeterminate"
-                        @change="onCheckAllChange"
-                        >Check all</a-checkbox
-                    >
+                    <div class="col-md-7" style="background-color: #fff">
+                        <div class="p-3 shadow rounded-3">
+                            <h4 class="text-center">Doctor schedule</h4>
+                            <div class="mb-4">
+                                <a-checkbox
+                                    class="timeTable-dayTime-item"
+                                    v-model:checked="checkBox_state.checkAll"
+                                    :indeterminate="checkBox_state.indeterminate"
+                                    @change="onCheckAllChange"
+                                    >Check all</a-checkbox
+                                >
+                            </div>
+                            <div class="d-flex flex-column">
+                                <a-form :model="checkBox_state" ref="formRef" :rules="rules">
+                                    <a-form-item name="timeSlots">
+                                        <div class="timeTable-dayTime-title">
+                                            <span> <i class="bx bx-sun"></i> Morning </span>
+                                            <div class="timeTable-dayTime">
+                                                <a-checkbox-group
+                                                    v-model:value="
+                                                        checkBox_state.checkedList_morning
+                                                    ">
+                                                    <a-checkbox
+                                                        v-for="item in timeSlots_morning"
+                                                        :key="item.id"
+                                                        class="timeTable-dayTime-item"
+                                                        :value="item.id">
+                                                        {{ item.startTime }} - {{ item.endTime }}
+                                                    </a-checkbox>
+                                                </a-checkbox-group>
+                                            </div>
+                                        </div>
+                                        <div class="timeTable-dayTime-title">
+                                            <span> <i class="bx bxs-sun"></i> Afternoon </span>
+                                            <div class="timeTable-dayTime">
+                                                <a-checkbox-group
+                                                    v-model:value="
+                                                        checkBox_state.checkedList_afternoon
+                                                    ">
+                                                    <a-checkbox
+                                                        v-for="item in timeSlots_afternoon"
+                                                        :key="item.id"
+                                                        class="timeTable-dayTime-item"
+                                                        :value="item.id">
+                                                        {{ item.startTime }} - {{ item.endTime }}
+                                                    </a-checkbox>
+                                                </a-checkbox-group>
+                                            </div>
+                                        </div>
+                                    </a-form-item>
+                                    <a-form-item
+                                        style="width: 100%"
+                                        class="w-100 mt-5 timeTable-dayTime-title"
+                                        name="range">
+                                        <span> <i class="bx bx-calendar"></i> Range </span>
+                                        <div class="timeTable-dayTime">
+                                            <a-range-picker
+                                                style="width: 100%"
+                                                v-model:value="checkBox_state.range" />
+                                        </div>
+                                    </a-form-item>
+                                    <a-form-item class="d-flex justify-content-end">
+                                        <a-button @click="onFinish" type="primary">Save</a-button>
+                                    </a-form-item>
+                                </a-form>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="d-flex flex-column">
-                    <a-form :model="checkBox_state" ref="formRef" :rules="rules">
-                        <a-form-item name="timeSlots">
-                            <div class="timeTable-dayTime-title">
-                                <span> <i class="bx bx-sun"></i> Morning </span>
-                                <div class="timeTable-dayTime">
-                                    <a-checkbox-group
-                                        v-model:value="checkBox_state.checkedList_morning">
-                                        <a-checkbox
-                                            v-for="item in timeSlots_morning"
-                                            :key="item.id"
-                                            class="timeTable-dayTime-item"
-                                            :value="item.id">
-                                            {{ item.startTime }} - {{ item.endTime }}
-                                        </a-checkbox>
-                                    </a-checkbox-group>
-                                </div>
-                            </div>
-                            <div class="timeTable-dayTime-title">
-                                <span> <i class="bx bxs-sun"></i> Afternoon </span>
-                                <div class="timeTable-dayTime">
-                                    <a-checkbox-group
-                                        v-model:value="checkBox_state.checkedList_afternoon">
-                                        <a-checkbox
-                                            v-for="item in timeSlots_afternoon"
-                                            :key="item.id"
-                                            class="timeTable-dayTime-item"
-                                            :value="item.id">
-                                            {{ item.startTime }} - {{ item.endTime }}
-                                        </a-checkbox>
-                                    </a-checkbox-group>
-                                </div>
-                            </div>
-                        </a-form-item>
-                        <a-form-item
-                            style="width: 100%"
-                            class="w-100 mt-5 timeTable-dayTime-title"
-                            name="range">
-                            <span> <i class="bx bx-calendar"></i> Range </span>
-                            <div class="timeTable-dayTime">
-                                <a-range-picker
-                                    style="width: 100%"
-                                    v-model:value="checkBox_state.range" />
-                            </div>
-                        </a-form-item>
-                        <a-form-item class="d-flex justify-content-end">
-                            <a-button @click="onFinish" type="primary">Save</a-button>
-                        </a-form-item>
-                    </a-form>
-                </div>
+                <div v-else>Doctor not found.</div>
             </div>
         </div>
     </div>
-    <div v-else>Doctor not found.</div>
 </template>
 
 <style scoped>

@@ -29,7 +29,12 @@
         <div class="sidebar-wrapper">
             <div class="sidebar-profileSection">
                 <img :src="user.image" />
-                <span>{{ user.fullName }}</span>
+                <div>
+                    <span>{{ user.fullName }}</span> <br />
+                    <a-tag color="#cd201f">
+                        {{ user.roleName }}
+                    </a-tag>
+                </div>
             </div>
             <ul class="sidebar-list">
                 <li :class="['sidebar-listItem', { active: activeItem === 'dashboard' }]">
@@ -39,28 +44,40 @@
                     </RouterLink>
                 </li>
                 <li :class="['sidebar-listItem', { active: activeItem === 'appointment' }]">
-                    <RouterLink :to="{ name: 'Doctor_Appointment_View' }"
+                    <RouterLink :to="{ name: 'Admin_Appointments' }"
                         ><i class="bx bxs-calendar"></i>
                         <span class="sidebar-listItemText">Lịch khám hôm nay</span>
                     </RouterLink>
                 </li>
-                <li :class="['sidebar-listItem', { active: activeItem === 'calendar' }]">
-                    <RouterLink :to="{ name: 'Doctor_Calendar_View' }">
-                        <i class="bx bxs-inbox"></i>
-                        <span class="sidebar-listItemText">Lịch làm việc</span>
+                <li :class="['sidebar-listItem', { active: activeItem === 'user' }]">
+                    <RouterLink :to="{ name: 'Admin_User_View' }">
+                        <i class='bx bxs-user-circle' ></i>
+                        <span class="sidebar-listItemText">User</span>
                     </RouterLink>
                 </li>
-                <li :class="['sidebar-listItem', { active: activeItem === 'activity' }]">
-                    <a>
-                        <i class="bx bxs-bar-chart-alt-2"></i>
-                        <span class="sidebar-listItemText">Activity</span>
-                    </a>
+                <li :class="['sidebar-listItem', { active: activeItem === 'doctor' }]">
+                    <RouterLink :to="{ name: 'Admin_DoctorProfile_View' }">
+                        <i class='bx bxs-user-badge'></i>
+                        <span class="sidebar-listItemText">Doctor</span>
+                    </RouterLink>
                 </li>
-                <li :class="['sidebar-listItem', { active: activeItem === 'settings' }]">
-                    <a>
-                        <i class="bx bxs-cog"></i>
-                        <span class="sidebar-listItemText">Settings</span>
-                    </a>
+                <li :class="['sidebar-listItem', { active: activeItem === 'specialty' }]">
+                    <RouterLink :to="{ name: 'Admin_Specialty_View' }">
+                        <i class='bx bxs-category'></i>
+                        <span class="sidebar-listItemText">Specialty</span>
+                    </RouterLink>
+                </li>
+                <li :class="['sidebar-listItem', { active: activeItem === 'role' }]">
+                    <RouterLink :to="{ name: 'Admin_Role_View' }">
+                        <i class='bx bx-git-pull-request'></i>
+                        <span class="sidebar-listItemText">Role</span>
+                    </RouterLink>
+                </li>
+                <li :class="['sidebar-listItem', { active: activeItem === 'timeSlot' }]">
+                    <RouterLink :to="{ name: 'Admin_TimeSlot_View' }">
+                        <i class='bx bxs-time' ></i>
+                        <span class="sidebar-listItemText">TimeSlot</span>
+                    </RouterLink>
                 </li>
             </ul>
         </div>

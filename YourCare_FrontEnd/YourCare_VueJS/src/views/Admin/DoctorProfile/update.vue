@@ -1,4 +1,6 @@
 <script setup>
+    import AdminSideBar from "@/shared/AdminSideBar.vue";
+
     import ApiUser from "@/api/ApiUser";
     import ApiDoctorProfile from "@/api/ApiDoctorProfile";
     import ApiSpecialty from "@/api/ApiSpecialty";
@@ -94,9 +96,14 @@
         ],
     };
 
-    function generateYearRegex() { //get current year regex
+    function generateYearRegex() {
+        //get current year regex
         const currentYear = new Date().getFullYear();
-        return new RegExp(`^(198[0-9]|199[0-9]|20[0-${Math.floor(currentYear / 100) % 10}][0-${currentYear % 10}])$`);
+        return new RegExp(
+            `^(198[0-9]|199[0-9]|20[0-${Math.floor(currentYear / 100) % 10}][0-${
+                currentYear % 10
+            }])$`,
+        );
     }
 
     const specialties = ref([]);
@@ -268,114 +275,166 @@
     };
 </script>
 <template>
-    <div class="d-flex justify-content-between">
-        <div class="col-md-5 basic-information-container">
-            <h4 class="text-center" style="color: #1975dc">Basic information</h4>
-            <div class="mb-3 form-items">
-                <label class="form-label">Full Name<span class="text-danger">*</span> </label>
-                <input readonly v-model="userData.fullName" class="form-control" type="text" />
-            </div>
-            <div class="mb-3 form-items">
-                <label class="form-label">Email<span class="text-danger">*</span></label>
-                <input readonly v-model="userData.email" class="form-control" type="text" />
-            </div>
-            <div class="mb-3 form-items">
-                <label class="form-label">Address<span class="text-danger">*</span></label>
-                <input readonly v-model="userData.address" class="form-control" type="text" />
-            </div>
-            <div class="mb-3 form-items">
-                <label class="form-label">PhoneNumber<span class="text-danger">*</span></label>
-                <input readonly v-model="userData.phoneNumber" class="form-control" type="text" />
-            </div>
-            <div class="mb-3 form-items d-flex">
-                <label class="form-label me-5">Gender<span class="text-danger">*</span></label>
-                <div>
-                    <div v-if="userData.gender === true" class="d-flex">
-                        <input
-                            readonly
-                            v-model="userData.gender"
-                            id="male"
-                            class="form-check"
-                            type="radio"
-                            value="true" />
-                        <label class="ms-1" for="male">Male</label>
+    <div class="admin_dashboard">
+        <AdminSideBar active-item="doctor" />
+        <div class="admin_dashboard_section">
+            <div class="admin_dashboard_body">
+                <div class="d-flex justify-content-evenly">
+                    <div class="col-md-5 basic-information-container">
+                        <h4 class="text-center" style="color: #1975dc">Basic information</h4>
+                        <div class="mb-3 form-items">
+                            <label class="form-label"
+                                >Full Name<span class="text-danger">*</span>
+                            </label>
+                            <input
+                                readonly
+                                v-model="userData.fullName"
+                                class="form-control"
+                                type="text" />
+                        </div>
+                        <div class="mb-3 form-items">
+                            <label class="form-label"
+                                >Email<span class="text-danger">*</span></label
+                            >
+                            <input
+                                readonly
+                                v-model="userData.email"
+                                class="form-control"
+                                type="text" />
+                        </div>
+                        <div class="mb-3 form-items">
+                            <label class="form-label"
+                                >Address<span class="text-danger">*</span></label
+                            >
+                            <input
+                                readonly
+                                v-model="userData.address"
+                                class="form-control"
+                                type="text" />
+                        </div>
+                        <div class="mb-3 form-items">
+                            <label class="form-label"
+                                >PhoneNumber<span class="text-danger">*</span></label
+                            >
+                            <input
+                                readonly
+                                v-model="userData.phoneNumber"
+                                class="form-control"
+                                type="text" />
+                        </div>
+                        <div class="mb-3 form-items d-flex">
+                            <label class="form-label me-5"
+                                >Gender<span class="text-danger">*</span></label
+                            >
+                            <div>
+                                <div v-if="userData.gender === true" class="d-flex">
+                                    <input
+                                        readonly
+                                        v-model="userData.gender"
+                                        id="male"
+                                        class="form-check"
+                                        type="radio"
+                                        value="true" />
+                                    <label class="ms-1" for="male">Male</label>
+                                </div>
+                                <div v-else class="d-flex">
+                                    <input
+                                        readonly
+                                        v-model="userData.gender"
+                                        id="female"
+                                        class="form-check"
+                                        type="radio"
+                                        value="false" />
+                                    <label class="ms-1" for="female">Female</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3 form-items">
+                            <label class="form-label"
+                                >Date of birth<span class="text-danger">*</span></label
+                            >
+                            <input
+                                readonly
+                                v-model="userData.dob"
+                                class="form-control"
+                                type="date" />
+                        </div>
                     </div>
-                    <div v-else class="d-flex">
-                        <input
-                            readonly
-                            v-model="userData.gender"
-                            id="female"
-                            class="form-check"
-                            type="radio"
-                            value="false" />
-                        <label class="ms-1" for="female">Female</label>
-                    </div>
+
+                    <a-form
+                        class="col-md-5 doctor-information-container"
+                        ref="formRef"
+                        :model="formState"
+                        :rules="rules"
+                        :label-col="labelCol"
+                        :wrapper-col="wrapperCol">
+                        <h4 class="text-center" style="color: #22c55e">Doctor information</h4>
+                        <div class="d-flex justify-content-between">
+                            <a-form-item class="col-md-5" label="Image" name="applicationUserImage">
+                                <a-upload
+                                    v-model:file-list="formState.applicationUserImage"
+                                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+                                    list-type="picture-card"
+                                    :max-count="1"
+                                    @preview="handlePreview">
+                                    <div>
+                                        <PlusOutlined />
+                                        <div style="margin-top: 8px">Upload</div>
+                                    </div>
+                                </a-upload>
+                                <a-modal
+                                    :open="previewVisible"
+                                    :title="previewTitle"
+                                    :footer="null"
+                                    @cancel="handleCancel">
+                                    <img alt="example" style="width: 100%" :src="previewImage" />
+                                </a-modal>
+                            </a-form-item>
+                            <a-form-item class="col-md-7" label="Specialties">
+                                <a-select
+                                    mode="multiple"
+                                    v-model:value="formState.specialties"
+                                    :options="
+                                        specialties.map((spe) => ({
+                                            label: spe.title,
+                                            value: spe.specialtyID,
+                                        }))
+                                    "
+                                    placeholder="Select specialties">
+                                </a-select>
+                            </a-form-item>
+                        </div>
+                        <a-form-item label="Doctor title" name="doctorTitle">
+                            <a-input v-model:value="formState.doctorTitle"></a-input>
+                        </a-form-item>
+                        <a-form-item label="Start Career Year" name="startCareerYear">
+                            <a-input-number
+                                style="width: 100%"
+                                v-model:value="formState.startCareerYear"></a-input-number>
+                        </a-form-item>
+                        <a-form-item label="Doctor description" name="doctorDescription">
+                            <a-textarea v-model:value="formState.doctorDescription"></a-textarea>
+                        </a-form-item>
+                        <a-form-item class="text-center">
+                            <a-button @click="onFinish" style="width: 100%" type="primary"
+                                >Update</a-button
+                            >
+                        </a-form-item>
+                    </a-form>
                 </div>
             </div>
-            <div class="mb-3 form-items">
-                <label class="form-label">Date of birth<span class="text-danger">*</span></label>
-                <input readonly v-model="userData.dob" class="form-control" type="date" />
-            </div>
         </div>
-
-        <a-form
-            class="col-md-6 doctor-information-container"
-            ref="formRef"
-            :model="formState"
-            :rules="rules"
-            :label-col="labelCol"
-            :wrapper-col="wrapperCol">
-            <h4 class="text-center" style="color: #22c55e">Doctor information</h4>
-            <div class="d-flex justify-content-between">
-                <a-form-item class="col-md-5" label="Image" name="applicationUserImage">
-                    <a-upload
-                        v-model:file-list="formState.applicationUserImage"
-                        action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                        list-type="picture-card"
-                        :max-count="1"
-                        @preview="handlePreview">
-                        <div>
-                            <PlusOutlined />
-                            <div style="margin-top: 8px">Upload</div>
-                        </div>
-                    </a-upload>
-                    <a-modal
-                        :open="previewVisible"
-                        :title="previewTitle"
-                        :footer="null"
-                        @cancel="handleCancel">
-                        <img alt="example" style="width: 100%" :src="previewImage" />
-                    </a-modal>
-                </a-form-item>
-                <a-form-item class="col-md-7" label="Specialties">
-                    <a-select
-                        mode="multiple"
-                        v-model:value="formState.specialties"
-                        :options="
-                            specialties.map((spe) => ({ label: spe.title, value: spe.specialtyID }))
-                        "
-                        placeholder="Select specialties">
-                    </a-select>
-                </a-form-item>
-            </div>
-            <a-form-item label="Doctor title" name="doctorTitle">
-                <a-input v-model:value="formState.doctorTitle"></a-input>
-            </a-form-item>
-            <a-form-item label="Start Career Year" name="startCareerYear">
-                <a-input-number
-                    style="width: 100%"
-                    v-model:value="formState.startCareerYear"></a-input-number>
-            </a-form-item>
-            <a-form-item label="Doctor description" name="doctorDescription">
-                <a-textarea v-model:value="formState.doctorDescription"></a-textarea>
-            </a-form-item>
-            <a-form-item class="text-center">
-                <a-button @click="onFinish" style="width: 100%" type="primary">Update</a-button>
-            </a-form-item>
-        </a-form>
     </div>
 </template>
 <style>
+    .admin_dashboard {
+        display: flex;
+    }
+
+    .admin_dashboard_section {
+        flex-grow: 1; /* Take remaining space */
+        padding-top: 20px;
+    }
     .basic-information-container {
         padding: 20px;
         border-radius: 8px;

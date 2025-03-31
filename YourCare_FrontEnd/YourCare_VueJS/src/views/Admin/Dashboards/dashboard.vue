@@ -2,7 +2,7 @@
     import AdminSideBar from "@/shared/AdminSideBar.vue";
     import dayjs from "dayjs";
     import ApiAppointment from "@/api/ApiAppointment";
-    import { ref, onMounted, reactive, watch } from "vue";
+    import { ref, onMounted, reactive, watch, computed } from "vue";
     import AppointmentStatus from "@/constants/AppointmentStatus";
     import Highcharts from "highcharts";
     Highcharts.setOptions({
@@ -14,7 +14,7 @@
 
     const appointments = ref([]);
     const date = ref(dayjs());
-    const monthChartData = ref();
+    const monthChartData = ref({});
 
     const InitAppointment = async () => {
         var result_appointment = await ApiAppointment.GetAllAppointmentByDate(
@@ -30,15 +30,19 @@
         if (result.data.isSucceeded) {
             monthChartData.value = result.data.data;
         }
-        console.log(GetDataTotalCount(monthChartData.value));
-        console.log(GetDataByStatusCount(monthChartData.value, AppointmentStatus.COMPLETED));
-        console.log(GetDataByStatusCount(monthChartData.value, AppointmentStatus.CANCELLED));
-        console.log(GetDataByStatusCount(monthChartData.value, AppointmentStatus.PROCESSING));
     };
     const GetDataTotalCount = (data) => {
         return Object.keys(data).map((month) =>
             data[month].reduce((sum, item) => sum + item.count, 0),
         );
+    };
+
+    const GetMonthDataTotalCount = (data) => {
+        var month = dayjs().month().toString();
+        var result = Object.keys(data).map((month) =>
+            data[month].reduce((sum, item) => sum + item.count, 0),
+        );
+        return result[month] ? result[month] : 0;
     };
 
     const GetDataByStatusCount = (data, status) => {
@@ -49,13 +53,21 @@
         );
     };
 
+    const currentMonthStatus = computed(() => {
+        //handle reactivity
+        const month = dayjs().month() + 1;
+        const monthData = monthChartData.value[month];
+        return monthData || [];
+    });
+
     const CountStatusAppointment = (status) => {
-        return appointments.value
-            .filter((x) => x.status === status)
-            .length.toString()
-            .padStart(2, "0");
+        const monthData = currentMonthStatus.value;
+        if (!monthData.length) return 0;
+        const statusObj = monthData.find((item) => item.status === status);
+        return statusObj ? statusObj.count : 0;
     };
 
+    //for pie chart
     const onDateChange = async () => {
         await InitAppointment();
     };
@@ -231,56 +243,6 @@
                         },
                     },
                 },
-                // {
-                //     // Secondary yAxis
-                //     gridLineWidth: 0,
-                //     title: {
-                //         text: AppointmentStatus.COMPLETED,
-                //         style: {
-                //             color: Highcharts.getOptions().colors[2],
-                //         },
-                //     },
-                //     opposite: true,
-                //     labels: {
-                //         format: "{value}",
-                //         style: {
-                //             color: Highcharts.getOptions().colors[2],
-                //         },
-                //     },
-                // },
-                // {
-                //     // Tertiary yAxis
-                //     gridLineWidth: 0,
-                //     title: {
-                //         text: AppointmentStatus.CANCELLED,
-                //         style: {
-                //             color: Highcharts.getOptions().colors[3],
-                //         },
-                //     },
-                //     labels: {
-                //         format: "{value}",
-                //         style: {
-                //             color: Highcharts.getOptions().colors[3],
-                //         },
-                //     },
-                //     opposite: true,
-                // },
-                // {
-                //     gridLineWidth: 0,
-                //     title: {
-                //         text: AppointmentStatus.PROCESSING,
-                //         style: {
-                //             color: Highcharts.getOptions().colors[4],
-                //         },
-                //     },
-                //     labels: {
-                //         format: "{value}",
-                //         style: {
-                //             color: Highcharts.getOptions().colors[4],
-                //         },
-                //     },
-                //     opposite: true,
-                // },
             ],
             tooltip: {
                 shared: true,
@@ -414,25 +376,12 @@
                         <div class="col statistic_item">
                             <div
                                 class="statistic_item_icon"
-                                style="color: #3a57e8; background-color: #d8ddfa">
+                                style="color: #2caffe; background-color: #d6effe">
                                 <i class="bx bx-calendar"></i>
                             </div>
                             <div class="statistic_item_data">
-                                <span style="color: #3a57e8">
-                                    {{ dayjs(date).format("DD/MM/YYYY") }}
-                                </span>
-                                <span>Ngày</span>
-                            </div>
-                        </div>
-                        <div class="col statistic_item">
-                            <div
-                                class="statistic_item_icon"
-                                style="color: #00cccc; background-color: #bceff2">
-                                <i class="bx bx-align-left"></i>
-                            </div>
-                            <div class="statistic_item_data">
                                 <span style="color: #00cccc">
-                                    {{ appointments.length.toString().padStart(2, "0") }}
+                                    {{ GetMonthDataTotalCount(monthChartData) }}
                                 </span>
                                 <span>Tổng</span>
                             </div>
@@ -453,14 +402,40 @@
                         <div class="col statistic_item">
                             <div
                                 class="statistic_item_icon"
+                                style="color: #00cccc; background-color: #bceff2">
+                                <i class="bx bx-align-left"></i>
+                            </div>
+                            <div class="statistic_item_data">
+                                <span style="color: #00cccc">
+                                    {{ CountStatusAppointment(AppointmentStatus.PROCESSING) }}
+                                </span>
+                                <span>Đang xử lí</span>
+                            </div>
+                        </div>
+                        <div class="col statistic_item">
+                            <div
+                                class="statistic_item_icon"
                                 style="color: #1aa053; background-color: #d1ecdd">
                                 <i class="bx bx-calendar-check"></i>
                             </div>
                             <div class="statistic_item_data">
-                                <span style="color: #1aa053">{{
-                                    CountStatusAppointment(AppointmentStatus.COMPLETED)
-                                }}</span>
-                                <span>Đã được xử lí</span>
+                                <span style="color: #1aa053">
+                                    {{ CountStatusAppointment(AppointmentStatus.COMPLETED) }}
+                                </span>
+                                <span>Đã xử lí</span>
+                            </div>
+                        </div>
+                        <div class="col statistic_item">
+                            <div
+                                class="statistic_item_icon"
+                                style="color: #d32f2f; background-color: #ffebee">
+                                <i class="bx bx-calendar-check"></i>
+                            </div>
+                            <div class="statistic_item_data">
+                                <span style="color: #d32f2f">
+                                    {{ CountStatusAppointment(AppointmentStatus.CANCELLED) }}
+                                </span>
+                                <span>Đã hủy</span>
                             </div>
                         </div>
                     </div>
@@ -520,7 +495,7 @@
     .admin_dashboard_month_chart {
         height: 500px;
         background: #fff;
-        margin: 20px 20px 0 0;
+        margin: 20px 20px 0px 0;
         border-radius: 5px;
         padding: 15px;
         display: flex;

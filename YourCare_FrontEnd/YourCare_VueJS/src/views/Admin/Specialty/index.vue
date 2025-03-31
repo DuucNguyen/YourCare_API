@@ -1,4 +1,6 @@
 <script setup>
+    import AdminSideBar from "@/shared/AdminSideBar.vue";
+
     import ApiSpecialty from "@/api/ApiSpecialty";
     import { onMounted, onUpdated, reactive, ref, computed } from "vue";
     import { useRouter, useRoute } from "vue-router";
@@ -118,69 +120,87 @@
 </script>
 
 <template>
-    <div class="crud-layout-header">
-        <h2 class="crud-layout-header-title">Manage Specialty</h2>
-        <RouterLink class="crud-layout-header-button" :to="{ name: 'Admin_Specialty_Create' }"
-            >Create <i class="ms-1 bx bx-plus-circle"></i
-        ></RouterLink>
-    </div>
-    <div class="crud-layout-table">
-        <table class="table table-responsive table-bordered table-hover">
-            <thead>
-                <tr>
-                    <th>Image</th>
-                    <th>Title</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="item in data">
-                    <td>
-                        <div class="img-container">
-                            <img :src="item.imageString" alt="image" />
-                        </div>
-                    </td>
-                    <td>{{ item.title }}</td>
-                    <td>
-                        <a-tooltip placement="top">
-                            <template #title>
-                                <span>Update</span>
-                            </template>
-                            <RouterLink
-                                class="fs-3 text-primary"
-                                :to="{
-                                    name: 'Admin_Specialty_Update',
-                                    params: { id: item.specialtyID },
-                                }"
-                                ><i class="bx bxs-edit"></i
-                            ></RouterLink>
-                        </a-tooltip>
-                        <a-tooltip placement="top">
-                            <template #title>
-                                <span>Delete</span>
-                            </template>
-                            <a
-                                class="fs-3 text-danger"
-                                @click="showDeleteConfirm(item.specialtyID)">
-                                <i class="bx bxs-trash"></i>
-                            </a>
-                        </a-tooltip>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <a-pagination
-            @change="onChange"
-            v-model:current="pageParams.pageNumber"
-            :total="pageParams.totalRecords"
-            :pageSize="pageParams.pageSize"
-            :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
-            show-size-changer
-            show-quick-jumper
-            class="crud-layout-pagination"></a-pagination>
+    <div class="admin_dashboard">
+        <AdminSideBar style="position: sticky; top: 68px" active-item="specialty" />
+        <div class="admin_dashboard_section">
+            <div class="admin_dashboard_body">
+                <div class="crud-layout-header">
+                    <h2 class="crud-layout-header-title">Manage Specialty</h2>
+                    <RouterLink
+                        class="crud-layout-header-button"
+                        :to="{ name: 'Admin_Specialty_Create' }"
+                        >Create <i class="ms-1 bx bx-plus-circle"></i
+                    ></RouterLink>
+                </div>
+                <div class="crud-layout-table">
+                    <table class="table table-responsive table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Title</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in data">
+                                <td>
+                                    <div class="img-container">
+                                        <img :src="item.imageString" alt="image" />
+                                    </div>
+                                </td>
+                                <td>{{ item.title }}</td>
+                                <td>
+                                    <a-tooltip placement="top">
+                                        <template #title>
+                                            <span>Update</span>
+                                        </template>
+                                        <RouterLink
+                                            class="fs-3 text-primary"
+                                            :to="{
+                                                name: 'Admin_Specialty_Update',
+                                                params: { id: item.specialtyID },
+                                            }"
+                                            ><i class="bx bxs-edit"></i
+                                        ></RouterLink>
+                                    </a-tooltip>
+                                    <a-tooltip placement="top">
+                                        <template #title>
+                                            <span>Delete</span>
+                                        </template>
+                                        <a
+                                            class="fs-3 text-danger"
+                                            @click="showDeleteConfirm(item.specialtyID)">
+                                            <i class="bx bxs-trash"></i>
+                                        </a>
+                                    </a-tooltip>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <a-pagination
+                        @change="onChange"
+                        v-model:current="pageParams.pageNumber"
+                        :total="pageParams.totalRecords"
+                        :pageSize="pageParams.pageSize"
+                        :show-total="(total, range) => `${range[0]}-${range[1]} of ${total} items`"
+                        show-size-changer
+                        show-quick-jumper
+                        class="crud-layout-pagination"></a-pagination>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 <style>
+    .admin_dashboard {
+        display: flex;
+    }
+    .admin_dashboard_body {
+        display: flex;
+        flex-direction: column;
+        padding-left: 30px;
+    }
+
     .img-container {
         width: 50px;
         height: 50px;
