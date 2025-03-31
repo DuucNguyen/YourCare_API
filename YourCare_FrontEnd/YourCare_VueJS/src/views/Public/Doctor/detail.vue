@@ -21,8 +21,13 @@
     const getNumberOfTimeSlots = (date) => {
         // return [...new Map(doctor_timetables.value.map((item) => [item.startTime, item])).values()]
         //     .length;
-
-        return [...new Set(doctor_timetables.value.map((item) => item.startTime))].length;
+        return [
+            ...new Set(
+                doctor_timetables.value
+                    .filter((x) => x.date == date && x.isAvailable === true)
+                    .map((item) => item.startTime),
+            ),
+        ].length;
     };
 
     const getTimeSlotByDate = (date) => {

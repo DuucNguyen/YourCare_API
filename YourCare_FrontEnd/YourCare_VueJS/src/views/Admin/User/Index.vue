@@ -398,7 +398,6 @@
     .admin_dashboard_body {
         display: flex;
         flex-direction: column;
-        padding-left: 30px;
     }
     .admin_dashboard_section {
         flex-grow: 1;

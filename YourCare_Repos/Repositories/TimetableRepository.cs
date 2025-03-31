@@ -204,7 +204,11 @@ namespace YourCare_Repos.Repositories
             find.AvailableSlots = request.AvailableSlots;
             find.IsAvailable = request.IsAvailable;
 
-            if (find.AvailableSlots > 0) find.IsAvailable = true;
+            if (find.AvailableSlots > 0)
+            {
+                find.IsAvailable = true;
+            }
+            else { find.IsAvailable = false; }
 
             await _timetableDAO.Update(find);
             return true;

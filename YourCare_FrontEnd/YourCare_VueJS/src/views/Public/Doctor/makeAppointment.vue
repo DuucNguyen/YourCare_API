@@ -116,8 +116,14 @@
         }
     };
 
-    const getNumberOfTimeSlots = () => {
-        return [...new Set(doctor_timetables.value.map((item) => item.startTime))].length;
+    const getNumberOfTimeSlots = (date) => {
+        return [
+            ...new Set(
+                doctor_timetables.value
+                    .filter((x) => x.date == date && x.isAvailable === true)
+                    .map((item) => item.startTime),
+            ),
+        ].length;
     };
 
     const getTimeSlotByDate = (date) => {

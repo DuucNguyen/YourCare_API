@@ -85,7 +85,9 @@ namespace YourCare_Repos.Repositories
             if (docSpes.Count > 0)
             {
                 var speToDelete = docSpes.Select(x => x.SpecialtyID.ToString()).Except(spes).ToList();
-                var newSpes = docSpes.Select(x => x.SpecialtyID.ToString()).Except(speToDelete).ToList();
+                //var newSpes = docSpes.Select(x => x.SpecialtyID.ToString()).Except(speToDelete).ToList();
+
+                var newSpes = spes.Where(x => !(docSpes.Select(x => x.SpecialtyID.ToString()).Contains(x)));
 
                 await _doctorSpecialtiesDAO.DeleteRange(speToDelete.Select(x => new DoctorSpecialties
                 {
@@ -99,12 +101,15 @@ namespace YourCare_Repos.Repositories
                     DoctorID = request.DoctorID,
                 }).ToList());
             }
-            await _doctorSpecialtiesDAO.AddRange(spes.Select(x => new DoctorSpecialties
+            else
             {
-                SpecialtyID = Guid.Parse(x),
-                DoctorID = request.DoctorID,
-            }).ToList());
-
+                await _doctorSpecialtiesDAO.AddRange(spes.Select(x => new DoctorSpecialties
+                {
+                    SpecialtyID = Guid.Parse(x),
+                    DoctorID = request.DoctorID,
+                }).ToList());
+            }
+          
             doctorProfile.DoctorTitle = request.DoctorTitle;
             doctorProfile.DoctorDescription = request.DoctorDescription;
             doctorProfile.StartCareerYear = request.StartCareerYear;

@@ -39,7 +39,7 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpGet("GetAllByLimit")]
-        [ResponseCache(Duration = 86400, Location = ResponseCacheLocation.Client)]
+        //[ResponseCache(Duration = 86400, Location = ResponseCacheLocation.Client)]
         public async Task<IActionResult> GetAllDoctor([FromQuery] PaginationFilter filter, string? searchValue, string? specialtyID)
         {
             try
@@ -252,7 +252,7 @@ namespace YourCare_WebApi.Controllers
                 return new JsonResult(new ResponseModel<string>
                 {
                     StatusCode = StatusCodes.Status500InternalServerError,
-                    Message = "controller: " + ex.Message,
+                    Message =  ex.Message,
                     IsSucceeded = false,
                 });
             }

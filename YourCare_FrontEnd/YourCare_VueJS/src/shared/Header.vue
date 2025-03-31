@@ -60,7 +60,30 @@
                     </div>
                     <template #overlay>
                         <a-menu>
-                            <a-menu-item key="0" class="profile-menu-item">
+                            <a-menu-item
+                                v-if="user.roleName[0] == 'Admin'"
+                                key="0"
+                                class="profile-menu-item">
+                                <RouterLink :to="{ name: 'Admin_Dashboards' }">
+                                    Dashboards
+                                </RouterLink>
+                            </a-menu-item>
+                            <a-menu-item
+                                v-else-if="user.roleName[0] == 'Doctor'"
+                                :key="user.roleName[0] == 'Admin' ? 1 : 0"
+                                key="0"
+                                class="profile-menu-item">
+                                <RouterLink :to="{ name: 'Doctor_Dashboard_View' }">
+                                    Dashboards
+                                </RouterLink>
+                            </a-menu-item>
+                            <a-menu-item
+                                :key="
+                                    user.roleName[0] == 'Admin' || user.roleName[0] == 'Doctor'
+                                        ? 1
+                                        : 0
+                                "
+                                class="profile-menu-item">
                                 <RouterLink :to="{ name: 'User_Appointment_View' }">
                                     Lịch sử đặt khám
                                 </RouterLink>

@@ -97,13 +97,8 @@
     };
 
     function generateYearRegex() {
-        //get current year regex
         const currentYear = new Date().getFullYear();
-        return new RegExp(
-            `^(198[0-9]|199[0-9]|20[0-${Math.floor(currentYear / 100) % 10}][0-${
-                currentYear % 10
-            }])$`,
-        );
+        return new RegExp(`^(198[0-9]|199[0-9]|20[0-9][0-9]|${currentYear})$`);
     }
 
     const specialties = ref([]);
@@ -185,7 +180,11 @@
                     formData.append("startCareerYear", formState.startCareerYear);
 
                     formState.specialties.forEach((item, index) => {
-                        formData.append(`specialtyIDs[${index}]`, item);
+                        if (typeof item == "object") {
+                            formData.append(`specialtyIDs[${index}]`, item.value);
+                        } else {
+                            formData.append(`specialtyIDs[${index}]`, item);
+                        }
                     });
 
                     var result = await ApiDoctorProfile.Update(formData);
@@ -393,6 +392,7 @@
                             <a-form-item class="col-md-7" label="Specialties">
                                 <a-select
                                     mode="multiple"
+                                    @change="console.log(formState.specialties)"
                                     v-model:value="formState.specialties"
                                     :options="
                                         specialties.map((spe) => ({
