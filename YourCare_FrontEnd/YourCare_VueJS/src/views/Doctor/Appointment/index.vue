@@ -304,7 +304,7 @@
                         </div>
                     </div>
                     <div
-                        v-show="appointments.length <= 0"
+                        v-if="appointments.length <= 0"
                         class="h-75 mt-5 d-flex align-items-center justify-content-center">
                         <a-empty class="">
                             <template #description>

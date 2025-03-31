@@ -55,7 +55,27 @@ namespace YourCare_WebApi.Controllers
         {
             try
             {
-                var result = await _timetableRepository.GetAllByDoctorID(doctorID);
+                var query = await _timetableRepository.GetAllByDoctorID(doctorID);
+
+
+                var now = DateTime.Now;
+                var today = now.Date;
+                var currentHour = now.Hour;
+
+                var result = new List<Timetable>();
+                foreach(var item in query)
+                {
+                    if (item.Date > today)
+                    {
+                        result.Add(item);
+                    }
+
+                    if (item.Date == today && item.StartTime.Hours >= currentHour)
+                    {
+                        result.Add(item);
+                    }
+                }
+              
                 return new JsonResult(new ResponseModel<List<Timetable>>
                 {
                     StatusCode = StatusCodes.Status200OK,

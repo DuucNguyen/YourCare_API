@@ -10,6 +10,7 @@ using System.Transactions;
 using YourCare_BOs;
 using YourCare_DAOs.DAOs;
 using YourCare_Repos.Interfaces;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace YourCare_Repos.Repositories
 {
@@ -168,8 +169,31 @@ namespace YourCare_Repos.Repositories
         {
             var currentDate = DateTime.Now.Date;
             var toNext14Day = currentDate.AddDays(14);
-            var qry = await _timetableDAO.GetAllByDoctorID(doctorID);
-            return qry.Where(x => x.Date >= currentDate && x.Date <= toNext14Day).ToList();
+            var query = await _timetableDAO.GetAllByDoctorID(doctorID);
+            query = query.Where(x => x.Date >= currentDate && x.Date <= toNext14Day).ToList();
+            var currentHour = currentDate.Hour;
+
+            //var result = new List<Timetable>();
+            //foreach (var item in query)
+            //{
+            //    if (item.Date > currentDate)
+            //    {
+            //        result.Add(item);
+            //    }
+
+            //    if (item.Date == currentDate && item.StartTime.Hours >= currentHour)
+            //    {
+            //        result.Add(item);
+            //    }
+            //}
+
+            var result = query
+                .Where(item =>
+                    item.Date > currentDate ||
+                    (item.Date == currentDate && item.StartTime.Hours >= currentHour)
+                )
+                .ToList();
+            return result;
         }
 
         public async Task<Timetable> GetById(int id)

@@ -290,6 +290,18 @@
     padding: 20px;
     box-shadow: 1px 1px 10px #ddd;
 }*/
+
+    .admin_dashboard {
+        display: flex;
+    }
+    .admin_dashboard_body {
+        display: flex;
+        flex-direction: column;
+        padding-left: 30px;
+    }
+    .admin_dashboard_section {
+        flex-grow: 1;
+    }
     .doctor-img {
         width: 96px;
         height: 96px;

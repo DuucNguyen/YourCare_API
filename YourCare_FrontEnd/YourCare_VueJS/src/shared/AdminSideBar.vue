@@ -73,12 +73,12 @@
                         <span class="sidebar-listItemText">Role</span>
                     </RouterLink>
                 </li>
-                <li :class="['sidebar-listItem', { active: activeItem === 'timeSlot' }]">
+                <!-- <li :class="['sidebar-listItem', { active: activeItem === 'timeSlot' }]">
                     <RouterLink :to="{ name: 'Admin_TimeSlot_View' }">
                         <i class='bx bxs-time' ></i>
                         <span class="sidebar-listItemText">TimeSlot</span>
                     </RouterLink>
-                </li>
+                </li> -->
             </ul>
         </div>
     </div>
