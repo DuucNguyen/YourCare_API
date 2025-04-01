@@ -74,7 +74,8 @@ class ApiAppointment {
             },
         });
     };
-
+    
+    //apply for cancel appointment only
     UpdateAppointmentStatus = async (id, patchDoc) => {
         return API.patch(`${END_POINTS.UPDATE_APPOINTMENT_STATUS}/${id}`, patchDoc, {
             headers: {

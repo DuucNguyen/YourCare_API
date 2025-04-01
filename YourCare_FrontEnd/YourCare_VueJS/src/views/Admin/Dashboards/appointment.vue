@@ -4,6 +4,7 @@
     import { ref, onMounted, reactive } from "vue";
     import AppointmentStatus from "@/constants/AppointmentStatus";
     import dayjs from "dayjs";
+    import { VerticalAlignBottomOutlined } from "@ant-design/icons-vue";
 
     const appointments = ref([]); //list
     const appointment = ref({}); //chosen
@@ -26,6 +27,47 @@
             appointmentDetail.value = result.data.data;
         }
     };
+
+    const DownloadFile = async (path) => {
+        try {
+            const response = await ApiAppointment.DownloadFile(path.split("\\")[1]);
+
+            if (!response || !response.data) {
+                throw new Error("Invalid response");
+            }
+
+            // Create a Blob from the response data
+            const fileBlob = new Blob([response.data], { type: response.headers["content-type"] });
+
+            // Extract filename from response headers or fallback to the path
+            let fileName = path.split("/").pop();
+            const contentDisposition = response.headers["content-disposition"];
+
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename="?(.+?)"?$/);
+                if (match) {
+                    fileName = match[1];
+                }
+            }
+
+            // Force download the file
+            const url = window.URL.createObjectURL(fileBlob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", fileName); // Set download filename
+            document.body.appendChild(link);
+            link.click();
+
+            // Clean up
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Download file error:", error);
+            message.error("Download file error.");
+            message.error("Lỗi, tải file thất bại");
+        }
+    };
+
     onMounted(async () => {
         await InitAppointment();
         console.log(appointments.value);

@@ -8,7 +8,7 @@
     import { useRouteStore } from "@/stores/route-store";
     import { useAuthStore } from "@/stores/auth-store";
 
-    import { useRoute } from "vue-router";
+    import { useRoute, useRouter } from "vue-router";
     import { ref, reactive, onMounted, nextTick, computed } from "vue";
     import dayjs from "dayjs";
 
@@ -16,6 +16,8 @@
     import { message, Modal, notification } from "ant-design-vue";
     import { createVNode } from "vue";
     import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
+
+    const router = useRouter();
 
     const actions = {
         create: "Tạo mới",
@@ -267,6 +269,7 @@
                 var description = result.data.message;
 
                 showNotification(type, "Trạng thái hành động", description);
+                await initPatientProfileData();
             },
         });
     };
@@ -292,6 +295,7 @@
 
                 showNotification(type, "Trạng thái đặt khám", description);
 
+                router.push({ name: "User_Appointment_View" });
                 // return new Promise((resolve) => {
                 //     setTimeout(() => resolve(true), 5000);
                 // });

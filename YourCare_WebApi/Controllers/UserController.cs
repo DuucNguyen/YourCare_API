@@ -160,6 +160,7 @@ namespace YourCare_WebApi.Controllers
                     Email = x.Email,
                     PhoneNumber = x.PhoneNumber,
                     Dob = x.Dob,
+                    IsActive = x.IsActive,
                     Gender = x.Gender,
                     Address = x.Address,
                     ImageString = x.Image != null ? $"data:image/png;base64,{Convert.ToBase64String(x.Image)}" : "",
@@ -249,7 +250,6 @@ namespace YourCare_WebApi.Controllers
 
         [HttpPut("Update")]
         [Authorize(Policy = "AdminOnly")]
-
         public async Task<IActionResult> Update([FromForm] ApplicationUserViewModel request)
         {
             try
@@ -290,6 +290,90 @@ namespace YourCare_WebApi.Controllers
                 });
             }
 
+        }
+
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> Delete([FromQuery] string userID)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userID);
+                if(user == null){
+                    return new JsonResult(new ResponseModel<string>
+                    {
+                        StatusCode = StatusCodes.Status404NotFound,
+                        Message = "User not found.",
+                        IsSucceeded = false,
+                    });
+                }
+                user.IsActive = false;
+                await _userManager.UpdateSecurityStampAsync(user);
+                await ForceLogoutAndBanAsync(user.Id); // Updates security stamp
+
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Deactivate user successfully.",
+                    IsSucceeded = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Delete user failed: " + ex.Message,
+                    IsSucceeded = false,
+                });
+            }
+        }
+        private async Task ForceLogoutAndBanAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                user.SecurityStamp = Guid.NewGuid().ToString();
+                user.LockoutEnd = DateTimeOffset.MaxValue;
+
+                await _userManager.UpdateAsync(user);
+            }
+        }
+
+        [HttpDelete("Activate")]
+        public async Task<IActionResult> Activate([FromQuery] string userID)
+        {
+            try
+            {
+                var user = await _userManager.FindByIdAsync(userID);
+                if (user == null)
+                {
+                    return new JsonResult(new ResponseModel<string>
+                    {
+                        StatusCode = StatusCodes.Status404NotFound,
+                        Message = "User not found.",
+                        IsSucceeded = false,
+                    });
+                }
+                user.IsActive = true;
+                user.LockoutEnd = null;
+                await _userManager.UpdateAsync(user);
+
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status200OK,
+                    Message = "Activate user successfully.",
+                    IsSucceeded = true,
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ResponseModel<string>
+                {
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    Message = "Delete user failed: " + ex.Message,
+                    IsSucceeded = false,
+                });
+            }
         }
     }
 }

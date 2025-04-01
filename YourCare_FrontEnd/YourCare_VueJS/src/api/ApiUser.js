@@ -5,6 +5,8 @@ const END_POINTS = {
     GETBYDOCTORID: "User/GetByDoctorID",
     CREATE: "User/Create",
     UPDATE: "User/Update",
+    DELETE: "User/Delete",
+    ACTIVATE: "User/Activate",
     ME: "User/me",
 };
 
@@ -55,6 +57,21 @@ class ApiUser {
     };
     GetUser = async () => {
         return await API.get(`${END_POINTS.ME}`);
+    };
+
+    Delete = async (userID) => {
+        return await API.delete(`${END_POINTS.DELETE}`, {
+            params: {
+                userID: userID,
+            },
+        });
+    };
+    Activate = async (userID) => {
+        return await API.delete(`${END_POINTS.ACTIVATE}`, {
+            params: {
+                userID: userID,
+            },
+        });
     };
 }
 

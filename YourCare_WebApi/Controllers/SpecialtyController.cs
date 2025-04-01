@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using YourCare_BOs;
 using YourCare_Repos.Interfaces;
 using YourCare_WebApi.Models.Auth;
@@ -87,7 +88,7 @@ namespace YourCare_WebApi.Controllers
         }
 
         [HttpGet("GetAll")]
-
+        [EnableQuery]
         public async Task<IActionResult> GetAll()
         {
             try

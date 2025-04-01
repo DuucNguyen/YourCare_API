@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -26,9 +27,9 @@ namespace YourCare_WebApi
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            builder.Services.AddControllers();
-
-
+            builder.Services.AddControllers()
+                .AddOData(option => option.EnableQueryFeatures())
+                .AddXmlDataContractSerializerFormatters();
 
             #region dbContext + identity
             builder.Services.AddDbContext<ApplicationDbContext>(options =>

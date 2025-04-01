@@ -8,7 +8,7 @@
     import { valHooks } from "jquery";
     import AppointmentStatus from "@/constants/AppointmentStatus";
     import { message, Modal } from "ant-design-vue";
-    import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
+    import { ExclamationCircleOutlined, VerticalAlignBottomOutlined } from "@ant-design/icons-vue";
 
     const authStore = useAuthStore();
 
@@ -16,6 +16,10 @@
     const appointmentDetail = ref({});
     const chosenAppointment = ref({});
     const spinning = ref(false);
+
+    const formState = reactive({
+        files: [],
+    });
 
     const InitAppointments = async () => {
         spinning.value = true;
@@ -70,6 +74,46 @@
         });
     };
 
+    const DownloadFile = async (path) => {
+        try {
+            const response = await ApiAppointment.DownloadFile(path.split("\\")[1]);
+
+            if (!response || !response.data) {
+                throw new Error("Invalid response");
+            }
+
+            // Create a Blob from the response data
+            const fileBlob = new Blob([response.data], { type: response.headers["content-type"] });
+
+            // Extract filename from response headers or fallback to the path
+            let fileName = path.split("/").pop();
+            const contentDisposition = response.headers["content-disposition"];
+
+            if (contentDisposition) {
+                const match = contentDisposition.match(/filename="?(.+?)"?$/);
+                if (match) {
+                    fileName = match[1];
+                }
+            }
+
+            // Force download the file
+            const url = window.URL.createObjectURL(fileBlob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.setAttribute("download", fileName); // Set download filename
+            document.body.appendChild(link);
+            link.click();
+
+            // Clean up
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Download file error:", error);
+            message.error("Download file error.");
+            message.error("Lỗi, tải file thất bại");
+        }
+    };
+
     onMounted(async () => {
         try {
             await InitAppointments();
@@ -98,9 +142,7 @@
                             placeholder="Mã phiếu khám, tên bệnh nhân,...">
                         </a-input>
                     </div>
-                    <a-spin :spinning="spinning">
-
-                    </a-spin>
+                    <a-spin :spinning="spinning"> </a-spin>
                     <div>
                         <template v-for="item in appointments">
                             <div
@@ -355,6 +397,58 @@
                                     </span>
                                 </a-col>
                             </a-row>
+                            <a-form-item name="files">
+                                <a-row class="appointment_detail_item">
+                                    <a-col :span="24">
+                                        <span>Tệp đính kèm</span>
+                                    </a-col>
+                                    <a-col
+                                        :span="24"
+                                        v-if="
+                                            !appointmentDetail.files ||
+                                            appointmentDetail.status !== AppointmentStatus.COMPLETED
+                                        ">
+                                        <a-upload-dragger
+                                            class="p-1 w-100"
+                                            style="max-height: 200px"
+                                            list-type="picture"
+                                            v-model:fileList="formState.files"
+                                            :multiple="true"
+                                            action="https://run.mocky.io/v3/784b8599-f03a-40cd-8a8d-5b6f1094d4c2"
+                                            @change="handleChange">
+                                            <p
+                                                class="ant-upload-drag-icon d-flex justify-content-center">
+                                                <inbox-outlined></inbox-outlined>
+                                            </p>
+                                            <p class="ant-upload-text">
+                                                Tải lên kết quả khám bệnh, bệnh án, ...
+                                            </p>
+                                            <p class="ant-upload-hint">
+                                                Hỗ trợ tải lên nhiều file. Nghiêm cấm tải lên các
+                                                tài liệu không liên quan đến quá trình khám bệnh
+                                                hoặc tài liệu phòng khám
+                                            </p>
+                                        </a-upload-dragger>
+                                    </a-col>
+                                    <a-col v-else :span="24">
+                                        <div
+                                            v-for="(path, index) in appointmentDetail.files"
+                                            class="d-flex align-items-center">
+                                            <span>
+                                                {{ (index + 1).toString().padStart(2, "0") }}
+                                                -
+                                                {{ path.split("\\")[1] }}
+                                            </span>
+                                            <a-button
+                                                @click="DownloadFile(path)"
+                                                type="primary"
+                                                class="d-flex align-items-center">
+                                                <VerticalAlignBottomOutlined />
+                                            </a-button>
+                                        </div>
+                                    </a-col>
+                                </a-row>
+                            </a-form-item>
                         </div>
                     </div>
                 </a-col>

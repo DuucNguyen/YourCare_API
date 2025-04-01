@@ -3,12 +3,20 @@
 
     import ApiAppointment from "@/api/ApiAppointment";
     import ApiDoctorProfile from "@/api/ApiDoctorProfile";
+    import AppointmentStatus from "@/constants/AppointmentStatus";
 
     import { ref, onMounted } from "vue";
     import { useAuthStore } from "@/stores/auth-store";
+    import { useRouteStore } from "@/stores/route-store";
+    import { useRouter } from "vue-router";
+
     import dayjs from "dayjs";
+    import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
+    dayjs.extend(isSameOrAfter);
 
     const authStore = useAuthStore();
+    const routeStore = useRouteStore();
+    const router = useRouter();
 
     var data = ref([]);
     var doctorProfileId = ref({});
@@ -62,8 +70,8 @@
         var find = data.value.find(
             (x) => x.appointmentCount > 0 && dayjs(chosenDate.value).isSame(dayjs(x.date), "day"),
         );
-        if (find) GetAppointmentByDate();
-        console.log(appointments);
+
+        GetAppointmentByDate();
     };
 
     const GetAppointmentByDate = async () => {
@@ -74,6 +82,18 @@
         if (result_appointment.data.isSucceeded) {
             appointments.value = result_appointment.data.data;
         }
+    };
+
+    const RedirectToAppointmentDetail = (item) => {
+        routeStore.setData(item);
+        router.push({ name: "Doctor_Appointment_View" });
+    };
+
+    const CheckIsValidToLeave = () => {
+        return (
+            appointments.value.filter((x) => x.status !== AppointmentStatus.WAITING).length <= 0 &&
+            dayjs(chosenDate.value, "DD/MM/YYYY").isSameOrAfter(dayjs().startOf("day"))
+        );
     };
 
     onMounted(async () => {
@@ -108,12 +128,24 @@
                     <div class="doctor_dashboard_title">
                         <h3>Lịch khám: {{ dayjs(chosenDate).format("DD/MM/YYYY") }}</h3>
                     </div>
+                    <!-- <a-row v-if="CheckIsValidToLeave()">
+                        <a-col :span="24">
+                            <a-button type="primary">Không nhận lịch ngày này</a-button>
+                        </a-col>
+                    </a-row> -->
                     <div v-show="appointments.length > 0" class="calendar_appointment_container">
                         <template v-for="item in appointments">
-                            <div class="calendar_appointment_item">
+                            <div
+                                class="calendar_appointment_item"
+                                @click="RedirectToAppointmentDetail(item)">
                                 <a-row>
                                     <a-col :span="1" class="d-flex align-items-center">
-                                        <a-badge status="success" />
+                                        <a-badge
+                                            :status="
+                                                item.status !== AppointmentStatus.WAITING
+                                                    ? 'success'
+                                                    : 'error'
+                                            " />
                                     </a-col>
                                     <a-col :span="6" class="calendar_appointment_timeslot">
                                         <span>
@@ -131,8 +163,12 @@
                                         </span>
                                     </a-col>
                                     <a-col :span="16" class="ms-2 d-flex align-items-center">
-                                        <span>{{ item.doctorName }}</span>
-                                        <span>{{ item.patientName }}</span>
+                                        <div>
+                                            Người đặt lịch:
+                                            <span style="font-weight: 500">
+                                                {{ item.patientName }}
+                                            </span>
+                                        </div>
                                     </a-col>
                                 </a-row>
                             </div>
@@ -181,6 +217,13 @@
     }
     .calendar_appointment_item {
         margin: 10px 0px;
+        cursor: pointer;
+        border-radius: 3px;
+        padding: 5px 0px;
+    }
+
+    .calendar_appointment_item:hover {
+        background: #d6effe;
     }
 
     .calendar_appointment_timeslot {

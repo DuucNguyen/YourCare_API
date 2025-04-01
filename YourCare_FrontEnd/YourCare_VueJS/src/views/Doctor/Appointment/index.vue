@@ -171,6 +171,38 @@
         });
     };
 
+    const onCancelAppointment = () => {
+        Modal.confirm({
+            title: "Xác nhận hủy lịch khám.",
+            icon: createVNode(ExclamationCircleOutlined),
+            content:
+                "Hành động này không thể hoàn tác, Vui lòng chắc chắn trước khi hủy lịch khám.",
+            okText: "Xác nhận",
+            cancelText: "Hủy",
+            async onOk() {
+                var patchDoc = [
+                    {
+                        op: "replace",
+                        path: "/status",
+                        value: AppointmentStatus.CANCELLED,
+                    },
+                ];
+                var result = await ApiAppointment.UpdateAppointmentStatus(
+                    appointmentDetail.value.id,
+                    patchDoc,
+                );
+                if (result.data.isSucceeded) {
+                    message.success("Hủy lịch khám thành công");
+                    appointment.value.status = AppointmentStatus.CANCELLED;
+                    await GetAppointmentDetail(appointmentDetail.value);
+                } else {
+                    message.error("Lỗi, vui lòng thử lại");
+                }
+            },
+            onCancel() {},
+        });
+    };
+
     const RedirectToFollowUp = () => {
         Modal.confirm({
             title: "Xác nhận đặt lịch tái khám",
@@ -326,7 +358,12 @@
                                     Xác nhận đã khám xong
                                 </a-button>
                                 <a-button @click="onFinish" type="primary"> Đợi kết quả </a-button>
-                                <a-button type="primary" danger>Hủy</a-button>
+                                <a-button
+                                    @click="onCancelAppointment(appointmentDetail)"
+                                    type="primary"
+                                    danger>
+                                    Hủy
+                                </a-button>
                             </a-row>
                             <div id="shrinkable_appointment_detail">
                                 <a-row>
@@ -345,7 +382,9 @@
                                         </span>
                                     </a-col>
                                 </a-row>
-                                <a-row class="mt-1">
+                                <a-row
+                                    v-if="appointment.status != AppointmentStatus.WAITING"
+                                    class="mt-1">
                                     <a-col :span="24" class="d-flex justify-content-end">
                                         <a-button
                                             type="primary"
@@ -604,7 +643,7 @@
                                                     list-type="picture"
                                                     v-model:fileList="formState.files"
                                                     :multiple="true"
-                                                    action="https://run.mocky.io/v3/5496d046-c459-4dec-8b1c-09edcdd8f880"
+                                                    action="https://run.mocky.io/v3/784b8599-f03a-40cd-8a8d-5b6f1094d4c2"
                                                     @change="handleChange">
                                                     <p
                                                         class="ant-upload-drag-icon d-flex justify-content-center">

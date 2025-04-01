@@ -5,6 +5,12 @@
     import ApiRole from "@/api/ApiRole";
     import { reactive, ref, onMounted, onUpdated } from "vue";
     import { RouterLink, useRoute, useRouter } from "vue-router";
+
+    //
+    import { createVNode } from "vue";
+    import { Modal, notification } from "ant-design-vue";
+    import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
+
     import { message } from "ant-design-vue";
 
     //
@@ -128,6 +134,51 @@
             });
     };
 
+    const ShowModelConfirmDeactivateUser = (user) => {
+        Modal.confirm({
+            title: "Are you sure delete this user?",
+            icon: createVNode(ExclamationCircleOutlined),
+            content: "Are you sure to perform this action.",
+            okText: "Yes",
+            cancelText: "No",
+            async onOk() {
+                var result = await ApiUser.Delete(user.id);
+
+                var type = result.data.isSucceeded ? "success" : "error";
+                var description = result.data.message;
+                showNotification(type, "Deactivate user", description);
+                await getData();
+            },
+            onCancel() {},
+        });
+    };
+
+    const ShowModelConfirmActivateUser = (user) => {
+        Modal.confirm({
+            title: "Are you sure active this user?",
+            icon: createVNode(ExclamationCircleOutlined),
+            content: "Are you sure to perform this action.",
+            okText: "Yes",
+            cancelText: "No",
+            async onOk() {
+                var result = await ApiUser.Activate(user.id);
+
+                var type = result.data.isSucceeded ? "success" : "error";
+                var description = result.data.message;
+                showNotification(type, "Activate user", description);
+                await getData();
+            },
+            onCancel() {},
+        });
+    };
+
+    const showNotification = (type, message, description) => {
+        notification[type]({
+            message: message,
+            description: description,
+        });
+    };
+
     onMounted(async () => {
         await getData();
         await InitRole();
@@ -169,7 +220,9 @@
                 <div class="crud-layout-table">
                     <div>
                         <div v-for="user in data" class="user_item">
-                            <div class="col-md-2 user_item_image">
+                            <div
+                                @click="console.log(user.isActive)"
+                                class="col-md-2 user_item_image">
                                 <img :src="user.imageString" />
                             </div>
                             <div class="col-md-10 user_item_info">
@@ -264,12 +317,13 @@
                                                 >
                                             </a-tooltip>
                                         </a-col>
-                                        <a-col :span="4">
+                                        <a-col v-if="user.isActive" :span="4">
                                             <a-tooltip placement="top">
                                                 <template #title>
                                                     <span>Deactivate</span>
                                                 </template>
-                                                <RouterLink
+                                                <div
+                                                    @click="ShowModelConfirmDeactivateUser(user)"
                                                     class="user_btn"
                                                     :to="{
                                                         name: 'Admin_User_Update',
@@ -278,8 +332,27 @@
                                                     <i
                                                         style="color: brown"
                                                         class="bx bxs-trash"></i>
-                                                    Update</RouterLink
-                                                >
+                                                    Delete
+                                                </div>
+                                            </a-tooltip>
+                                        </a-col>
+                                        <a-col v-else :span="4">
+                                            <a-tooltip placement="top">
+                                                <template #title>
+                                                    <span>Deactivate</span>
+                                                </template>
+                                                <div
+                                                    @click="ShowModelConfirmActivateUser(user)"
+                                                    class="user_btn"
+                                                    :to="{
+                                                        name: 'Admin_User_Update',
+                                                        params: { id: user.id },
+                                                    }">
+                                                    <i
+                                                        class="bx bxs-lock"
+                                                        style="color: royalblue"></i>
+                                                    Activate
+                                                </div>
                                             </a-tooltip>
                                         </a-col>
                                     </a-row>

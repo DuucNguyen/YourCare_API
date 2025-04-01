@@ -13,6 +13,12 @@ const indexRoutes = [
         component: () => import("@/views/HomePage.vue"),
     },
     {
+        path: "/about",
+        name: "about",
+        meta: { title: "About" },
+        component: () => import("@/views/Public/About.vue"),
+    },
+    {
         path: "/:pathMatch(.*)*",
         redirect: "/404",
     },
